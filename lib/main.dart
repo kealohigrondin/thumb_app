@@ -1,7 +1,10 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:thumb_app/data/constants.dart';
 import 'package:thumb_app/screens/login_page.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+import 'package:thumb_app/secrets.dart';
 
 final theme = ThemeData(
   useMaterial3: true,
@@ -10,8 +13,8 @@ final theme = ThemeData(
     seedColor: themeColor,
   ),
 );
-const SUPABASE_URL='https://dddaaocibmlxbnomadhx.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZGFhb2NpYm1seGJub21hZGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTExNjA4ODYsImV4cCI6MjAyNjczNjg4Nn0.UePhOVWGDyArRNcFu31tEQe6VfT7qtrctXfu4UovFoU';
+
+
 void main() async {
   await Supabase.initialize(
     url: SUPABASE_URL,
