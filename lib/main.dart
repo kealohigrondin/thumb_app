@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:thumb_app/data/constants.dart';
-import 'package:thumb_app/screens/login_page.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+import 'package:thumb_app/pages/splash_page.dart';
 import 'package:thumb_app/secrets.dart';
 
 final theme = ThemeData(
@@ -24,11 +24,13 @@ void main() async {
   runApp(const MainApp());
 }
 
+final supabase = Supabase.instance.client;
+
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(theme: theme, home: const LoginPage());
+    return MaterialApp(theme: theme, home: const SplashPage());
   }
 }
