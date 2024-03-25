@@ -124,7 +124,6 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(

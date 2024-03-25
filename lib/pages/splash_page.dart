@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/account_page.dart';
+import 'package:thumb_app/pages/bottom_nav_pages/account_page.dart';
 import 'package:thumb_app/pages/login_page.dart';
 import 'package:thumb_app/pages/login_page_OG.dart';
 
@@ -30,7 +30,7 @@ class _SplashPageState extends State<SplashPage> {
     final session = supabase.auth.currentSession;
     if (session != null) {
       Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const AccountPage()));
+          MaterialPageRoute(builder: (context) => const NavigationContainerPage()));
     } else {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const LoginPageOG()));

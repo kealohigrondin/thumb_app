@@ -1,24 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:thumb_app/pages/account_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:thumb_app/pages/bottom_nav_pages/account_page.dart';
+import 'package:thumb_app/pages/bottom_nav_pages/publish_ride_page.dart';
+// import 'package:thumb_app/pages/account_page.dart';
 
-class NavigationContainerPage extends StatelessWidget {
+final bottomNavIndexProvider = StateProvider((ref) => 0);
+
+class NavigationContainerPage extends ConsumerWidget {
   const NavigationContainerPage({super.key});
 
   static final bottomNavItems = [
-    const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-    const BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Find a ride'),
-    const BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account')
+    const NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+    const NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
+    const NavigationDestination(icon: Icon(Icons.add), label: 'Publish'),
+    const NavigationDestination(icon: Icon(Icons.airport_shuttle), label: 'Rides'),
+    const NavigationDestination(icon: Icon(Icons.person), label: 'Account'),
   ];
 
+  static final pages = [
+    Container(color: Colors.amber),
+    Container(color: Colors.green),
+    PublishRidePage(),
+    Container(color: Colors.deepPurple),
+    const AccountPage()
+  ];
 
-  
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentIndex = ref.watch(bottomNavIndexProvider);
+    final ThemeData theme = Theme.of(context);
+
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        items: bottomNavItems,
-      ),
-      body: const Center(child: AccountPage(),)
-    );
+        body: IndexedStack(index: currentIndex, children: pages),
+        bottomNavigationBar: NavigationBar(
+          indicatorColor: theme.primaryColor,
+          destinations: bottomNavItems,
+          selectedIndex: currentIndex,
+          onDestinationSelected: (value) {
+            ref.read(bottomNavIndexProvider.notifier).update((state) => value);
+          },
+        ));
   }
 }

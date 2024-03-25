@@ -1,6 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thumb_app/data/constants.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:thumb_app/pages/splash_page.dart';
@@ -31,6 +32,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(theme: theme, home: const SplashPage());
+    return ProviderScope(child: MaterialApp(theme: theme, home: const SplashPage()));
   }
 }
