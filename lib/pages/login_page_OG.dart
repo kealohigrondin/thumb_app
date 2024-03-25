@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
-import 'package:thumb_app/pages/bottom_nav_pages/account_page.dart';
 import 'package:thumb_app/pages/navigation_container_page.dart';
 
 class LoginPageOG extends StatelessWidget {
