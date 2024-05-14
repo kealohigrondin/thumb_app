@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/login_page_OG.dart';
+import 'package:thumb_app/pages/login_page_og.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -23,8 +23,13 @@ class _AccountPageState extends State<AccountPage> {
     setState(() {
       _loading = true;
     });
-    final user = supabase.auth.currentUser!;
-
+    final user = supabase.auth.currentUser;
+    if (user == null) {
+      setState(() {
+        _loading = false;
+      });
+      return;
+    }
     try {
       _firstNameController.text =
           (user.userMetadata?['firstName'] ?? '') as String;
@@ -123,12 +128,27 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _loading
+    return SafeArea(
+      child: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
               children: [
+                Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Image.asset('assets/images/user.png'),
+                  ),
+                ),
                 TextFormField(
                   controller: _firstNameController,
                   keyboardType: TextInputType.name,

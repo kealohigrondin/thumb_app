@@ -5,12 +5,11 @@ final selectedDateProvider = StateProvider((ref) => DateTime.now());
 final stepperCurrentPageProvider = StateProvider((ref) => 0);
 
 class PublishRidePage extends ConsumerWidget {
-  PublishRidePage({super.key});
+  const PublishRidePage({super.key});
 
   void _selectDate(BuildContext context, WidgetRef ref) async {
     final DateTime? pickedDate = await showDatePicker(
         context: context,
-        
         firstDate: DateTime.now(),
         lastDate: DateTime(
             DateTime.now().year + 1, DateTime.now().month, DateTime.now().day));

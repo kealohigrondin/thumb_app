@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/login_page_OG.dart';
+import 'package:thumb_app/pages/login_page_og.dart';
 
 import 'navigation_container_page.dart';
 

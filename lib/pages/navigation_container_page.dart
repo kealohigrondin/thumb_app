@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thumb_app/pages/bottom_nav_pages/account_page.dart';
+import 'package:thumb_app/pages/bottom_nav_pages/home_page.dart';
 import 'package:thumb_app/pages/bottom_nav_pages/publish_ride_page.dart';
-// import 'package:thumb_app/pages/account_page.dart';
 
 final bottomNavIndexProvider = StateProvider((ref) => 0);
 
@@ -13,14 +13,15 @@ class NavigationContainerPage extends ConsumerWidget {
     const NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
     const NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
     const NavigationDestination(icon: Icon(Icons.add), label: 'Publish'),
-    const NavigationDestination(icon: Icon(Icons.airport_shuttle), label: 'Rides'),
+    const NavigationDestination(
+        icon: Icon(Icons.airport_shuttle), label: 'Rides'),
     const NavigationDestination(icon: Icon(Icons.person), label: 'Account'),
   ];
 
   static final pages = [
-    Container(color: Colors.amber),
+    const HomePage(),
     Container(color: Colors.green),
-    PublishRidePage(),
+    const PublishRidePage(),
     Container(color: Colors.deepPurple),
     const AccountPage()
   ];
