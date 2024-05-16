@@ -1,29 +1,31 @@
 class Ride {
   String? id;
   String? arriveAddress;
-  DateTime? createdAt;
-  DateTime? dateTime;
+  int? availableSeats;
+  DateTime? createdAt = DateTime.now();
+  DateTime dateTime = DateTime.now();
   String? departAddress;
-  bool? enableInstantBooking;
+  String? description;
+  String? driverUserId;
+  bool enableInstantBook = false;
   int? likeCount;
   double? passengerCost;
   String? title;
-  String? driverUserId;
-  int? availableSeats;
-  String? description;
 
   Ride.fromJson(Map<String, dynamic> data) {
     id = data['id'];
     arriveAddress = data['arrive_address'];
-    createdAt = data['created_at'] != null ? DateTime.parse(data['created_at']) : null;
-    dateTime = data['datetime'] != null ? DateTime.parse(data['datetime']) : null;
+    createdAt =
+        data['created_at'] != null ? DateTime.parse(data['created_at']) : null;
+    dateTime = DateTime.parse(data['datetime']);
     departAddress = data['depart_address'];
-    enableInstantBooking = data['enableInstantBooking'];
+    enableInstantBook = data['enable_instant_book'];
     likeCount = data['like_count'];
-    passengerCost = data['passenger_cost'];
+    passengerCost = double.tryParse(data['passenger_cost'].toString());
     title = data['title'];
     driverUserId = data['driver_user_id'];
     availableSeats = data['available_seats'];
     description = data['description'];
   }
+  Ride();
 }

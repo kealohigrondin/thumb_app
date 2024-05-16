@@ -42,7 +42,7 @@ class ActivityCard extends StatelessWidget {
                     size: 12,
                   ),
                 ),
-                Text(getTimeFromRide(ride.dateTime!), style: Theme.of(context).textTheme.labelSmall),
+                Text(getTimeFromRide(ride.dateTime), style: Theme.of(context).textTheme.labelSmall),
               ],
             ),
           ),
@@ -152,6 +152,7 @@ class ActivityCard extends StatelessWidget {
                   children: [
                     IconButton(
                         onPressed: () async {
+                          // ignore: avoid_print
                           print('liked');
                         },
                         icon: Icon(
@@ -171,6 +172,7 @@ class ActivityCard extends StatelessWidget {
                         size: 24,
                       ),
                       onPressed: () {
+                        // ignore: avoid_print
                         print('IconButton pressed ...');
                       },
                     ),
