@@ -14,3 +14,7 @@ String getTimeFromRide(DateTime datetime) {
     return DateFormat.Md(datetime).toString();
   }
 }
+
+String formatDoubleToCurrency(double value) {
+  return '\$${NumberFormat("#,##0.00", "en_US").format(value)}';
+}

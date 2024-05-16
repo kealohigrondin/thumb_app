@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:thumb_app/utils/utils.dart';
 
 import '../../data/types/ride.dart';
-import 'user_icon_button.dart';
+import '../home_page/user_icon_button.dart';
 
-class ActivityCard extends StatelessWidget {
-  const ActivityCard({super.key, required this.ride});
+class SearchCard extends StatelessWidget {
+  const SearchCard({super.key, required this.ride});
 
   final Ride ride;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.all(8),
       constraints: const BoxConstraints(
         maxWidth: 570,
-        maxHeight: 185,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primaryContainer,
@@ -36,42 +37,51 @@ class ActivityCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 4, 0),
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 8, 0),
                   child: FaIcon(
                     FontAwesomeIcons.globe,
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    size: 12,
+                    size: 20,
                   ),
                 ),
-                Text(getTimeFromRide(ride.dateTime), style: Theme.of(context).textTheme.labelLarge),
+                Text(DateFormat.MMMd().add_jm().format(ride.dateTime),
+                    style: Theme.of(context).textTheme.headlineSmall),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 0),
-            child: Text(ride.title ?? 'Title',
-                textAlign: TextAlign.end,
-                style: Theme.of(context).textTheme.headlineSmall),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(ride.title ?? 'Title',
+                  style: Theme.of(context).textTheme.labelLarge),
+              Text(formatDoubleToCurrency(ride.passengerCost!),
+                  style: Theme.of(context).textTheme.labelLarge)
+            ],
           ),
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 12, 16),
-            child: Text(ride.description!,
-                textAlign: TextAlign.start,
-                maxLines: 2,
-                style: Theme.of(context).textTheme.labelMedium),
-          ),
+          Text(ride.departAddress!,
+              textAlign: TextAlign.start,
+              maxLines: 2,
+              style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 4),
+          const Icon(Icons.arrow_downward),
+          const SizedBox(height: 4),
+          Text(ride.arriveAddress!,
+              textAlign: TextAlign.start,
+              maxLines: 2,
+              style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 12),
           Divider(
             height: 2,
             thickness: 1,
             color: Theme.of(context).colorScheme.onSecondary,
           ),
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 12, 8),
+          const Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(12, 12, 12, 8),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
+                Row(
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -84,39 +94,7 @@ class ActivityCard extends StatelessWidget {
                       UserIconButton(
                           imagePath:
                               'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
-                    
                     ]),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    IconButton(
-                        onPressed: () async {
-                          // ignore: avoid_print
-                          print('liked');
-                        },
-                        icon: Icon(
-                          Icons.favorite_sharp,
-                          color: Theme.of(context).colorScheme.secondary,
-                          size: 25,
-                        )),
-                    IconButton(
-                      // borderColor: Colors.transparent,
-                      // borderRadius: 20,
-                      // borderWidth: 0,
-                      // buttonSize: 40,
-                      // fillColor: Colors.transparent,
-                      icon: Icon(
-                        Icons.comment_rounded,
-                        color: Theme.of(context).colorScheme.secondary,
-                        size: 24,
-                      ),
-                      onPressed: () {
-                        // ignore: avoid_print
-                        print('IconButton pressed ...');
-                      },
-                    ),
-                  ],
-                ),
               ],
             ),
           ),

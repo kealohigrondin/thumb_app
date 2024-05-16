@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
 
 final titleProvider = StateProvider((ref) => '');
@@ -88,137 +87,134 @@ class _PublishRidePageState extends State<PublishRidePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
-      child: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(children: [
-            TextFormField(
-              controller: _titleController,
-              validator: (value) {
-                if (value == null || value == '') {
-                  return 'Please enter a title.';
-                }
-                return null;
-              },
-              decoration:
-                  const InputDecoration.collapsed(hintText: 'Add a title*'),
-            ),
-            const SizedBox(height: 24),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration.collapsed(
-                  hintText: 'Add a description'),
-              minLines: 3,
-              maxLines: 5,
-            ),
-            const SizedBox(height: 8),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              ElevatedButton(
-                  onPressed: () => _selectDate(context),
-                  child: Text(DateFormat.yMMMEd().format(selectedDate))),
-              ElevatedButton(
-                  onPressed: () => _selectTime(context),
-                  child: Text(DateFormat.jm().format(selectedDate))),
-            ]),
-            const SizedBox(height: 32),
-            TextFormField(
-                controller: _pickupAddressController,
-                decoration: const InputDecoration.collapsed(
-                    hintText: 'Pickup address*')),
-            const SizedBox(height: 16),
-            TextFormField(
-                controller: _dropoffAddressController,
-                decoration: const InputDecoration.collapsed(
-                    hintText: 'Dropoff address*')),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Enable instant book?',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                Switch(
-                    value: enableInstantBook,
-                    onChanged: (value) => setState(() {
-                          enableInstantBook = value;
-                        }))
-              ],
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Available Seats*',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                SizedBox(
-                  width: 40,
-                  child: TextFormField(
-                    controller: _seatsController,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly
-                    ],
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Enter a valid number';
-                      }
-                      var amount = num.tryParse(value);
-                      if (amount == null || amount < 1) {
-                        return 'Enter a valid number';
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Passenger Cost*',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                SizedBox(
-                  width: 40,
-                  child: TextFormField(
-                    controller: _costController,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.allow(RegExp("[.0-9]"))
-                    ],
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Enter a valid number';
-                      }
-                      var amount = num.tryParse(value);
-                      if (amount == null || amount < 0) {
-                        return 'Enter a valid number';
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
+    return SafeArea(
+      child: Form(
+        key: _formKey,
+        child: ListView(children: [
+          TextFormField(
+            controller: _titleController,
+            validator: (value) {
+              if (value == null || value == '') {
+                return 'Please enter a title.';
+              }
+              return null;
+            },
+            decoration:
+                const InputDecoration.collapsed(hintText: 'Add a title*'),
+          ),
+          const SizedBox(height: 24),
+          TextFormField(
+            controller: _descriptionController,
+            decoration: const InputDecoration.collapsed(
+                hintText: 'Add a description'),
+            minLines: 3,
+            maxLines: 5,
+          ),
+          const SizedBox(height: 8),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _save();
-                  } else {
-                    return null;
-                  }
-                },
-                child: const Text('Save')),
+                onPressed: () => _selectDate(context),
+                child: Text(DateFormat.yMMMEd().format(selectedDate))),
+            ElevatedButton(
+                onPressed: () => _selectTime(context),
+                child: Text(DateFormat.jm().format(selectedDate))),
           ]),
-        ),
+          const SizedBox(height: 32),
+          TextFormField(
+              controller: _pickupAddressController,
+              decoration: const InputDecoration.collapsed(
+                  hintText: 'Pickup address*')),
+          const SizedBox(height: 16),
+          TextFormField(
+              controller: _dropoffAddressController,
+              decoration: const InputDecoration.collapsed(
+                  hintText: 'Dropoff address*')),
+          const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Enable instant book?',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              Switch(
+                  value: enableInstantBook,
+                  onChanged: (value) => setState(() {
+                        enableInstantBook = value;
+                      }))
+            ],
+          ),
+          const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Available Seats*',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              SizedBox(
+                width: 40,
+                child: TextFormField(
+                  controller: _seatsController,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Enter a valid number';
+                    }
+                    var amount = num.tryParse(value);
+                    if (amount == null || amount < 1) {
+                      return 'Enter a valid number';
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Passenger Cost*',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              SizedBox(
+                width: 40,
+                child: TextFormField(
+                  controller: _costController,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(RegExp("[.0-9]"))
+                  ],
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Enter a valid number';
+                    }
+                    var amount = num.tryParse(value);
+                    if (amount == null || amount < 0) {
+                      return 'Enter a valid number';
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  _save();
+                } else {
+                  return null;
+                }
+              },
+              child: const Text('Save')),
+        ]),
       ),
     );
   }
