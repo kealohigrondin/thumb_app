@@ -34,7 +34,7 @@ void _handleLostFiles(List<XFile> files) {
 }
 
 void main() async {
-  getLostData(); //for image picker, sometimes it crashes the android app if it runs out of memory? Idk see readme
+  //getLostData(); //for image picker, sometimes it crashes the android app if it runs out of memory? Idk see readme
   await Supabase.initialize(
     url: SUPABASE_URL,
     anonKey: SUPABASE_ANON_KEY,

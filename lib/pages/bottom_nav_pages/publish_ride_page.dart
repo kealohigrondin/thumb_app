@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:thumb_app/services/place_service.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:thumb_app/main.dart';
+
+import '../../components/publish_page/address_search.dart';
 
 final titleProvider = StateProvider((ref) => '');
 final selectedDateProvider = StateProvider((ref) => DateTime.now());
@@ -58,9 +63,6 @@ class _PublishRidePageState extends State<PublishRidePage> {
   }
 
   Future<void> _save() async {
-    // ignore: avoid_print
-    print(_formKey.currentState);
-
     try {
       await supabase.from('ride').insert({
         'arrive_address': _dropoffAddressController.text,
@@ -75,6 +77,9 @@ class _PublishRidePageState extends State<PublishRidePage> {
         'title': _titleController.text,
         'driver_user_id': supabase.auth.currentUser!.id,
       });
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -105,8 +110,8 @@ class _PublishRidePageState extends State<PublishRidePage> {
           const SizedBox(height: 24),
           TextFormField(
             controller: _descriptionController,
-            decoration: const InputDecoration.collapsed(
-                hintText: 'Add a description'),
+            decoration:
+                const InputDecoration.collapsed(hintText: 'Add a description'),
             minLines: 3,
             maxLines: 5,
           ),
@@ -122,11 +127,35 @@ class _PublishRidePageState extends State<PublishRidePage> {
           const SizedBox(height: 32),
           TextFormField(
               controller: _pickupAddressController,
-              decoration: const InputDecoration.collapsed(
-                  hintText: 'Pickup address*')),
+              onTap: () async {
+                final sessionToken = const Uuid().v4();
+                final Suggestion? result = await showSearch(
+                    context: context,
+                    delegate:
+                        AddressSearch(sessionToken, 'Enter pickup address'));
+                if (result != null) {
+                  setState(() {
+                    _pickupAddressController.text = result.description;
+                  });
+                }
+              },
+              decoration:
+                  const InputDecoration.collapsed(hintText: 'Pickup address*')),
           const SizedBox(height: 16),
           TextFormField(
               controller: _dropoffAddressController,
+              onTap: () async {
+                final sessionToken = const Uuid().v4();
+                final Suggestion? result = await showSearch(
+                    context: context,
+                    delegate:
+                        AddressSearch(sessionToken, 'Enter dropoff address'));
+                if (result != null) {
+                  setState(() {
+                    _dropoffAddressController.text = result.description;
+                  });
+                }
+              },
               decoration: const InputDecoration.collapsed(
                   hintText: 'Dropoff address*')),
           const SizedBox(height: 32),
@@ -210,7 +239,7 @@ class _PublishRidePageState extends State<PublishRidePage> {
                 if (_formKey.currentState!.validate()) {
                   _save();
                 } else {
-                  return null;
+                  return;
                 }
               },
               child: const Text('Save')),
