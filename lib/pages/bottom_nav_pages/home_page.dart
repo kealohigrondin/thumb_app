@@ -10,7 +10,7 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   Future<List<Ride>> _getActivityData() async {
-    final result = await supabase.from('ride').select().order('datetime', ascending: false); //get activity data in descending datetime
+    final result = await supabase.from('ride').select().lt('datetime', DateTime.now()).order('datetime', ascending: false); //get activity data in descending datetime
     return result.map((item) => Ride.fromJson(item)).toList();
   }
 
