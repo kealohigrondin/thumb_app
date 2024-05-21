@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/home_page/activity_card.dart';
 import 'package:thumb_app/main.dart';
+import 'package:thumb_app/pages/loading_screen.dart';
 
 import '../../data/types/ride.dart';
 
@@ -27,7 +28,7 @@ class HomePage extends StatelessWidget {
                 itemBuilder: (ctx, index) =>
                     ActivityCard(ride: snapshot.data![index]));
           } else {
-            return const Text('loading');
+            return const LoadingScreen();
           }
         });
   }

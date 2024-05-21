@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:thumb_app/utils/utils.dart';
 
 import '../../data/types/ride.dart';
@@ -15,7 +15,6 @@ class ActivityCard extends StatelessWidget {
     return Container(
       constraints: const BoxConstraints(
         maxWidth: 570,
-        maxHeight: 185,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primaryContainer,
@@ -35,14 +34,14 @@ class ActivityCard extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 4, 0),
-                  child: FaIcon(
-                    FontAwesomeIcons.globe,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    size: 12,
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 4, 0),
+                //   child: FaIcon(
+                //     FontAwesomeIcons.globe,
+                //     color: Theme.of(context).colorScheme.onPrimaryContainer,
+                //     size: 12,
+                //   ),
+                // ),
                 Text(getTimeFromRide(ride.dateTime), style: Theme.of(context).textTheme.labelLarge),
               ],
             ),
@@ -50,8 +49,8 @@ class ActivityCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 0),
             child: Text(ride.title ?? 'Title',
-                textAlign: TextAlign.end,
-                style: Theme.of(context).textTheme.headlineSmall),
+                style: Theme.of(context).textTheme.headlineSmall, 
+                maxLines: 2,),
           ),
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 12, 16),

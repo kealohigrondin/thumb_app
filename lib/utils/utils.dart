@@ -11,7 +11,7 @@ String getTimeFromRide(DateTime datetime) {
   } else if (difference < const Duration(days: 5)) {
     return '${difference.inDays}d';
   } else {
-    return DateFormat.Md(datetime).toString();
+    return DateFormat.Md().format(datetime);
   }
 }
 

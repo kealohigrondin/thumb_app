@@ -11,6 +11,7 @@ class LoginPageOG extends StatelessWidget {
   }
 
   void handleOAuthResponse(Session session) {
+    // ignore: avoid_print
     print(session.accessToken);
   }
 
