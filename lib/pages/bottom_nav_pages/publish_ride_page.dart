@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/services/place_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -75,16 +76,11 @@ class _PublishRidePageState extends State<PublishRidePage> {
       });
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ride Published')),
-        );
+        ShowSuccessSnackBar(context, 'Ride published!');
       }
     } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error saving ride data! Try again later.')),
-        );
-      }
+      // ignore: use_build_context_synchronously
+      ShowErrorSnackBar(context, 'Error saving ride data! Try again later.');
     }
   }
 

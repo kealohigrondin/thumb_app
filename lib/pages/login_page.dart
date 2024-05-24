@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/main.dart';
 
 import 'navigation_container_page.dart';
@@ -19,8 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   bool _redirecting = false;
   late final TextEditingController _emailController = TextEditingController();
-  late final TextEditingController _passwordController =
-      TextEditingController();
+  late final TextEditingController _passwordController = TextEditingController();
   late final StreamSubscription<AuthState> _authStateSubscription;
 
   Future<void> _signIn() async {
@@ -29,12 +29,9 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
       await supabase.auth.signInWithPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim());
+          email: _emailController.text.trim(), password: _passwordController.text.trim());
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Logged in!')),
-        );
+        ShowSuccessSnackBar(context, 'Logged in!');
         _emailController.clear();
       }
     } on AuthException catch (error) {
@@ -64,9 +61,7 @@ class _LoginPageState extends State<LoginPage> {
       if (session != null) {
         _redirecting = true;
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const NavigationContainerPage()));
+            context, MaterialPageRoute(builder: (context) => const NavigationContainerPage()));
       }
     });
     super.initState();

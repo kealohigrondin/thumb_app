@@ -18,3 +18,9 @@ String getTimeFromRide(DateTime datetime) {
 String formatDoubleToCurrency(double value) {
   return '\$${NumberFormat("#,##0.00", "en_US").format(value)}';
 }
+
+bool isPhoneNumber(String? phoneNo) {
+  if (phoneNo == null) return false;
+  final regExp = RegExp(r'(^(?:[+0]9)?[0-9]{10,12}$)');
+  return regExp.hasMatch(phoneNo);
+}
