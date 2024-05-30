@@ -48,9 +48,11 @@ class ActivityCard extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 0),
-            child: Text(ride.title ?? 'Title',
-                style: Theme.of(context).textTheme.headlineSmall, 
-                maxLines: 2,),
+            child: Text(
+              ride.title ?? 'Title',
+              style: Theme.of(context).textTheme.headlineSmall,
+              maxLines: 2,
+            ),
           ),
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 12, 16),
@@ -83,15 +85,13 @@ class ActivityCard extends StatelessWidget {
                       UserIconButton(
                           imagePath:
                               'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
-                    
                     ]),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     IconButton(
                         onPressed: () async {
-                          // ignore: avoid_print
-                          print('liked');
+                          debugPrint('liked');
                         },
                         icon: Icon(
                           Icons.favorite_sharp,
@@ -111,7 +111,7 @@ class ActivityCard extends StatelessWidget {
                       ),
                       onPressed: () {
                         // ignore: avoid_print
-                        print('IconButton pressed ...');
+                        debugPrint('IconButton pressed ...');
                       },
                     ),
                   ],

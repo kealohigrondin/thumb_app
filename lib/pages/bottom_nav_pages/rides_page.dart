@@ -10,27 +10,30 @@ class RidesPage extends StatelessWidget {
   const RidesPage({super.key});
 
   Future<List<Ride>> _getRideHistory() async {
-    final user = supabase.auth.currentUser!;
+    if (supabase.auth.currentUser == null) {
+      return [];
+    }
     final result = await supabase
         .from('ride')
         .select()
-        .eq('driver_user_id', user.id)
+        .eq('driver_user_id', supabase.auth.currentUser!.id)
         .lte('datetime', DateTime.now());
     return result.map((item) => Ride.fromJson(item)).toList();
   }
 
   Future<List<Ride>> _getRidesPlanned() async {
-    final user = supabase.auth.currentUser!;
+    if (supabase.auth.currentUser == null) {
+      return [];
+    }
     final result = await supabase
         .from('ride')
         .select()
-        .eq('driver_user_id', user.id)
+        .eq('driver_user_id', supabase.auth.currentUser!.id)
         .gte('datetime', DateTime.now());
     return result.map((item) => Ride.fromJson(item)).toList();
   }
 
-  Widget renderRideList(
-      BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
+  Widget renderRideList(BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
     switch (snapshot.connectionState) {
       case ConnectionState.waiting:
         return const LoadingScreen();
@@ -43,11 +46,9 @@ class RidesPage extends StatelessWidget {
         }
         return ListView.builder(
             itemCount: snapshot.data!.length,
-            itemBuilder: (ctx, index) =>
-                SearchCard(ride: snapshot.data![index]));
+            itemBuilder: (ctx, index) => SearchCard(ride: snapshot.data![index]));
       default:
-        return const Center(
-            child: Text('Something unaccounted for has occurred...'));
+        return const Center(child: Text('Something unaccounted for has occurred...'));
     }
   }
 
@@ -57,23 +58,19 @@ class RidesPage extends StatelessWidget {
       length: 2,
       child: SafeArea(
           child: Scaffold(
-        appBar: const TabBar(tabs: [
-          Tab(icon: Icon(Icons.history)),
-          Tab(icon: Icon(Icons.calendar_month))
-        ]),
+        appBar: const TabBar(
+            tabs: [Tab(icon: Icon(Icons.history)), Tab(icon: Icon(Icons.calendar_month))]),
         body: Padding(
           padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
           child: TabBarView(
             children: [
               FutureBuilder(
                   future: _getRideHistory(),
-                  builder: (BuildContext context,
-                          AsyncSnapshot<List<Ride>> snapshot) =>
+                  builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) =>
                       renderRideList(context, snapshot)),
               FutureBuilder(
                   future: _getRidesPlanned(),
-                  builder: (BuildContext context,
-                          AsyncSnapshot<List<Ride>> snapshot) =>
+                  builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) =>
                       renderRideList(context, snapshot))
             ],
           ),
@@ -81,9 +78,7 @@ class RidesPage extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.add),
             onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const PublishRidePage()))),
+                context, MaterialPageRoute(builder: (context) => const PublishRidePage()))),
       )),
     );
   }

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/login_page_og.dart';
+import 'package:thumb_app/pages/login_page_supabase.dart';
 
 import 'navigation_container_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
-  //_SplashPageState createState() => _SplashPageState();
   @override
   State<SplashPage> createState() => _SplashPageState();
 }
@@ -27,11 +26,10 @@ class _SplashPageState extends State<SplashPage> {
 
     final session = supabase.auth.currentSession;
     if (session != null) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const NavigationContainerPage()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const NavigationContainerPage()));
     } else {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const LoginPageOG()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
     }
   }
 

@@ -1,7 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/login_page_og.dart';
+import 'package:thumb_app/pages/login_page_supabase.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -31,26 +34,13 @@ class _AccountPageState extends State<AccountPage> {
       return;
     }
     try {
-      _firstNameController.text =
-          (user.userMetadata?['firstName'] ?? '') as String;
-      _lastNameController.text =
-          (user.userMetadata?['lastName'] ?? '') as String;
-      _emailController.text = (user.userMetadata?['email'] ?? '') as String;
-      _phoneNumberController.text =
-          (user.userMetadata?['phoneNumber'] ?? '') as String;
-      final data =
-          await supabase.from('userInfo').select().eq('id', user.id).single();
-    } on PostgrestException catch (error) {
-      if (error.details == 'Not Found') {
-        //create userInfo
-        const SnackBar(content: Text('First Login/Not Found'));
-      } else {
-        SnackBar(
-          content: Text(error.message),
-        );
-      }
+      final profileResult = await supabase.from('profile').select().eq('auth_id', user.id).single();
+      _firstNameController.text = (profileResult['first_name'] ?? '') as String;
+      _lastNameController.text = (profileResult['last_name'] ?? '') as String;
+      _emailController.text = (profileResult['email'] ?? '') as String;
+      _phoneNumberController.text = (profileResult['phone_number'] ?? '') as String;
     } catch (error) {
-      const SnackBar(content: Text('Unexpected error occurred'));
+      ShowErrorSnackBar(context, 'Unexpected error occurred.');
     } finally {
       if (mounted) {
         setState(() {
@@ -67,26 +57,20 @@ class _AccountPageState extends State<AccountPage> {
     });
 
     final updates = {
-      'firstName': _firstNameController.text.trim(),
-      'lastName': _lastNameController.text.trim(),
+      'first_name': _firstNameController.text.trim(),
+      'last_name': _lastNameController.text.trim(),
       'email': _emailController.text.trim(),
-      'phoneNumber': _phoneNumberController.text.trim(),
+      'phone_number': _phoneNumberController.text.trim(),
     };
 
     try {
       await supabase.auth.updateUser(UserAttributes(
-        email: _emailController.text.trim(),
         data: updates,
       ));
-      if (mounted) {
-        const SnackBar(
-          content: Text('Successfully updated profile!'),
-        );
-      }
-    } on PostgrestException catch (error) {
-      SnackBar(content: Text(error.message));
+      await supabase.from('profile').upsert(updates);
+      ShowSuccessSnackBar(context, 'Profile saved!');
     } catch (error) {
-      const SnackBar(content: Text('Unexpected error occurred'));
+      ShowErrorSnackBar(context, 'Unexpected error occurred.');
     } finally {
       if (mounted) {
         setState(() {
@@ -99,14 +83,11 @@ class _AccountPageState extends State<AccountPage> {
   Future<void> _signOut() async {
     try {
       await supabase.auth.signOut();
-    } on AuthException catch (error) {
-      SnackBar(content: Text(error.message));
     } catch (error) {
-      const SnackBar(content: Text('Unexpected error occurred'));
+      ShowErrorSnackBar(context, 'Unexpected error occurred.');
     } finally {
       if (mounted) {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const LoginPageOG()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
       }
     }
   }
@@ -141,9 +122,7 @@ class _AccountPageState extends State<AccountPage> {
                     height: 100,
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
-                      border: Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1),
+                      border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1),
                       shape: BoxShape.circle,
                     ),
                     child: Image.asset('assets/images/user.png'),

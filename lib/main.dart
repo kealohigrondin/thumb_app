@@ -26,11 +26,12 @@ Future<void> getLostData() async {
   if (files != null) {
     _handleLostFiles(files);
   } else {
-    print(response.exception?.message);
+    debugPrint(response.exception?.message);
   }
 }
+
 void _handleLostFiles(List<XFile> files) {
-  print('lost files recovered here');
+  debugPrint('lost files recovered here');
 }
 
 void main() async {
