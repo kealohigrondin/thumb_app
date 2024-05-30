@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:thumb_app/components/shared/center_progress_indicator.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
+import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/login_page_supabase.dart';
 
@@ -19,64 +21,44 @@ class _AccountPageState extends State<AccountPage> {
   final _phoneNumberController = TextEditingController();
   final _emailController = TextEditingController();
 
-  var _loading = true;
-
   /// Called once a user id is received within `onAuthenticated()`
-  Future<void> _getProfile() async {
-    setState(() {
-      _loading = true;
-    });
+  Future<Profile> _getProfile() async {
     final user = supabase.auth.currentUser;
-    if (user == null) {
-      setState(() {
-        _loading = false;
-      });
-      return;
-    }
     try {
-      final profileResult = await supabase.from('profile').select().eq('auth_id', user.id).single();
-      _firstNameController.text = (profileResult['first_name'] ?? '') as String;
-      _lastNameController.text = (profileResult['last_name'] ?? '') as String;
-      _emailController.text = (profileResult['email'] ?? '') as String;
-      _phoneNumberController.text = (profileResult['phone_number'] ?? '') as String;
+      final result = await supabase
+          .from('profile')
+          .select()
+          .eq('auth_id', user!.id)
+          .single();
+      return Profile.fromJson(result);
     } catch (error) {
-      ShowErrorSnackBar(context, 'Unexpected error occurred.');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-        });
-      }
+      ShowErrorSnackBar(
+          context, 'Unexpected error occurred.', error.toString());
+      return Profile();
     }
   }
 
   /// Called when user taps `Update` button
   Future<void> _updateProfile() async {
-    setState(() {
-      _loading = true;
-    });
-
-    final updates = {
-      'first_name': _firstNameController.text.trim(),
-      'last_name': _lastNameController.text.trim(),
-      'email': _emailController.text.trim(),
-      'phone_number': _phoneNumberController.text.trim(),
-    };
-
     try {
+      final authId = supabase.auth.currentUser!.id;
+      final updates = {
+        'first_name': _firstNameController.text.trim(),
+        'last_name': _lastNameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone_number': _phoneNumberController.text.trim(),
+      };
       await supabase.auth.updateUser(UserAttributes(
         data: updates,
       ));
-      await supabase.from('profile').upsert(updates);
+      final profileUpdates = {'auth_id': authId, ...updates};
+      await supabase
+          .from('profile')
+          .upsert(profileUpdates).eq('auth_id', authId);
       ShowSuccessSnackBar(context, 'Profile saved!');
     } catch (error) {
-      ShowErrorSnackBar(context, 'Unexpected error occurred.');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-        });
-      }
+      ShowErrorSnackBar(
+          context, 'Unexpected error occurred.', error.toString());
     }
   }
 
@@ -84,10 +66,12 @@ class _AccountPageState extends State<AccountPage> {
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      ShowErrorSnackBar(context, 'Unexpected error occurred.');
+      ShowErrorSnackBar(
+          context, 'Unexpected error occurred.', error.toString());
     } finally {
       if (mounted) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
       }
     }
   }
@@ -109,10 +93,18 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
+    return FutureBuilder(
+        future: _getProfile(),
+        builder: (BuildContext context, AsyncSnapshot<Profile> snapshot) {
+          if (snapshot.hasError) {
+            return Text(snapshot.error.toString());
+          } else if (snapshot.hasData) {
+            _firstNameController.text = snapshot.data!.firstName;
+            _lastNameController.text = snapshot.data!.lastName;
+            _emailController.text = snapshot.data!.email;
+            _phoneNumberController.text = snapshot.data!.phoneNumber;
+
+            return ListView(
               padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
               children: [
                 Padding(
@@ -122,7 +114,9 @@ class _AccountPageState extends State<AccountPage> {
                     height: 100,
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1),
+                      border: Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 1),
                       shape: BoxShape.circle,
                     ),
                     child: Image.asset('assets/images/user.png'),
@@ -154,13 +148,16 @@ class _AccountPageState extends State<AccountPage> {
                 ),
                 const SizedBox(height: 18),
                 ElevatedButton(
-                  onPressed: _loading ? null : _updateProfile,
-                  child: Text(_loading ? 'Saving...' : 'Update'),
+                  onPressed: _updateProfile,
+                  child: const Text('Update'),
                 ),
                 const SizedBox(height: 18),
                 TextButton(onPressed: _signOut, child: const Text('Sign Out')),
               ],
-            ),
-    );
+            );
+          } else {
+            return const CenterProgressIndicator();
+          }
+        });
   }
 }

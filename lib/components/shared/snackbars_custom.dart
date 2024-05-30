@@ -2,7 +2,8 @@
 
 import 'package:flutter/material.dart';
 
-void ShowErrorSnackBar(BuildContext context, String text) {
+void ShowErrorSnackBar(BuildContext context, String text, [String? errorMessage]) {
+  debugPrint(errorMessage ?? text);
   if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
       ErrorSnackBar(text),

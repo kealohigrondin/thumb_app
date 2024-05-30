@@ -80,7 +80,7 @@ class _PublishRidePageState extends State<PublishRidePage> {
       }
     } catch (error) {
       // ignore: use_build_context_synchronously
-      ShowErrorSnackBar(context, 'Error saving ride data! Try again later.');
+      ShowErrorSnackBar(context, 'Error saving ride data! Try again later.', error.toString());
     }
   }
 
