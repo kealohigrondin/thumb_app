@@ -15,12 +15,8 @@ class SearchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('tap registered')));
-      Navigator.push(context, MaterialPageRoute(builder: (context) => RideOverview(ride: ride)));
-      },
-
+      onTap: () => Navigator.push(context,
+          MaterialPageRoute(builder: (context) => RideOverview(ride: ride))),
       child: Container(
         padding: const EdgeInsets.all(8),
         constraints: const BoxConstraints(

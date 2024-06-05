@@ -54,11 +54,18 @@ class _AccountPageState extends State<AccountPage> {
       final profileUpdates = {'auth_id': authId, ...updates};
       await supabase
           .from('profile')
-          .upsert(profileUpdates).eq('auth_id', authId);
+          .upsert(profileUpdates)
+          .eq('auth_id', authId);
       ShowSuccessSnackBar(context, 'Profile saved!');
     } catch (error) {
       ShowErrorSnackBar(
           context, 'Unexpected error occurred.', error.toString());
+    } finally {
+      //close keyboard
+      if (FocusManager.instance.primaryFocus != null) {
+        FocusManager.instance.primaryFocus!.unfocus();
+      }
+      //unfocus all text fields
     }
   }
 
