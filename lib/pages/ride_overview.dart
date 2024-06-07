@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thumb_app/components/shared/center_progress_indicator.dart';
+import 'package:thumb_app/components/ride_overview_page/ride_passenger_list.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/types/ride_passenger_profile.dart';
 
@@ -34,7 +35,10 @@ class _RideOverviewState extends State<RideOverview> {
 
   void _handleRequestToJoin() async {
     debugPrint('handle request to join ride');
-// TODO: disable request button if the current user is already requested and show a 'cancel' button in it's place
+    if (widget.ride.enableInstantBook) {
+      //TODO: if check for instantbook and show a modal to confirm
+    }
+    // TODO: disable request button if the current user is already requested and show a 'cancel' button in it's place
     try {
       // create row in ride_passenger table
       //don't need to pass in intial status or created_at since those are created on the db side
@@ -54,6 +58,31 @@ class _RideOverviewState extends State<RideOverview> {
       ShowErrorSnackBar(
           context, 'Error requesting ride! Try again later.', error.toString());
     }
+  }
+
+  Widget _displayActionButtons(bool isCurrentUserConfirmedPassenger) {
+    final currentUserId = supabase.auth.currentUser!.id;
+    //TODO: handle driver view
+    // if currentUser is passenger and requested, add a 'cancel' button and disable 'book' button or don't show
+    // default to show only book button
+    // do we show a 'message driver' button here? (maybe stretch)
+    //if current user is driver
+    //if current user is passenger and confirmed, show cancel button
+    //else show book button
+    if (currentUserId == widget.ride.driverUserId) {
+      return const Text('You are driver');
+    } else if (isCurrentUserConfirmedPassenger) {
+      // TODO: use passenger_service???
+      //return OutlinedButton(onPressed: onPressed, child: child)
+    }
+    return FilledButton(
+        onPressed: () {
+          //TODO: handle no seats available, rider already requested or confirmed, etc.
+          _handleRequestToJoin();
+        },
+        child: Text(widget.ride.enableInstantBook
+            ? 'Instant Book'
+            : 'Request to Join'));
   }
 
   @override
@@ -82,36 +111,39 @@ class _RideOverviewState extends State<RideOverview> {
                               .format(widget.ride.dateTime),
                           style: Theme.of(context).textTheme.labelLarge),
                       const SizedBox(height: 8),
-                      Text(widget.ride.description!,
-                          style: Theme.of(context).textTheme.bodyMedium),
+                      Text(widget.ride.description!),
                       const SizedBox(height: 24),
                       Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(widget.ride.departAddress!,
-                                style: Theme.of(context).textTheme.bodyMedium),
+                            Text(widget.ride.departAddress!),
                             const Icon(Icons.arrow_downward),
-                            Text(widget.ride.arriveAddress!,
-                                style: Theme.of(context).textTheme.bodyMedium),
+                            Text(widget.ride.arriveAddress!),
                           ]),
                       const SizedBox(height: 24),
-                      snapshot.data!.isNotEmpty
-                          ? Column(
-                              children: snapshot.data!
-                                  .map((passenger) => Text(
-                                      '${passenger.firstName} ${passenger.lastName} --- ${passenger.status}'))
-                                  .toList(),
-                            )
-                          : const Text('No passengers!'),
+                      Text('Passengers',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      RidePassengerList(
+                        passengerList: snapshot.data!,
+                        driverUserId: widget.ride.driverUserId!,
+                        rideId: widget.ride.id!,
+                      ),
                       const SizedBox(height: 24),
-                      const Text('driver details'),
+                      //TODO: Hide driver section if currentUser is driver
+                      // could also update the appbar header to say 'Your Ride' or something if its the driver or a confirmed passenger
+                      Text('Driver',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      Text(widget.ride.driverUserId!),
                       const SizedBox(height: 24),
-                      const Text('car details'),
+                      Text('Vehicle',
+                          style: Theme.of(context).textTheme.titleMedium),
                     ]),
                   ),
-                  FilledButton(
-                      onPressed: _handleRequestToJoin,
-                      child: const Text('Request to Join'))
+                  _displayActionButtons(snapshot.data!
+                      .where((passenger) =>
+                          passenger.passengerUserId ==
+                          supabase.auth.currentUser!.id)
+                      .isNotEmpty)
                 ],
               ),
             )),
