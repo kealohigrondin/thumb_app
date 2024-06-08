@@ -8,14 +8,14 @@ import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/login_page_supabase.dart';
 
-class AccountPage extends StatefulWidget {
-  const AccountPage({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
   @override
-  State<AccountPage> createState() => _AccountPageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _AccountPageState extends State<AccountPage> {
+class _ProfilePageState extends State<ProfilePage> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
@@ -25,15 +25,10 @@ class _AccountPageState extends State<AccountPage> {
   Future<Profile> _getProfile() async {
     final user = supabase.auth.currentUser;
     try {
-      final result = await supabase
-          .from('profile')
-          .select()
-          .eq('auth_id', user!.id)
-          .single();
+      final result = await supabase.from('profile').select().eq('auth_id', user!.id).single();
       return Profile.fromJson(result);
     } catch (error) {
-      ShowErrorSnackBar(
-          context, 'Unexpected error occurred.', error.toString());
+      ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
       return Profile();
     }
   }
@@ -52,14 +47,10 @@ class _AccountPageState extends State<AccountPage> {
         data: updates,
       ));
       final profileUpdates = {'auth_id': authId, ...updates};
-      await supabase
-          .from('profile')
-          .upsert(profileUpdates)
-          .eq('auth_id', authId);
+      await supabase.from('profile').upsert(profileUpdates).eq('auth_id', authId);
       ShowSuccessSnackBar(context, 'Profile saved!');
     } catch (error) {
-      ShowErrorSnackBar(
-          context, 'Unexpected error occurred.', error.toString());
+      ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
     } finally {
       //close keyboard
       if (FocusManager.instance.primaryFocus != null) {
@@ -73,12 +64,10 @@ class _AccountPageState extends State<AccountPage> {
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      ShowErrorSnackBar(
-          context, 'Unexpected error occurred.', error.toString());
+      ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
     } finally {
       if (mounted) {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
       }
     }
   }
@@ -121,12 +110,12 @@ class _AccountPageState extends State<AccountPage> {
                     height: 100,
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
-                      border: Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1),
+                      border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1),
                       shape: BoxShape.circle,
                     ),
-                    child: Image.asset('assets/images/user.png'),
+                    child: GestureDetector(
+                        onTap: () => debugPrint('profile image tapped'),
+                        child: Image.asset('assets/images/user.png')),
                   ),
                 ),
                 TextFormField(

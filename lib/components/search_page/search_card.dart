@@ -15,15 +15,15 @@ class SearchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.push(context,
-          MaterialPageRoute(builder: (context) => RideOverview(ride: ride))),
+      onTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (context) => RideOverview(ride: ride))),
       child: Container(
         padding: const EdgeInsets.all(8),
         constraints: const BoxConstraints(
           maxWidth: 570,
         ),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer,
+          color: Theme.of(context).colorScheme.secondaryContainer,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: Theme.of(context).colorScheme.surface,
@@ -56,8 +56,7 @@ class SearchCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(ride.title ?? 'Title',
-                    style: Theme.of(context).textTheme.labelLarge),
+                Text(ride.title ?? 'Title', style: Theme.of(context).textTheme.labelLarge),
                 Text(formatDoubleToCurrency(ride.passengerCost!),
                     style: Theme.of(context).textTheme.labelLarge)
               ],

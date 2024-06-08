@@ -17,7 +17,7 @@ class ActivityCard extends StatelessWidget {
         maxWidth: 570,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
+        color: Theme.of(context).colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: Theme.of(context).colorScheme.surface,

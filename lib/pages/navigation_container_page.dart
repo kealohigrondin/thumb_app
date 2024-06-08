@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:thumb_app/pages/bottom_nav_pages/account_page.dart';
+import 'package:thumb_app/pages/bottom_nav_pages/profile_page.dart';
 import 'package:thumb_app/pages/bottom_nav_pages/home_page.dart';
 import 'package:thumb_app/pages/bottom_nav_pages/publish_ride_page.dart';
 import 'package:thumb_app/pages/bottom_nav_pages/rides_page.dart';
@@ -16,16 +16,16 @@ class NavigationContainerPage extends ConsumerWidget {
     const NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
     const NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
     const NavigationDestination(icon: Icon(Icons.airport_shuttle), label: 'Rides'),
-    const NavigationDestination(icon: Icon(Icons.person), label: 'Account'),
+    const NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
   ];
 
-  static final pageTitles = ['Home', 'Find a ride', 'My Rides', 'My Account'];
+  static final pageTitles = ['Home', 'Find a ride', 'My Rides', 'Profile'];
 
   static final pages = [
     const HomePage(),
     const SearchPage(),
     const RidesPage(),
-    const AccountPage()
+    const ProfilePage()
   ];
 
   @override
@@ -51,10 +51,12 @@ class NavigationContainerPage extends ConsumerWidget {
           padding: const EdgeInsets.all(6),
           child: IndexedStack(index: currentIndex, children: pages),
         ),
-        floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.add),
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (context) => const PublishRidePage()))),
+        floatingActionButton: currentIndex == 3
+            ? null
+            : FloatingActionButton(
+                child: const Icon(Icons.add),
+                onPressed: () => Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => const PublishRidePage()))),
         bottomNavigationBar: NavigationBar(
           indicatorColor: theme.primaryColor,
           destinations: bottomNavItems,
