@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thumb_app/pages/bottom_nav_pages/profile_page.dart';
 import 'package:thumb_app/pages/bottom_nav_pages/home_page.dart';
-import 'package:thumb_app/pages/bottom_nav_pages/publish_ride_page.dart';
 import 'package:thumb_app/pages/bottom_nav_pages/rides_page.dart';
 import 'package:thumb_app/pages/bottom_nav_pages/search_page.dart';
 import 'package:thumb_app/pages/chat_page.dart';

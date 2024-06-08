@@ -19,21 +19,6 @@ class RidePassengerList extends StatefulWidget {
 class _RidePassengerListState extends State<RidePassengerList> {
   final String currentUserId = supabase.auth.currentUser!.id;
 
-  Future<List<RidePassengerProfile>> _getPassengers() async {
-    try {
-      var result = await supabase
-          .from('ride_passenger')
-          .select('passenger_user_id, status, profile(first_name, last_name)')
-          .eq('ride_id', widget.rideId);
-      List<RidePassengerProfile> ridePassengerProfile =
-          result.map((item) => RidePassengerProfile.fromJson(item)).toList();
-      return ridePassengerProfile;
-    } catch (err) {
-      debugPrint(err.toString());
-      return [];
-    }
-  }
-
   void _updatePassengerStatus(RidePassengerStatus newStatus, String passengerUserId) async {
     try {
       // create row in ride_passenger table
