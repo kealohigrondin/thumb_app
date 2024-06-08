@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:thumb_app/components/search_page/search_card.dart';
 import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/loading_screen.dart';
+import 'package:thumb_app/pages/loading_page.dart';
 
 class RidesPage extends StatelessWidget {
   const RidesPage({super.key});
@@ -34,7 +34,7 @@ class RidesPage extends StatelessWidget {
   Widget renderRideList(BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
     switch (snapshot.connectionState) {
       case ConnectionState.waiting:
-        return const LoadingScreen();
+        return const LoadingPage();
       case ConnectionState.done:
         if (snapshot.hasError) {
           return Text(snapshot.error.toString());
@@ -73,7 +73,6 @@ class RidesPage extends StatelessWidget {
             ],
           ),
         ),
-        
       )),
     );
   }

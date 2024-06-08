@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/home_page/activity_card.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/loading_screen.dart';
+import 'package:thumb_app/pages/loading_page.dart';
 
 import '../../data/types/ride.dart';
 
@@ -11,7 +11,11 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   Future<List<Ride>> _getActivityData() async {
-    final result = await supabase.from('ride').select().lt('datetime', DateTime.now()).order('datetime', ascending: false); //get activity data in descending datetime
+    final result = await supabase
+        .from('ride')
+        .select()
+        .lt('datetime', DateTime.now())
+        .order('datetime', ascending: false); //get activity data in descending datetime
     return result.map((item) => Ride.fromJson(item)).toList();
   }
 
@@ -25,12 +29,10 @@ class HomePage extends StatelessWidget {
           } else if (snapshot.hasData) {
             return ListView.builder(
                 itemCount: snapshot.data!.length,
-                itemBuilder: (ctx, index) =>
-                    ActivityCard(ride: snapshot.data![index]));
-          } else if(snapshot.connectionState == ConnectionState.waiting)  {
-            return const LoadingScreen();
-          }
-          else {
+                itemBuilder: (ctx, index) => ActivityCard(ride: snapshot.data![index]));
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return const LoadingPage();
+          } else {
             return const Text('something weird happened.');
           }
         });
