@@ -6,6 +6,12 @@ class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(), body: const Center(child: Text('chats here')));
+        appBar: AppBar(
+          title: const Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [Text('Chats')],
+          ),
+        ),
+        body: const Center(child: Text('chats here')));
   }
 }

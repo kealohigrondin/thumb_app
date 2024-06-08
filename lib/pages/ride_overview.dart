@@ -55,8 +55,7 @@ class _RideOverviewState extends State<RideOverview> {
       }
     } catch (error) {
       // ignore: use_build_context_synchronously
-      ShowErrorSnackBar(
-          context, 'Error requesting ride! Try again later.', error.toString());
+      ShowErrorSnackBar(context, 'Error requesting ride! Try again later.', error.toString());
     }
   }
 
@@ -80,22 +79,24 @@ class _RideOverviewState extends State<RideOverview> {
           //TODO: handle no seats available, rider already requested or confirmed, etc.
           _handleRequestToJoin();
         },
-        child: Text(widget.ride.enableInstantBook
-            ? 'Instant Book'
-            : 'Request to Join'));
+        child: Text(widget.ride.enableInstantBook ? 'Instant Book' : 'Request to Join'));
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _getPassengers(),
-      builder: (BuildContext context,
-          AsyncSnapshot<List<RidePassengerProfile>> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<List<RidePassengerProfile>> snapshot) {
         if (snapshot.hasError) {
           return Text(snapshot.error.toString());
         } else if (snapshot.hasData) {
           return Scaffold(
-            appBar: AppBar(),
+            appBar: AppBar(
+              title: const Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [Text('Ride Overview')],
+              ),
+            ),
             body: SafeArea(
                 child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
@@ -103,26 +104,19 @@ class _RideOverviewState extends State<RideOverview> {
                 children: [
                   Expanded(
                     child: ListView(children: [
-                      Text(widget.ride.title!,
-                          style: Theme.of(context).textTheme.titleLarge),
-                      Text(
-                          DateFormat.MMMd()
-                              .add_jm()
-                              .format(widget.ride.dateTime),
+                      Text(widget.ride.title!, style: Theme.of(context).textTheme.titleLarge),
+                      Text(DateFormat.MMMd().add_jm().format(widget.ride.dateTime),
                           style: Theme.of(context).textTheme.labelLarge),
                       const SizedBox(height: 8),
                       Text(widget.ride.description!),
                       const SizedBox(height: 24),
-                      Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(widget.ride.departAddress!),
-                            const Icon(Icons.arrow_downward),
-                            Text(widget.ride.arriveAddress!),
-                          ]),
+                      Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Text(widget.ride.departAddress!),
+                        const Icon(Icons.arrow_downward),
+                        Text(widget.ride.arriveAddress!),
+                      ]),
                       const SizedBox(height: 24),
-                      Text('Passengers',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Text('Passengers', style: Theme.of(context).textTheme.titleMedium),
                       RidePassengerList(
                         passengerList: snapshot.data!,
                         driverUserId: widget.ride.driverUserId!,
@@ -131,18 +125,15 @@ class _RideOverviewState extends State<RideOverview> {
                       const SizedBox(height: 24),
                       //TODO: Hide driver section if currentUser is driver
                       // could also update the appbar header to say 'Your Ride' or something if its the driver or a confirmed passenger
-                      Text('Driver',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Text('Driver', style: Theme.of(context).textTheme.titleMedium),
                       Text(widget.ride.driverUserId!),
                       const SizedBox(height: 24),
-                      Text('Vehicle',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Text('Vehicle', style: Theme.of(context).textTheme.titleMedium),
                     ]),
                   ),
                   _displayActionButtons(snapshot.data!
-                      .where((passenger) =>
-                          passenger.passengerUserId ==
-                          supabase.auth.currentUser!.id)
+                      .where(
+                          (passenger) => passenger.passengerUserId == supabase.auth.currentUser!.id)
                       .isNotEmpty)
                 ],
               ),

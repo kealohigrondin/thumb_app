@@ -15,10 +15,11 @@ class NavigationContainerPage extends ConsumerWidget {
   static final bottomNavItems = [
     const NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
     const NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
-    const NavigationDestination(
-        icon: Icon(Icons.airport_shuttle), label: 'Rides'),
+    const NavigationDestination(icon: Icon(Icons.airport_shuttle), label: 'Rides'),
     const NavigationDestination(icon: Icon(Icons.person), label: 'Account'),
   ];
+
+  static final pageTitles = ['Home', 'Find a ride', 'My Rides', 'My Account'];
 
   static final pages = [
     const HomePage(),
@@ -33,12 +34,19 @@ class NavigationContainerPage extends ConsumerWidget {
     final ThemeData theme = Theme.of(context);
 
     return Scaffold(
-        appBar: AppBar(actions: [
-          IconButton(
-              onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const ChatPage())),
-              icon: const Icon(Icons.chat, size: 25))
-        ]),
+        appBar: AppBar(
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(pageTitles[currentIndex]),
+              ],
+            ),
+            actions: [
+              IconButton(
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => const ChatPage())),
+                  icon: const Icon(Icons.chat, size: 25))
+            ]),
         body: Padding(
           padding: const EdgeInsets.all(6),
           child: IndexedStack(index: currentIndex, children: pages),
@@ -46,9 +54,7 @@ class NavigationContainerPage extends ConsumerWidget {
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.add),
             onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const PublishRidePage()))),
+                context, MaterialPageRoute(builder: (context) => const PublishRidePage()))),
         bottomNavigationBar: NavigationBar(
           indicatorColor: theme.primaryColor,
           destinations: bottomNavItems,
