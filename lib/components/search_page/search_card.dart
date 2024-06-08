@@ -25,20 +25,10 @@ class SearchCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 8, 0),
-                    child: FaIcon(
-                      FontAwesomeIcons.globe,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      size: 20,
-                    ),
-                  ),
-                  Text(DateFormat.MMMd().add_jm().format(ride.dateTime),
-                      style: Theme.of(context).textTheme.headlineSmall),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(DateFormat.MMMd().add_jm().format(ride.dateTime),
+                    style: Theme.of(context).textTheme.headlineSmall),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -105,9 +105,8 @@ class _RideOverviewState extends State<RideOverview> {
 
   Widget _displayActionButtons(bool isCurrentUserConfirmedPassenger) {
     final currentUserId = supabase.auth.currentUser!.id;
-    //TODO: handle driver view
     if (currentUserId == widget.ride.driverUserId) {
-      return const Text('You are driver');
+      return const TextButton(onPressed: null, child: Text('You are driver'));
     } else if (isCurrentUserConfirmedPassenger) {
       return OutlinedButton(
           style: OutlinedButton.styleFrom(
@@ -135,74 +134,73 @@ class _RideOverviewState extends State<RideOverview> {
 
   @override
   void initState() {
+    super.initState();
     _passengerList = _getPassengers();
   }
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: _refresh,
-      child: FutureBuilder(
-        future: _passengerList,
-        builder: (BuildContext context, AsyncSnapshot<List<RidePassengerProfile>> snapshot) {
-          if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
-          } else if (snapshot.hasData) {
-            return Scaffold(
-              appBar: AppBar(
-                title: const Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [Text('Ride Overview')],
-                ),
-              ),
-              body: SafeArea(
-                  child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView(children: [
-                        Text(widget.ride.title!, style: Theme.of(context).textTheme.titleLarge),
-                        Text(DateFormat.MMMd().add_jm().format(widget.ride.dateTime),
-                            style: Theme.of(context).textTheme.labelLarge),
-                        const SizedBox(height: 8),
-                        Text(widget.ride.description!),
-                        const SizedBox(height: 24),
-                        Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Text(widget.ride.departAddress!),
-                          const Icon(Icons.arrow_downward),
-                          Text(widget.ride.arriveAddress!),
+    return Scaffold(
+        appBar: AppBar(
+          title: const Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [Text('Ride Overview')],
+          ),
+        ),
+        body: RefreshIndicator(
+          onRefresh: _refresh,
+          child: FutureBuilder(
+            future: _passengerList,
+            builder: (BuildContext context, AsyncSnapshot<List<RidePassengerProfile>> snapshot) {
+              if (snapshot.hasError) {
+                return Text(snapshot.error.toString());
+              } else if (snapshot.hasData) {
+                return SafeArea(
+                    child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ListView(children: [
+                          Text(widget.ride.title!, style: Theme.of(context).textTheme.titleLarge),
+                          Text(DateFormat.MMMd().add_jm().format(widget.ride.dateTime),
+                              style: Theme.of(context).textTheme.labelLarge),
+                          const SizedBox(height: 8),
+                          Text(widget.ride.description!),
+                          const SizedBox(height: 24),
+                          Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Text(widget.ride.departAddress!),
+                            const Icon(Icons.arrow_downward),
+                            Text(widget.ride.arriveAddress!),
+                          ]),
+                          const SizedBox(height: 24),
+                          Text('Passengers', style: Theme.of(context).textTheme.titleMedium),
+                          RidePassengerList(
+                            passengerList: snapshot.data!,
+                            driverUserId: widget.ride.driverUserId!,
+                            rideId: widget.ride.id!,
+                          ),
+                          const SizedBox(height: 24),
+                          //TODO: Hide driver section if currentUser is driver
+                          Text('Driver', style: Theme.of(context).textTheme.titleMedium),
+                          Text(widget.ride.driverUserId!),
+                          const SizedBox(height: 24),
+                          Text('Vehicle', style: Theme.of(context).textTheme.titleMedium),
                         ]),
-                        const SizedBox(height: 24),
-                        Text('Passengers', style: Theme.of(context).textTheme.titleMedium),
-                        RidePassengerList(
-                          passengerList: snapshot.data!,
-                          driverUserId: widget.ride.driverUserId!,
-                          rideId: widget.ride.id!,
-                        ),
-                        const SizedBox(height: 24),
-                        //TODO: Hide driver section if currentUser is driver
-                        // could also update the appbar header to say 'Your Ride' or something if its the driver or a confirmed passenger
-                        Text('Driver', style: Theme.of(context).textTheme.titleMedium),
-                        Text(widget.ride.driverUserId!),
-                        const SizedBox(height: 24),
-                        Text('Vehicle', style: Theme.of(context).textTheme.titleMedium),
-                      ]),
-                    ),
-                    _displayActionButtons(snapshot.data!
-                        .where((element) =>
-                            element.passengerUserId == supabase.auth.currentUser!.id &&
-                            element.status == RidePassengerStatus.confirmed)
-                        .isNotEmpty)
-                  ],
-                ),
-              )),
-            );
-          } else {
-            return const CenterProgressIndicator();
-          }
-        },
-      ),
-    );
+                      ),
+                      _displayActionButtons(snapshot.data!
+                          .where((element) =>
+                              element.passengerUserId == supabase.auth.currentUser!.id &&
+                              element.status == RidePassengerStatus.confirmed)
+                          .isNotEmpty)
+                    ],
+                  ),
+                ));
+              } else {
+                return const CenterProgressIndicator();
+              }
+            },
+          ),
+        ));
   }
 }
