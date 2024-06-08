@@ -6,10 +6,7 @@ import 'package:thumb_app/main.dart';
 
 class RidePassengerList extends StatefulWidget {
   const RidePassengerList(
-      {super.key,
-      required this.passengerList,
-      required this.driverUserId,
-      required this.rideId});
+      {super.key, required this.passengerList, required this.driverUserId, required this.rideId});
 
   final List<RidePassengerProfile> passengerList;
   final String driverUserId;
@@ -22,7 +19,7 @@ class RidePassengerList extends StatefulWidget {
 class _RidePassengerListState extends State<RidePassengerList> {
   final String currentUserId = supabase.auth.currentUser!.id;
 
-Future<List<RidePassengerProfile>> _getPassengers() async {
+  Future<List<RidePassengerProfile>> _getPassengers() async {
     try {
       var result = await supabase
           .from('ride_passenger')
@@ -37,8 +34,7 @@ Future<List<RidePassengerProfile>> _getPassengers() async {
     }
   }
 
-  void _updatePassengerStatus(
-      RidePassengerStatus newStatus, String passengerUserId) async {
+  void _updatePassengerStatus(RidePassengerStatus newStatus, String passengerUserId) async {
     try {
       // create row in ride_passenger table
       //don't need to pass in intial status or created_at since those are created on the db side
@@ -65,36 +61,27 @@ Future<List<RidePassengerProfile>> _getPassengers() async {
     if (passenger.status == RidePassengerStatus.requested) {
       return Row(
         children: [
-          OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                  side: BorderSide(
-                      color:
-                          Theme.of(context).colorScheme.error)), // Border color
-
-              onPressed: () => _updatePassengerStatus(
-                  RidePassengerStatus.denied, passenger.passengerUserId),
+          TextButton(
+              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+              onPressed: () =>
+                  _updatePassengerStatus(RidePassengerStatus.denied, passenger.passengerUserId),
               child: const Text('Deny')),
           const SizedBox(width: 4),
-          OutlinedButton(
-              onPressed: () => _updatePassengerStatus(
-                  RidePassengerStatus.confirmed, passenger.passengerUserId),
+          TextButton(
+              onPressed: () =>
+                  _updatePassengerStatus(RidePassengerStatus.confirmed, passenger.passengerUserId),
               child: const Text('Confirm')),
         ],
       );
     } else if (passenger.status == RidePassengerStatus.confirmed) {
-      return FilledButton(
-          onPressed: null, child: Text(passenger.status.toShortString()));
+      return TextButton(onPressed: null, child: Text(passenger.status.toShortString()));
     }
-    return OutlinedButton(
-        onPressed: null, child: Text(passenger.status.toShortString()));
+    return TextButton(onPressed: null, child: Text(passenger.status.toShortString()));
   }
 
   TextStyle _getPassengerNameTextStyle(RidePassengerStatus status) {
-    if (status == RidePassengerStatus.cancelled ||
-        status == RidePassengerStatus.denied) {
-      return const TextStyle(
-          color: Colors.grey, decoration: TextDecoration.lineThrough);
+    if (status == RidePassengerStatus.cancelled || status == RidePassengerStatus.denied) {
+      return const TextStyle(color: Colors.grey, decoration: TextDecoration.lineThrough);
     }
     return const TextStyle();
   }
@@ -117,9 +104,7 @@ Future<List<RidePassengerProfile>> _getPassengers() async {
 
   Widget _defaultPassengerView() {
     final viewablePassengerList = widget.passengerList
-        .where((passenger) =>
-            passenger.status == RidePassengerStatus.confirmed ||
-            passenger.passengerUserId == currentUserId)
+        .where((passenger) => passenger.status == RidePassengerStatus.confirmed)
         .toList();
 
     if (viewablePassengerList.isEmpty) {

@@ -26,7 +26,7 @@ class LoginPageSupabase extends StatelessWidget {
         });
       }
       if (ctx.mounted) {
-        Navigator.push(
+        Navigator.pushReplacement(
             ctx, MaterialPageRoute(builder: (context) => const NavigationContainerPage()));
       }
     } catch (error) {

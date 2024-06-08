@@ -67,7 +67,8 @@ class _ProfilePageState extends State<ProfilePage> {
       ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
     } finally {
       if (mounted) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
       }
     }
   }
@@ -113,6 +114,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1),
                       shape: BoxShape.circle,
                     ),
+                    // TODO: add image upload on tap
                     child: GestureDetector(
                         onTap: () => debugPrint('profile image tapped'),
                         child: Image.asset('assets/images/user.png')),

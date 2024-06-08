@@ -7,8 +7,15 @@ import 'package:thumb_app/pages/loading_page.dart';
 
 import '../../data/types/ride.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late Future<List<Ride>> _rideList;
 
   Future<List<Ride>> _getActivityData() async {
     final result = await supabase
@@ -20,21 +27,48 @@ class HomePage extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _rideList = _getActivityData();
+  }
+
+  Future<void> _refresh() async {
+    final result = _getActivityData();
+    setState(() {
+      _rideList = result;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _getActivityData(),
-        builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
-          if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
-          } else if (snapshot.hasData) {
-            return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (ctx, index) => ActivityCard(ride: snapshot.data![index]));
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingPage();
-          } else {
-            return const Text('something weird happened.');
-          }
-        });
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: FutureBuilder(
+          future: _rideList,
+          builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return const LoadingPage();
+              case ConnectionState.done:
+                if (snapshot.hasError) {
+                  return ListView.builder(
+                      itemCount: 1, itemBuilder: (ctx, index) => Text(snapshot.error.toString()));
+                }
+                if (snapshot.data!.isEmpty) {
+                  return ListView.builder(
+                      itemCount: 1,
+                      itemBuilder: (ctx, index) => const Padding(
+                            padding: EdgeInsets.only(top: 32),
+                            child: Center(child: Text('No Activity!')),
+                          ));
+                }
+                return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (ctx, index) => ActivityCard(ride: snapshot.data![index]));
+              default:
+                return const Center(child: Text('Something unaccounted for has occurred...'));
+            }
+          }),
+    );
   }
 }

@@ -19,7 +19,7 @@ class NavigationContainerPage extends ConsumerWidget {
     const NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
   ];
 
-  static final pageTitles = ['Home', 'Find a ride', 'My Rides', 'Profile'];
+  static final pageTitles = ['Activity Feed', 'Find a ride', 'My Rides', 'Profile'];
 
   static final pages = [
     const HomePage(),
@@ -35,6 +35,7 @@ class NavigationContainerPage extends ConsumerWidget {
 
     return Scaffold(
         appBar: AppBar(
+            automaticallyImplyLeading: false,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -48,15 +49,9 @@ class NavigationContainerPage extends ConsumerWidget {
                   icon: const Icon(Icons.chat, size: 25))
             ]),
         body: Padding(
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.only(left: 2, right: 2),
           child: IndexedStack(index: currentIndex, children: pages),
         ),
-        floatingActionButton: currentIndex == 3
-            ? null
-            : FloatingActionButton(
-                child: const Icon(Icons.add),
-                onPressed: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => const PublishRidePage()))),
         bottomNavigationBar: NavigationBar(
           indicatorColor: theme.primaryColor,
           destinations: bottomNavItems,
