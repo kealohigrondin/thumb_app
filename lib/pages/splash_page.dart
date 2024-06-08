@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thumb_app/components/shared/center_progress_indicator.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/login_page_supabase.dart';
 
@@ -26,17 +27,18 @@ class _SplashPageState extends State<SplashPage> {
 
     final session = supabase.auth.currentSession;
     if (session != null) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const NavigationContainerPage()));
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const NavigationContainerPage()));
     } else {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const CenterProgressIndicator();
   }
 }

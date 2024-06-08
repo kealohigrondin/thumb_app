@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:thumb_app/pages/bottom_nav_pages/publish_ride_page.dart';
+import 'package:thumb_app/components/search_page/search_card.dart';
+import 'package:thumb_app/data/types/ride.dart';
+import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/loading_screen.dart';
-
-import '../../components/search_page/search_card.dart';
-import '../../data/types/ride.dart';
-import '../../main.dart';
 
 class RidesPage extends StatelessWidget {
   const RidesPage({super.key});
@@ -75,10 +73,7 @@ class RidesPage extends StatelessWidget {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.add),
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (context) => const PublishRidePage()))),
+        
       )),
     );
   }

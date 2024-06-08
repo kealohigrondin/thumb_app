@@ -10,10 +10,9 @@ import 'package:thumb_app/secrets.dart';
 
 final theme = ThemeData(
   useMaterial3: true,
-  colorScheme: ColorScheme.fromSeed(
-    brightness: Brightness.light,
-    seedColor: themeColor,
-  ),
+  colorScheme: colorScheme,
+  appBarTheme:
+      AppBarTheme(color: themeColor, foregroundColor: colorScheme.onPrimary),
 );
 
 Future<void> getLostData() async {
@@ -51,6 +50,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProviderScope(child: MaterialApp(theme: theme, home: const SplashPage()));
+    return ProviderScope(
+        child: MaterialApp(theme: theme, home: const SplashPage()));
   }
 }

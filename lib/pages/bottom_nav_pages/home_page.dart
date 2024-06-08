@@ -27,8 +27,11 @@ class HomePage extends StatelessWidget {
                 itemCount: snapshot.data!.length,
                 itemBuilder: (ctx, index) =>
                     ActivityCard(ride: snapshot.data![index]));
-          } else {
+          } else if(snapshot.connectionState == ConnectionState.waiting)  {
             return const LoadingScreen();
+          }
+          else {
+            return const Text('something weird happened.');
           }
         });
   }

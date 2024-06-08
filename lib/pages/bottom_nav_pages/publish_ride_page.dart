@@ -26,9 +26,12 @@ class _PublishRidePageState extends State<PublishRidePage> {
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _titleController = TextEditingController();
-  late final TextEditingController _descriptionController = TextEditingController();
-  late final TextEditingController _pickupAddressController = TextEditingController();
-  late final TextEditingController _dropoffAddressController = TextEditingController();
+  late final TextEditingController _descriptionController =
+      TextEditingController();
+  late final TextEditingController _pickupAddressController =
+      TextEditingController();
+  late final TextEditingController _dropoffAddressController =
+      TextEditingController();
   late final TextEditingController _seatsController = TextEditingController();
   late final TextEditingController _costController = TextEditingController();
 
@@ -39,11 +42,12 @@ class _PublishRidePageState extends State<PublishRidePage> {
     final DateTime? pickedDate = await showDatePicker(
         context: context,
         firstDate: DateTime.now(),
-        lastDate: DateTime(DateTime.now().year, DateTime.now().month + 4, DateTime.now().day));
+        lastDate: DateTime(
+            DateTime.now().year, DateTime.now().month + 4, DateTime.now().day));
     if (pickedDate != null) {
       setState(() {
-        selectedDate = DateTime(pickedDate.year, pickedDate.month, pickedDate.day,
-            selectedDate.hour, selectedDate.minute);
+        selectedDate = DateTime(pickedDate.year, pickedDate.month,
+            pickedDate.day, selectedDate.hour, selectedDate.minute);
       });
     }
   }
@@ -53,8 +57,8 @@ class _PublishRidePageState extends State<PublishRidePage> {
         await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (pickedTime != null) {
       setState(() {
-        selectedDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
-            pickedTime.hour, pickedTime.minute);
+        selectedDate = DateTime(selectedDate.year, selectedDate.month,
+            selectedDate.day, pickedTime.hour, pickedTime.minute);
       });
     }
   }
@@ -80,7 +84,8 @@ class _PublishRidePageState extends State<PublishRidePage> {
       }
     } catch (error) {
       // ignore: use_build_context_synchronously
-      ShowErrorSnackBar(context, 'Error saving ride data! Try again later.');
+      ShowErrorSnackBar(context, 'Error saving ride data! Try again later.',
+          error.toString());
     }
   }
 
@@ -94,20 +99,23 @@ class _PublishRidePageState extends State<PublishRidePage> {
           child: Form(
             key: _formKey,
             child: ListView(children: [
+              const SizedBox(height: 24),
               TextFormField(
                   controller: _pickupAddressController,
                   onTap: () async {
                     final sessionToken = const Uuid().v4();
                     final Suggestion? result = await showSearch(
                         context: context,
-                        delegate: AddressSearch(sessionToken, 'Enter pickup address'));
+                        delegate: AddressSearch(
+                            sessionToken, 'Enter pickup address'));
                     if (result != null) {
                       setState(() {
                         _pickupAddressController.text = result.description;
                       });
                     }
                   },
-                  decoration: const InputDecoration.collapsed(hintText: 'Pickup address*')),
+                  decoration: const InputDecoration.collapsed(
+                      hintText: 'Pickup address*')),
               const SizedBox(height: 20),
               TextFormField(
                   controller: _dropoffAddressController,
@@ -115,14 +123,16 @@ class _PublishRidePageState extends State<PublishRidePage> {
                     final sessionToken = const Uuid().v4();
                     final Suggestion? result = await showSearch(
                         context: context,
-                        delegate: AddressSearch(sessionToken, 'Enter dropoff address'));
+                        delegate: AddressSearch(
+                            sessionToken, 'Enter dropoff address'));
                     if (result != null) {
                       setState(() {
                         _dropoffAddressController.text = result.description;
                       });
                     }
                   },
-                  decoration: const InputDecoration.collapsed(hintText: 'Dropoff address*')),
+                  decoration: const InputDecoration.collapsed(
+                      hintText: 'Dropoff address*')),
               const Divider(
                 height: 68,
                 thickness: 2,
@@ -137,12 +147,14 @@ class _PublishRidePageState extends State<PublishRidePage> {
                   }
                   return null;
                 },
-                decoration: const InputDecoration.collapsed(hintText: 'Add a title*'),
+                decoration:
+                    const InputDecoration.collapsed(hintText: 'Add a title*'),
               ),
               const SizedBox(height: 20),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration.collapsed(hintText: 'Add a description'),
+                decoration: const InputDecoration.collapsed(
+                    hintText: 'Add a description'),
                 minLines: 1,
                 maxLines: 5,
               ),
@@ -180,7 +192,9 @@ class _PublishRidePageState extends State<PublishRidePage> {
                     width: 40,
                     child: TextFormField(
                       controller: _seatsController,
-                      inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
                       validator: (value) {
                         if (value == null) {
                           return 'Enter a valid number';

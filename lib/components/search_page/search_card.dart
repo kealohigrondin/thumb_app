@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:thumb_app/pages/ride_overview.dart';
 import 'package:thumb_app/utils/utils.dart';
 
 import '../../data/types/ride.dart';
@@ -13,92 +14,96 @@ class SearchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      constraints: const BoxConstraints(
-        maxWidth: 570,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.surface,
-          width: 1,
+    return GestureDetector(
+      onTap: () => Navigator.push(context,
+          MaterialPageRoute(builder: (context) => RideOverview(ride: ride))),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        constraints: const BoxConstraints(
+          maxWidth: 570,
         ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 0, 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 8, 0),
-                  child: FaIcon(
-                    FontAwesomeIcons.globe,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    size: 20,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.surface,
+            width: 1,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 0, 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 8, 0),
+                    child: FaIcon(
+                      FontAwesomeIcons.globe,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      size: 20,
+                    ),
                   ),
-                ),
-                Text(DateFormat.MMMd().add_jm().format(ride.dateTime),
-                    style: Theme.of(context).textTheme.headlineSmall),
-              ],
+                  Text(DateFormat.MMMd().add_jm().format(ride.dateTime),
+                      style: Theme.of(context).textTheme.headlineSmall),
+                ],
+              ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(ride.title ?? 'Title',
-                  style: Theme.of(context).textTheme.labelLarge),
-              Text(formatDoubleToCurrency(ride.passengerCost!),
-                  style: Theme.of(context).textTheme.labelLarge)
-            ],
-          ),
-          Text(ride.departAddress!,
-              textAlign: TextAlign.start,
-              maxLines: 2,
-              style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 4),
-          const Icon(Icons.arrow_downward),
-          const SizedBox(height: 4),
-          Text(ride.arriveAddress!,
-              textAlign: TextAlign.start,
-              maxLines: 2,
-              style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 12),
-          Divider(
-            height: 2,
-            thickness: 1,
-            color: Theme.of(context).colorScheme.onSecondary,
-          ),
-          const Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(12, 12, 12, 8),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      UserIconButton(
-                          imagePath:
-                              'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dXNlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60'),
-                      UserIconButton(
-                          imagePath:
-                              'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHwxNXx8cHJvZmlsZXxlbnwwfHx8fDE2OTE0NDY5MzJ8MA&ixlib=rb-4.0.3&q=80&w=400'),
-                      UserIconButton(
-                          imagePath:
-                              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
-                    ]),
+                Text(ride.title ?? 'Title',
+                    style: Theme.of(context).textTheme.labelLarge),
+                Text(formatDoubleToCurrency(ride.passengerCost!),
+                    style: Theme.of(context).textTheme.labelLarge)
               ],
             ),
-          ),
-        ],
+            Text(ride.departAddress!,
+                textAlign: TextAlign.start,
+                maxLines: 2,
+                style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: 4),
+            const Icon(Icons.arrow_downward),
+            const SizedBox(height: 4),
+            Text(ride.arriveAddress!,
+                textAlign: TextAlign.start,
+                maxLines: 2,
+                style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: 12),
+            Divider(
+              height: 2,
+              thickness: 1,
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
+            const Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(12, 12, 12, 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        UserIconButton(
+                            imagePath:
+                                'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dXNlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60'),
+                        UserIconButton(
+                            imagePath:
+                                'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHwxNXx8cHJvZmlsZXxlbnwwfHx8fDE2OTE0NDY5MzJ8MA&ixlib=rb-4.0.3&q=80&w=400'),
+                        UserIconButton(
+                            imagePath:
+                                'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
+                      ]),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

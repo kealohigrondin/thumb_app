@@ -22,7 +22,7 @@ class LoginPageSupabase extends StatelessWidget {
           'email': response.user?.userMetadata?['email'],
           'first_name': response.user?.userMetadata?['first_name'],
           'last_name': response.user?.userMetadata?['last_name'],
-          'phone': response.user?.userMetadata?['phone_number'],
+          'phone_number': response.user?.userMetadata?['phone_number'],
         });
       }
       if (ctx.mounted) {
