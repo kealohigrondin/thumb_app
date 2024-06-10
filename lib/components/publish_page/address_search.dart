@@ -32,13 +32,13 @@ class AddressSearch extends SearchDelegate<Suggestion> {
     );
   }
 
+// TODO: Enable search of places not just addresses
   @override
   Widget buildResults(BuildContext context) {
     return FutureBuilder(
       future: query == ""
           ? null
-          : apiClient.fetchSuggestions(
-              query, Localizations.localeOf(context).languageCode),
+          : apiClient.fetchSuggestions(query, Localizations.localeOf(context).languageCode),
       builder: (context, snapshot) => query == ''
           ? Container(
               padding: const EdgeInsets.all(16.0),
@@ -63,8 +63,7 @@ class AddressSearch extends SearchDelegate<Suggestion> {
     return FutureBuilder(
       future: query == ""
           ? null
-          : apiClient.fetchSuggestions(
-              query, Localizations.localeOf(context).languageCode),
+          : apiClient.fetchSuggestions(query, Localizations.localeOf(context).languageCode),
       builder: (context, snapshot) => query == ''
           ? Container(
               padding: const EdgeInsets.all(16.0),
