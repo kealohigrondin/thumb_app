@@ -4,7 +4,7 @@ import 'package:thumb_app/components/shared/center_progress_indicator.dart';
 import 'package:thumb_app/components/ride_overview_page/ride_passenger_list.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
-import 'package:thumb_app/data/types/ride_passenger_profile.dart';
+import 'package:thumb_app/data/types/passenger_profile.dart';
 
 import '../data/types/ride.dart';
 import '../main.dart';
@@ -19,16 +19,16 @@ class RideOverview extends StatefulWidget {
 }
 
 class _RideOverviewState extends State<RideOverview> {
-  late Future<List<RidePassengerProfile>> _passengerList;
+  late Future<List<PassengerProfile>> _passengerList;
 
-  Future<List<RidePassengerProfile>> _getPassengers() async {
+  Future<List<PassengerProfile>> _getPassengers() async {
     try {
       var result = await supabase
           .from('ride_passenger')
           .select('passenger_user_id, status, profile(first_name, last_name)')
           .eq('ride_id', widget.ride.id!);
-      List<RidePassengerProfile> ridePassengerProfile =
-          result.map((item) => RidePassengerProfile.fromJson(item)).toList();
+      List<PassengerProfile> ridePassengerProfile =
+          result.map((item) => PassengerProfile.fromJson(item)).toList();
       return ridePassengerProfile;
     } catch (err) {
       debugPrint(err.toString());
@@ -36,7 +36,7 @@ class _RideOverviewState extends State<RideOverview> {
     }
   }
 
-  void _showInstandBookWarningDialog() {
+  void _showInstantBookWarningDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -119,7 +119,7 @@ class _RideOverviewState extends State<RideOverview> {
     return FilledButton(
         onPressed: () {
           if (widget.ride.enableInstantBook) {
-            return _showInstandBookWarningDialog();
+            return _showInstantBookWarningDialog();
           }
           _handleRequestToJoin();
         },
@@ -151,7 +151,7 @@ class _RideOverviewState extends State<RideOverview> {
           onRefresh: _refresh,
           child: FutureBuilder(
             future: _passengerList,
-            builder: (BuildContext context, AsyncSnapshot<List<RidePassengerProfile>> snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<List<PassengerProfile>> snapshot) {
               if (snapshot.hasError) {
                 return Text(snapshot.error.toString());
               } else if (snapshot.hasData) {

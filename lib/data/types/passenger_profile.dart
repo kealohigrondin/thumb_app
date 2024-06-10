@@ -2,13 +2,13 @@
 
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 
-class RidePassengerProfile {
+class PassengerProfile {
   String passengerUserId = '';
   RidePassengerStatus status = RidePassengerStatus.unknown;
   String firstName = '';
   String lastName = '';
 
-  RidePassengerProfile.fromJson(Map<String, dynamic> data) {
+  PassengerProfile.fromJson(Map<String, dynamic> data) {
     passengerUserId = data['passenger_user_id'];
     firstName = data['profile']['first_name'];
     lastName = data['profile']['last_name'];

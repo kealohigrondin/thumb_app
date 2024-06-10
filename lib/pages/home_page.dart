@@ -5,7 +5,7 @@ import 'package:thumb_app/components/home_page/activity_card.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/loading_page.dart';
 
-import '../../data/types/ride.dart';
+import '../data/types/ride.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

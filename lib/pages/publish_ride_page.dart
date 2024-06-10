@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 
 import 'package:thumb_app/main.dart';
 
-import '../../components/publish_page/address_search.dart';
+import '../components/publish_page/address_search.dart';
 
 final titleProvider = StateProvider((ref) => '');
 final selectedDateProvider = StateProvider((ref) => DateTime.now());

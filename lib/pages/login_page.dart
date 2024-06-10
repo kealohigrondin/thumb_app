@@ -5,8 +5,8 @@ import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/navigation_container_page.dart';
 import 'package:thumb_app/utils/utils.dart';
 
-class LoginPageSupabase extends StatelessWidget {
-  const LoginPageSupabase({super.key});
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
 
   void handleAuthResponse(AuthResponse response, BuildContext ctx) async {
     if (response.user == null) {

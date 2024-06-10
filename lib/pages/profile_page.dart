@@ -6,7 +6,7 @@ import 'package:thumb_app/components/shared/center_progress_indicator.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/login_page_supabase.dart';
+import 'package:thumb_app/pages/login_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -68,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } finally {
       if (mounted) {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
+            context, MaterialPageRoute(builder: (context) => const LoginPage()));
       }
     }
   }

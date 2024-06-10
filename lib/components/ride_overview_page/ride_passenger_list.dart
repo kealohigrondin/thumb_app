@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
-import 'package:thumb_app/data/types/ride_passenger_profile.dart';
+import 'package:thumb_app/data/types/passenger_profile.dart';
 import 'package:thumb_app/main.dart';
 
 class RidePassengerList extends StatefulWidget {
   const RidePassengerList(
       {super.key, required this.passengerList, required this.driverUserId, required this.rideId});
 
-  final List<RidePassengerProfile> passengerList;
+  final List<PassengerProfile> passengerList;
   final String driverUserId;
   final String rideId;
 
@@ -42,7 +42,7 @@ class _RidePassengerListState extends State<RidePassengerList> {
     debugPrint('passenger status changed to $newStatus');
   }
 
-  Widget _passengerStatusButton(RidePassengerProfile passenger) {
+  Widget _passengerStatusButton(PassengerProfile passenger) {
     if (passenger.status == RidePassengerStatus.requested) {
       return Row(
         children: [

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/shared/center_progress_indicator.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/login_page_supabase.dart';
+import 'package:thumb_app/pages/login_page.dart';
 
 import 'navigation_container_page.dart';
 
@@ -33,7 +33,7 @@ class _SplashPageState extends State<SplashPage> {
               builder: (context) => const NavigationContainerPage()));
     } else {
       Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const LoginPageSupabase()));
+          MaterialPageRoute(builder: (context) => const LoginPage()));
     }
   }
 
