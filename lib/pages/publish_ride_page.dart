@@ -92,7 +92,7 @@ class _PublishRidePageState extends State<PublishRidePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: const Text('Publish a ride'),),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),

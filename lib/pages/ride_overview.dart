@@ -142,10 +142,7 @@ class _RideOverviewState extends State<RideOverview> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [Text('Ride Overview')],
-          ),
+          title: const Text('Ride Overview'),
         ),
         body: RefreshIndicator(
           onRefresh: _refresh,

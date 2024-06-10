@@ -123,33 +123,32 @@ class _RidesPageState extends State<RidesPage> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      child: SafeArea(
-          child: Scaffold(
-        appBar: const TabBar(
-            tabs: [Tab(icon: Icon(Icons.history)), Tab(icon: Icon(Icons.calendar_month))]),
-        body: TabBarView(
-          children: [
-            RefreshIndicator(
-              onRefresh: _refreshHistory,
-              child: FutureBuilder(
-                  future: _rideHistoryList,
-                  builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) =>
-                      renderRideList(context, snapshot)),
-            ),
-            RefreshIndicator(
-              onRefresh: _refreshPlanned,
-              child: FutureBuilder(
-                  future: _ridePlannedList,
-                  builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) =>
-                      renderRideList(context, snapshot)),
-            ),
-          ],
+      child: Scaffold(
+              appBar: const TabBar(
+        tabs: [Tab(icon: Icon(Icons.history)), Tab(icon: Icon(Icons.calendar_month))]),
+              body: TabBarView(
+      children: [
+        RefreshIndicator(
+          onRefresh: _refreshHistory,
+          child: FutureBuilder(
+              future: _rideHistoryList,
+              builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) =>
+                  renderRideList(context, snapshot)),
         ),
-        floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.add),
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (context) => const PublishRidePage()))),
-      )),
+        RefreshIndicator(
+          onRefresh: _refreshPlanned,
+          child: FutureBuilder(
+              future: _ridePlannedList,
+              builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) =>
+                  renderRideList(context, snapshot)),
+        ),
+      ],
+              ),
+              floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () => Navigator.push(
+            context, MaterialPageRoute(builder: (context) => const PublishRidePage()))),
+            ),
     );
   }
 }
