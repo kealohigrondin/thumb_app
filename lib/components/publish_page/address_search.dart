@@ -7,7 +7,7 @@ class AddressSearch extends SearchDelegate<Suggestion> {
   }
 
   late final String sessionToken;
-  String hintText = 'Enter address';
+  String hintText = 'Enter place or address';
   late PlaceApiProvider apiClient;
 
   @override
@@ -22,6 +22,9 @@ class AddressSearch extends SearchDelegate<Suggestion> {
       )
     ];
   }
+
+  @override
+  
 
   @override
   Widget buildLeading(BuildContext context) {
