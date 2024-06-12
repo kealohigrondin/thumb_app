@@ -41,13 +41,15 @@ class _RideOverviewState extends State<RideOverview> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm instant booking?', style: Theme.of(context).textTheme.titleMedium),
+          title: Text('Confirm instant booking?',
+              style: Theme.of(context).textTheme.titleMedium),
           actions: [
             TextButton(
               onPressed: Navigator.of(context).pop,
               child: const Text('Cancel'),
             ),
-            FilledButton(onPressed: _handleRequestToJoin, child: const Text('Confirm'))
+            FilledButton(
+                onPressed: _handleRequestToJoin, child: const Text('Confirm'))
           ],
         );
       },
@@ -56,7 +58,6 @@ class _RideOverviewState extends State<RideOverview> {
 
   void _handleRequestToJoin() async {
     debugPrint('handle request to join ride');
-
     try {
       dynamic values = {
         'ride_id': widget.ride.id!,
@@ -64,23 +65,28 @@ class _RideOverviewState extends State<RideOverview> {
         'requestor_user_id': supabase.auth.currentUser!.id,
       };
       if (widget.ride.enableInstantBook) {
-        values = {...values, 'status': RidePassengerStatus.confirmed.toShortString()};
+        values = {
+          ...values,
+          'status': RidePassengerStatus.confirmed.toShortString()
+        };
       }
       await supabase.from('ride_passenger').upsert(values);
       // TODO: notify driver that a passenger request was made
       if (mounted) {
         Navigator.of(context).pop();
-        ShowSuccessSnackBar(
-            context, widget.ride.enableInstantBook ? 'Ride Joined!' : 'Ride Requested!');
+        ShowSuccessSnackBar(context,
+            widget.ride.enableInstantBook ? 'Ride Joined!' : 'Ride Requested!');
         _refresh();
       }
     } catch (error) {
       // ignore: use_build_context_synchronously
-      ShowErrorSnackBar(context, 'Error requesting ride! Try again later.', error.toString());
+      ShowErrorSnackBar(
+          context, 'Error requesting ride! Try again later.', error.toString());
     }
   }
 
-  void _updatePassengerStatus(RidePassengerStatus newStatus, String passengerUserId) async {
+  void _updatePassengerStatus(
+      RidePassengerStatus newStatus, String passengerUserId) async {
     try {
       // create row in ride_passenger table
       //don't need to pass in intial status or created_at since those are created on the db side
@@ -103,7 +109,8 @@ class _RideOverviewState extends State<RideOverview> {
     debugPrint('passenger status changed to $newStatus');
   }
 
-  Widget _displayActionButtons(bool isCurrentUserConfirmedPassenger) {
+  Widget _displayActionButtons(
+      bool isCurrentUserConfirmedPassenger, int confirmedPassengerCount) {
     final currentUserId = supabase.auth.currentUser!.id;
     if (currentUserId == widget.ride.driverUserId) {
       return const TextButton(onPressed: null, child: Text('You are driver'));
@@ -111,10 +118,16 @@ class _RideOverviewState extends State<RideOverview> {
       return OutlinedButton(
           style: OutlinedButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
-              side: BorderSide(color: Theme.of(context).colorScheme.error)), // Border color
+              side: BorderSide(
+                  color: Theme.of(context).colorScheme.error)), // Border color
 
-          onPressed: () => _updatePassengerStatus(RidePassengerStatus.cancelled, currentUserId),
+          onPressed: () => _updatePassengerStatus(
+              RidePassengerStatus.cancelled, currentUserId),
           child: const Text('Cancel Ride'));
+    } else if (confirmedPassengerCount == widget.ride.availableSeats) {
+      //no seats left
+      return const FilledButton(
+          onPressed: null, child: Text('No available seats'));
     }
     return FilledButton(
         onPressed: () {
@@ -123,9 +136,12 @@ class _RideOverviewState extends State<RideOverview> {
           }
           _handleRequestToJoin();
         },
-        child: Text(widget.ride.enableInstantBook ? 'Instant Book' : 'Request to Join'));
+        child: Text(widget.ride.enableInstantBook
+            ? 'Instant Book'
+            : 'Request to Join'));
   }
 
+// TODO: refetch on supabase request for ride
   Future<void> _refresh() async {
     setState(() {
       _passengerList = _getPassengers();
@@ -148,30 +164,48 @@ class _RideOverviewState extends State<RideOverview> {
           onRefresh: _refresh,
           child: FutureBuilder(
             future: _passengerList,
-            builder: (BuildContext context, AsyncSnapshot<List<PassengerProfile>> snapshot) {
+            builder: (BuildContext context,
+                AsyncSnapshot<List<PassengerProfile>> snapshot) {
               if (snapshot.hasError) {
                 return Text(snapshot.error.toString());
               } else if (snapshot.hasData) {
                 return SafeArea(
                     child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
                   child: Column(
                     children: [
                       Expanded(
                         child: ListView(children: [
-                          Text(widget.ride.title!, style: Theme.of(context).textTheme.titleLarge),
-                          Text(DateFormat.MMMd().add_jm().format(widget.ride.dateTime),
+                          Text(widget.ride.title!,
+                              style: Theme.of(context).textTheme.titleLarge),
+                          Text(
+                              DateFormat.MMMd()
+                                  .add_jm()
+                                  .format(widget.ride.dateTime),
                               style: Theme.of(context).textTheme.labelLarge),
                           const SizedBox(height: 8),
                           Text(widget.ride.description!),
                           const SizedBox(height: 24),
-                          Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text(widget.ride.departAddress!),
-                            const Icon(Icons.arrow_downward),
-                            Text(widget.ride.arriveAddress!),
-                          ]),
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(widget.ride.departAddress!),
+                                const Icon(Icons.arrow_downward),
+                                Text(widget.ride.arriveAddress!),
+                              ]),
                           const SizedBox(height: 24),
-                          Text('Passengers', style: Theme.of(context).textTheme.titleMedium),
+                          Row(
+                            children: [
+                              Text('Passengers',
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium),
+                              const SizedBox(width: 4),
+                              Text('(${widget.ride.availableSeats} ${widget.ride.availableSeats == 1 ? 'seat' : 'seats'})',
+                                  style:
+                                      Theme.of(context).textTheme.bodyMedium),
+                            ],
+                          ),
                           RidePassengerList(
                             passengerList: snapshot.data!,
                             driverUserId: widget.ride.driverUserId!,
@@ -179,17 +213,23 @@ class _RideOverviewState extends State<RideOverview> {
                           ),
                           const SizedBox(height: 24),
                           //TODO: Hide driver section if currentUser is driver
-                          Text('Driver', style: Theme.of(context).textTheme.titleMedium),
+                          Text('Driver',
+                              style: Theme.of(context).textTheme.titleMedium),
                           Text(widget.ride.driverUserId!),
                           const SizedBox(height: 24),
-                          Text('Vehicle', style: Theme.of(context).textTheme.titleMedium),
+                          Text('Vehicle',
+                              style: Theme.of(context).textTheme.titleMedium),
                         ]),
                       ),
-                      _displayActionButtons(snapshot.data!
-                          .where((element) =>
-                              element.passengerUserId == supabase.auth.currentUser!.id &&
-                              element.status == RidePassengerStatus.confirmed)
-                          .isNotEmpty)
+                      _displayActionButtons(
+                          snapshot.data!
+                              .where((element) =>
+                                  element.passengerUserId ==
+                                      supabase.auth.currentUser!.id &&
+                                  element.status ==
+                                      RidePassengerStatus.confirmed)
+                              .isNotEmpty,
+                          snapshot.data!.length)
                     ],
                   ),
                 ));
