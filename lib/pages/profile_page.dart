@@ -1,161 +1,151 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:thumb_app/components/shared/center_progress_indicator.dart';
+import 'package:flutter/widgets.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/login_page.dart';
+import 'package:thumb_app/pages/loading_page.dart';
+import 'package:thumb_app/pages/profile_edit_page.dart';
+import 'package:thumb_app/pages/search_profile_page.dart';
+import 'package:thumb_app/styles/button_styles.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({super.key, required this.authId});
+
+  final String authId;
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _phoneNumberController = TextEditingController();
-  final _emailController = TextEditingController();
+  late Future<Profile> _profile;
 
-  /// Called once a user id is received within `onAuthenticated()`
+  List<Widget> _getActionButtons() {
+    if (supabase.auth.currentUser!.id == widget.authId) {
+      return [
+        FilledButton.icon(
+            icon: const Icon(Icons.person_add),
+            label: const Text('Add Friends'),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const SearchProfilePage())),
+            style: squareSmallButton)
+      ];
+    } else {
+      return [const Text('not current user')];
+    }
+  }
+
   Future<Profile> _getProfile() async {
-    final user = supabase.auth.currentUser;
+    //final user = supabase.auth.currentUser;
     try {
-      final result = await supabase.from('profile').select().eq('auth_id', user!.id).single();
+      final result = await supabase
+          .from('profile')
+          .select()
+          .eq('auth_id', widget.authId)
+          .single();
       return Profile.fromJson(result);
     } catch (error) {
-      ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
+      if (mounted) {
+        ShowErrorSnackBar(
+            context, 'Unexpected error occurred.', error.toString());
+      }
       return Profile();
     }
   }
 
-  /// Called when user taps `Update` button
-  Future<void> _updateProfile() async {
-    try {
-      final authId = supabase.auth.currentUser!.id;
-      final updates = {
-        'first_name': _firstNameController.text.trim(),
-        'last_name': _lastNameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'phone_number': _phoneNumberController.text.trim(),
-      };
-      await supabase.auth.updateUser(UserAttributes(
-        data: updates,
-      ));
-      final profileUpdates = {'auth_id': authId, ...updates};
-      await supabase.from('profile').upsert(profileUpdates).eq('auth_id', authId);
-      ShowSuccessSnackBar(context, 'Profile saved!');
-    } catch (error) {
-      ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
-    } finally {
-      //close keyboard
-      if (FocusManager.instance.primaryFocus != null) {
-        FocusManager.instance.primaryFocus!.unfocus();
-      }
-      //unfocus all text fields
-    }
-  }
-
-  Future<void> _signOut() async {
-    try {
-      await supabase.auth.signOut();
-    } catch (error) {
-      ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
-    } finally {
-      if (mounted) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const LoginPage()));
-      }
-    }
+  Future<void> _refresh() async {
+    final result = _getProfile();
+    setState(() {
+      _profile = result;
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    _getProfile();
-  }
-
-  @override
-  void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _emailController.dispose();
-    _phoneNumberController.dispose();
-    super.dispose();
+    _profile = _getProfile();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _getProfile(),
-        builder: (BuildContext context, AsyncSnapshot<Profile> snapshot) {
-          if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
-          } else if (snapshot.hasData) {
-            _firstNameController.text = snapshot.data!.firstName;
-            _lastNameController.text = snapshot.data!.lastName;
-            _emailController.text = snapshot.data!.email;
-            _phoneNumberController.text = snapshot.data!.phoneNumber;
-
-            return ListView(
-              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1),
-                      shape: BoxShape.circle,
-                    ),
-                    // TODO: add image upload on tap
-                    child: GestureDetector(
-                        onTap: () => debugPrint('profile image tapped'),
-                        child: Image.asset('assets/images/user.png')),
-                  ),
-                ),
-                TextFormField(
-                  controller: _firstNameController,
-                  keyboardType: TextInputType.name,
-                  decoration: const InputDecoration(labelText: 'First Name'),
-                ),
-                const SizedBox(height: 18),
-                TextFormField(
-                  controller: _lastNameController,
-                  keyboardType: TextInputType.name,
-                  decoration: const InputDecoration(labelText: 'Last Name'),
-                ),
-                const SizedBox(height: 18),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  // TODO: Add form validation
-                  decoration: const InputDecoration(labelText: 'Email'),
-                ),
-                const SizedBox(height: 18),
-                TextFormField(
-                  controller: _phoneNumberController,
-                  keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'Phone Number'),
-                ),
-                const SizedBox(height: 18),
-                ElevatedButton(
-                  onPressed: _updateProfile,
-                  child: const Text('Update'),
-                ),
-                const SizedBox(height: 18),
-                TextButton(onPressed: _signOut, child: const Text('Sign Out')),
-              ],
-            );
-          } else {
-            return const CenterProgressIndicator();
-          }
-        });
+    return RefreshIndicator(
+        onRefresh: _refresh,
+        child: FutureBuilder(
+            future: _profile,
+            builder: (BuildContext context, AsyncSnapshot<Profile> snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return const LoadingPage();
+                case ConnectionState.done:
+                  if (snapshot.hasError) {
+                    return ListView.builder(
+                        itemCount: 1,
+                        itemBuilder: (ctx, index) =>
+                            Text(snapshot.error.toString()));
+                  }
+                  if (snapshot.hasData) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 32, 8, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () => debugPrint('profile photo tapped'),
+                                child: CircleAvatar(
+                                    radius: 45,
+                                    child:
+                                        Image.asset('assets/images/user.png')),
+                              ),
+                              const SizedBox(width: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${snapshot.data!.firstName} ${snapshot.data!.lastName}',
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  Text(snapshot.data!.email),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(24),
+                                  child: Text(snapshot.data!.bio),
+                                ),
+                                supabase.auth.currentUser!.id == widget.authId
+                                    ? TextButton.icon(
+                                        icon: const Icon(Icons.edit),
+                                        label: const Text('Edit'),
+                                        onPressed: () => Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const ProfileEditPage())),
+                                        style: squareSmallButton)
+                                    : FilledButton.icon(
+                                        icon: const Icon(Icons.person_add),
+                                        label: const Text('Add'),
+                                        onPressed: () => Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const SearchProfilePage())),
+                                        style: squareSmallButton),
+                              ])
+                        ],
+                      ),
+                    );
+                  }
+                  return const Center(child: Text('data loaded'));
+                default:
+                  return const Center(
+                      child: Text('Something unaccounted for has occurred...'));
+              }
+            }));
   }
 }

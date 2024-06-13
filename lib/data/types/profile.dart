@@ -5,6 +5,7 @@ class Profile {
   String lastName = '';
   String phoneNumber = '';
   String email = '';
+  String bio = '';
 
    Profile.fromJson(Map<String, dynamic> data) {
     authId = data['auth_id'];
@@ -13,6 +14,7 @@ class Profile {
     lastName = data['last_name'] ?? '';
     phoneNumber = data['phone_number'] ?? '';
     email = data['email'] ?? '';
+    bio = data['bio'] ?? '';
   }
 
   Profile();

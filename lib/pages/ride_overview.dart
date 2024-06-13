@@ -5,6 +5,7 @@ import 'package:thumb_app/components/ride_overview_page/ride_passenger_list.dart
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 import 'package:thumb_app/data/types/passenger_profile.dart';
+import 'package:thumb_app/pages/chat_page.dart';
 
 import '../data/types/ride.dart';
 import '../main.dart';
@@ -159,6 +160,10 @@ class _RideOverviewState extends State<RideOverview> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Ride Overview'),
+          actions: [IconButton(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => ChatPage(rideId: widget.ride.id!))),
+                  icon: const Icon(Icons.chat, size: 25))]
         ),
         body: RefreshIndicator(
           onRefresh: _refresh,
