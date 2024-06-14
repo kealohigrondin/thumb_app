@@ -7,3 +7,9 @@ final squareSmallButton = ButtonStyle(
     padding: const MaterialStatePropertyAll(EdgeInsets.all(4)),
     iconSize: const MaterialStatePropertyAll(20),
     textStyle: MaterialStatePropertyAll(theme.textTheme.labelMedium));
+
+final settingsRowButton = ButtonStyle(
+    shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(0))),
+    padding: const MaterialStatePropertyAll(EdgeInsets.all(8)),
+    iconSize: const MaterialStatePropertyAll(20));

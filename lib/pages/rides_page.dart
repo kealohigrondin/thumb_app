@@ -30,13 +30,15 @@ class _RidesPageState extends State<RidesPage> {
         RidePassengerStatus.confirmed.toShortString(),
         RidePassengerStatus.requested.toShortString()
       ]).lte('ride.datetime', DateTime.now());
-      final passengerRideList = passengerRides.map((item) => Ride.fromJson(item['ride'])).toList();
+      final passengerRideList =
+          passengerRides.map((item) => Ride.fromJson(item['ride'])).toList();
       final driverRides = await supabase
           .from('ride')
           .select()
           .eq('driver_user_id', supabase.auth.currentUser!.id)
           .lte('datetime', DateTime.now());
-      List<Ride> result = driverRides.map((item) => Ride.fromJson(item)).toList();
+      List<Ride> result =
+          driverRides.map((item) => Ride.fromJson(item)).toList();
       result += passengerRideList;
       result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
       return result;
@@ -59,13 +61,15 @@ class _RidesPageState extends State<RidesPage> {
         RidePassengerStatus.confirmed.toShortString(),
         RidePassengerStatus.requested.toShortString()
       ]).gte('ride.datetime', DateTime.now());
-      final passengerRideList = passengerRides.map((item) => Ride.fromJson(item['ride'])).toList();
+      final passengerRideList =
+          passengerRides.map((item) => Ride.fromJson(item['ride'])).toList();
       final driverRides = await supabase
           .from('ride')
           .select()
           .eq('driver_user_id', supabase.auth.currentUser!.id)
           .gte('datetime', DateTime.now());
-      List<Ride> result = driverRides.map((item) => Ride.fromJson(item)).toList();
+      List<Ride> result =
+          driverRides.map((item) => Ride.fromJson(item)).toList();
       result += passengerRideList;
       result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
       return result;
@@ -75,14 +79,16 @@ class _RidesPageState extends State<RidesPage> {
     }
   }
 
-  Widget renderRideList(BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
+  Widget renderRideList(
+      BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
     switch (snapshot.connectionState) {
       case ConnectionState.waiting:
         return const LoadingPage();
       case ConnectionState.done:
         if (snapshot.hasError) {
           return ListView.builder(
-              itemCount: 1, itemBuilder: (ctx, index) => Text(snapshot.error.toString()));
+              itemCount: 1,
+              itemBuilder: (ctx, index) => Text(snapshot.error.toString()));
         }
         if (snapshot.data!.isEmpty) {
           return ListView.builder(
@@ -94,9 +100,11 @@ class _RidesPageState extends State<RidesPage> {
         }
         return ListView.builder(
             itemCount: snapshot.data!.length,
-            itemBuilder: (ctx, index) => SearchCard(ride: snapshot.data![index]));
+            itemBuilder: (ctx, index) =>
+                SearchCard(ride: snapshot.data![index]));
       default:
-        return const Center(child: Text('Something unaccounted for has occurred...'));
+        return const Center(
+            child: Text('Something unaccounted for has occurred...'));
     }
   }
 
@@ -124,31 +132,37 @@ class _RidesPageState extends State<RidesPage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-              appBar: const TabBar(
-        tabs: [Tab(icon: Icon(Icons.history)), Tab(icon: Icon(Icons.calendar_month))]),
-              body: TabBarView(
-      children: [
-        RefreshIndicator(
-          onRefresh: _refreshHistory,
-          child: FutureBuilder(
-              future: _rideHistoryList,
-              builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) =>
-                  renderRideList(context, snapshot)),
-        ),
-        RefreshIndicator(
-          onRefresh: _refreshPlanned,
-          child: FutureBuilder(
-              future: _ridePlannedList,
-              builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) =>
-                  renderRideList(context, snapshot)),
-        ),
-      ],
-              ),
-              floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () => Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const PublishRidePage()))),
+        appBar: const TabBar(tabs: [
+          Tab(icon: Icon(Icons.history)),
+          Tab(icon: Icon(Icons.calendar_month))
+        ]),
+        body: TabBarView(
+          children: [
+            RefreshIndicator(
+              onRefresh: _refreshHistory,
+              child: FutureBuilder(
+                  future: _rideHistoryList,
+                  builder: (BuildContext context,
+                          AsyncSnapshot<List<Ride>> snapshot) =>
+                      renderRideList(context, snapshot)),
             ),
+            RefreshIndicator(
+              onRefresh: _refreshPlanned,
+              child: FutureBuilder(
+                  future: _ridePlannedList,
+                  builder: (BuildContext context,
+                          AsyncSnapshot<List<Ride>> snapshot) =>
+                      renderRideList(context, snapshot)),
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const PublishRidePage()))),
+      ),
     );
   }
 }
