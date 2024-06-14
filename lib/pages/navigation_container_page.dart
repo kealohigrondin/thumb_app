@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/profile_page.dart';
 import 'package:thumb_app/pages/home_page.dart';
 import 'package:thumb_app/pages/rides_page.dart';
 import 'package:thumb_app/pages/search_page.dart';
 import 'package:thumb_app/pages/chat_page.dart';
 import 'package:thumb_app/pages/search_profile_page.dart';
+import 'package:thumb_app/pages/settings_page.dart';
 
 final bottomNavIndexProvider = StateProvider((ref) => 0);
 
@@ -21,20 +21,13 @@ class NavigationContainerPage extends ConsumerWidget {
     const NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
   ];
 
-  static final pageTitles = [
-    'Activity Feed',
-    'Find a ride',
-    'My Rides',
-    'Profile'
-  ];
+  static final pageTitles = ['Activity', 'Find a ride', 'My Rides', 'Profile'];
 
   static final pages = [
     const HomePage(),
     const SearchPage(),
     const RidesPage(),
-    ProfilePage(
-      authId: supabase.auth.currentUser!.id,
-    )
+    const ProfilePage()
   ];
 
   @override
@@ -52,14 +45,24 @@ class NavigationContainerPage extends ConsumerWidget {
               ],
             ),
             actions: [
-              currentIndex == 3 ? IconButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const SearchProfilePage())),
-                  icon: const Icon(Icons.search, size: 25)) : Container(),
+              currentIndex == 3
+                  ? IconButton(
+                      onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => const SearchProfilePage())),
+                      icon: const Icon(Icons.search, size: 25))
+                  : Container(),
+              currentIndex == 3
+                  ? IconButton(
+                      onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => SettingsPage())),
+                      icon: const Icon(Icons.settings, size: 25))
+                  : Container(),
               IconButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => ChatPage())),
-                  icon: const Icon(Icons.chat, size: 25))
+                  onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => ChatPage())),
+                  icon: const Icon(Icons.chat, size: 25)),
             ]),
         body: Padding(
           padding: const EdgeInsets.only(left: 2, right: 2),
