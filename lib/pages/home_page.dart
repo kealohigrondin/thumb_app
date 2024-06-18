@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/home_page/activity_card.dart';
-import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/loading_page.dart';
+import 'package:thumb_app/services/supabase_service.dart';
 
 import '../data/types/ride.dart';
 
@@ -17,23 +17,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Future<List<Ride>> _rideList;
 
-  Future<List<Ride>> _getActivityData() async {
-    final result = await supabase
-        .from('ride')
-        .select()
-        .lt('datetime', DateTime.now())
-        .order('datetime', ascending: false); //get activity data in descending datetime
-    return result.map((item) => Ride.fromJson(item)).toList();
-  }
+  
 
   @override
   void initState() {
     super.initState();
-    _rideList = _getActivityData();
+    _rideList = SupabaseService.getActivityData();
   }
 
   Future<void> _refresh() async {
-    final result = _getActivityData();
+    final result = SupabaseService.getActivityData();
     setState(() {
       _rideList = result;
     });

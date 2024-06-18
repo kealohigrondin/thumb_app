@@ -5,6 +5,7 @@ import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/publish_ride_page.dart';
 import 'package:thumb_app/pages/loading_page.dart';
+import 'package:thumb_app/services/supabase_service.dart';
 
 class RidesPage extends StatefulWidget {
   const RidesPage({super.key});
@@ -16,68 +17,6 @@ class RidesPage extends StatefulWidget {
 class _RidesPageState extends State<RidesPage> {
   late Future<List<Ride>> _rideHistoryList;
   late Future<List<Ride>> _ridePlannedList;
-
-  Future<List<Ride>> _getRideHistory() async {
-    if (supabase.auth.currentUser == null) {
-      return [];
-    }
-    try {
-      final passengerRides = await supabase
-          .from('ride_passenger')
-          .select('ride(*)')
-          .eq('passenger_user_id', supabase.auth.currentUser!.id)
-          .inFilter('status', [
-        RidePassengerStatus.confirmed.toShortString(),
-        RidePassengerStatus.requested.toShortString()
-      ]).lte('ride.datetime', DateTime.now());
-      final passengerRideList =
-          passengerRides.map((item) => Ride.fromJson(item['ride'])).toList();
-      final driverRides = await supabase
-          .from('ride')
-          .select()
-          .eq('driver_user_id', supabase.auth.currentUser!.id)
-          .lte('datetime', DateTime.now());
-      List<Ride> result =
-          driverRides.map((item) => Ride.fromJson(item)).toList();
-      result += passengerRideList;
-      result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
-      return result;
-    } catch (err) {
-      debugPrint(err.toString());
-      return [];
-    }
-  }
-
-  Future<List<Ride>> _getRidesPlanned() async {
-    if (supabase.auth.currentUser == null) {
-      return [];
-    }
-    try {
-      final passengerRides = await supabase
-          .from('ride_passenger')
-          .select('ride(*)')
-          .eq('passenger_user_id', supabase.auth.currentUser!.id)
-          .inFilter('status', [
-        RidePassengerStatus.confirmed.toShortString(),
-        RidePassengerStatus.requested.toShortString()
-      ]).gte('ride.datetime', DateTime.now());
-      final passengerRideList =
-          passengerRides.map((item) => Ride.fromJson(item['ride'])).toList();
-      final driverRides = await supabase
-          .from('ride')
-          .select()
-          .eq('driver_user_id', supabase.auth.currentUser!.id)
-          .gte('datetime', DateTime.now());
-      List<Ride> result =
-          driverRides.map((item) => Ride.fromJson(item)).toList();
-      result += passengerRideList;
-      result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
-      return result;
-    } catch (err) {
-      debugPrint(err.toString());
-      return [];
-    }
-  }
 
   Widget renderRideList(
       BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
@@ -110,21 +49,21 @@ class _RidesPageState extends State<RidesPage> {
 
   Future<void> _refreshHistory() async {
     setState(() {
-      _rideHistoryList = _getRideHistory();
+      _rideHistoryList = SupabaseService.getRideHistory();
     });
   }
 
   Future<void> _refreshPlanned() async {
     setState(() {
-      _ridePlannedList = _getRidesPlanned();
+      _ridePlannedList = SupabaseService.getRidesPlanned();
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _rideHistoryList = _getRideHistory();
-    _ridePlannedList = _getRidesPlanned();
+    _rideHistoryList = SupabaseService.getRideHistory();
+    _ridePlannedList = SupabaseService.getRidesPlanned();
   }
 
   @override

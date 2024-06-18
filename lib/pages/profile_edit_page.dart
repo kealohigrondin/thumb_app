@@ -6,7 +6,7 @@ import 'package:thumb_app/components/shared/center_progress_indicator.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/login_page.dart';
+import 'package:thumb_app/services/supabase_service.dart';
 
 class ProfileEditPage extends StatefulWidget {
   const ProfileEditPage({super.key});
@@ -16,6 +16,7 @@ class ProfileEditPage extends StatefulWidget {
 }
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
+  late Future<Profile> _profile;
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
@@ -23,21 +24,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   final _bioController = TextEditingController();
 
   /// Called once a user id is received within `onAuthenticated()`
-  Future<Profile> _getProfile() async {
-    final user = supabase.auth.currentUser;
-    try {
-      final result = await supabase
-          .from('profile')
-          .select()
-          .eq('auth_id', user!.id)
-          .single();
-      return Profile.fromJson(result);
-    } catch (error) {
-      ShowErrorSnackBar(
-          context, 'Unexpected error occurred.', error.toString());
-      return Profile();
-    }
-  }
 
   /// Called when user taps `Update` button
   Future<void> _updateProfile() async {
@@ -75,7 +61,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   @override
   void initState() {
     super.initState();
-    _getProfile();
+    _profile = SupabaseService.getProfile(supabase.auth.currentUser!.id);
   }
 
   @override
@@ -89,13 +75,12 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   }
 
 // TODO: Add vehicle form
-// TODO: create profile overview page and convert this to a profile edit page
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profile')),
       body: FutureBuilder(
-          future: _getProfile(),
+          future: _profile,
           builder: (BuildContext context, AsyncSnapshot<Profile> snapshot) {
             if (snapshot.hasError) {
               return Text(snapshot.error.toString());
@@ -146,6 +131,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     controller: _bioController,
                     keyboardType: TextInputType.text,
                     decoration: const InputDecoration(labelText: 'Bio'),
+                    minLines: 3,
+                    maxLines: 3,
                   ),
                   const SizedBox(height: 18),
                   ElevatedButton(

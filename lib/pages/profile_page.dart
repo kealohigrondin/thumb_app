@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/search_page/search_card.dart';
-import 'package:thumb_app/components/shared/snackbars_custom.dart';
-import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/loading_page.dart';
 import 'package:thumb_app/pages/profile_edit_page.dart';
+import 'package:thumb_app/services/supabase_service.dart';
 import 'package:thumb_app/styles/button_styles.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -20,37 +19,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late Future<Profile> _profile;
   late Future<List<Ride>> _rideHistoryList;
-
-  Future<List<Ride>> _getRideHistory() async {
-    if (supabase.auth.currentUser == null) {
-      return [];
-    }
-    try {
-      final passengerRides = await supabase
-          .from('ride_passenger')
-          .select('ride(*)')
-          .eq('passenger_user_id', supabase.auth.currentUser!.id)
-          .inFilter('status', [
-        RidePassengerStatus.confirmed.toShortString(),
-        RidePassengerStatus.requested.toShortString()
-      ]).lte('ride.datetime', DateTime.now());
-      final passengerRideList =
-          passengerRides.map((item) => Ride.fromJson(item['ride'])).toList();
-      final driverRides = await supabase
-          .from('ride')
-          .select()
-          .eq('driver_user_id', supabase.auth.currentUser!.id)
-          .lte('datetime', DateTime.now());
-      List<Ride> result =
-          driverRides.map((item) => Ride.fromJson(item)).toList();
-      result += passengerRideList;
-      result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
-      return result;
-    } catch (err) {
-      debugPrint(err.toString());
-      return [];
-    }
-  }
 
   Widget renderRideList(
       BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
@@ -83,29 +51,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _refreshHistory() async {
     setState(() {
-      _rideHistoryList = _getRideHistory();
+      _rideHistoryList = SupabaseService.getRideHistory();
     });
   }
 
-  Future<Profile> _getProfile() async {
-    try {
-      final result = await supabase
-          .from('profile')
-          .select()
-          .eq('auth_id', widget.authId ?? supabase.auth.currentUser!.id)
-          .single();
-      return Profile.fromJson(result);
-    } catch (error) {
-      if (mounted) {
-        ShowErrorSnackBar(
-            context, 'Unexpected error occurred.', error.toString());
-      }
-      return Profile();
-    }
-  }
-
-  Future<void> _refresh() async {
-    final result = _getProfile();
+  Future<void> _refreshProfile() async {
+    final result = SupabaseService.getProfile(
+        widget.authId ?? supabase.auth.currentUser!.id);
     setState(() {
       _profile = result;
     });
@@ -114,15 +66,16 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _profile = _getProfile();
-    _rideHistoryList = _getRideHistory();
+    _profile = SupabaseService.getProfile(
+        widget.authId ?? supabase.auth.currentUser!.id);
+    _rideHistoryList = SupabaseService.getRideHistory();
   }
 
   // TODO: refresh when navigating back from edit profile page
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-        onRefresh: _refresh,
+        onRefresh: _refreshProfile,
         child: FutureBuilder(
             future: _profile,
             builder: (BuildContext context, AsyncSnapshot<Profile> snapshot) {

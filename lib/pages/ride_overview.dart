@@ -6,6 +6,7 @@ import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 import 'package:thumb_app/data/types/passenger_profile.dart';
 import 'package:thumb_app/pages/chat_page.dart';
+import 'package:thumb_app/services/supabase_service.dart';
 
 import '../data/types/ride.dart';
 import '../main.dart';
@@ -21,21 +22,6 @@ class RideOverview extends StatefulWidget {
 
 class _RideOverviewState extends State<RideOverview> {
   late Future<List<PassengerProfile>> _passengerList;
-
-  Future<List<PassengerProfile>> _getPassengers() async {
-    try {
-      var result = await supabase
-          .from('ride_passenger')
-          .select('passenger_user_id, status, profile(first_name, last_name)')
-          .eq('ride_id', widget.ride.id!);
-      List<PassengerProfile> ridePassengerProfile =
-          result.map((item) => PassengerProfile.fromJson(item)).toList();
-      return ridePassengerProfile;
-    } catch (err) {
-      debugPrint(err.toString());
-      return [];
-    }
-  }
 
   void _showInstantBookWarningDialog() {
     showDialog(
@@ -80,34 +66,11 @@ class _RideOverviewState extends State<RideOverview> {
         _refresh();
       }
     } catch (error) {
-      // ignore: use_build_context_synchronously
-      ShowErrorSnackBar(
-          context, 'Error requesting ride! Try again later.', error.toString());
-    }
-  }
-
-  void _updatePassengerStatus(
-      RidePassengerStatus newStatus, String passengerUserId) async {
-    try {
-      // create row in ride_passenger table
-      //don't need to pass in intial status or created_at since those are created on the db side
-      await supabase
-          .from('ride_passenger')
-          .update({'status': newStatus.toShortString()})
-          .eq('ride_id', widget.ride.id!)
-          .eq('passenger_user_id', passengerUserId);
       if (mounted) {
-        ShowSuccessSnackBar(context, 'Update saved!');
-        _refresh();
+        ShowErrorSnackBar(context, 'Error requesting ride! Try again later.',
+            error.toString());
       }
-    } catch (error) {
-      ShowErrorSnackBar(
-          // ignore: use_build_context_synchronously
-          context,
-          'Error updating ride! Try again later.',
-          error.toString());
     }
-    debugPrint('passenger status changed to $newStatus');
   }
 
   Widget _displayActionButtons(
@@ -122,8 +85,8 @@ class _RideOverviewState extends State<RideOverview> {
               side: BorderSide(
                   color: Theme.of(context).colorScheme.error)), // Border color
 
-          onPressed: () => _updatePassengerStatus(
-              RidePassengerStatus.cancelled, currentUserId),
+          onPressed: () => SupabaseService.updatePassengerStatus(context,
+              widget.ride.id!, RidePassengerStatus.cancelled, currentUserId),
           child: const Text('Cancel Ride'));
     } else if (confirmedPassengerCount == widget.ride.availableSeats) {
       //no seats left
@@ -145,26 +108,25 @@ class _RideOverviewState extends State<RideOverview> {
 // TODO: refetch on supabase request for ride
   Future<void> _refresh() async {
     setState(() {
-      _passengerList = _getPassengers();
+      _passengerList = SupabaseService.getPassengers(widget.ride.id!);
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _passengerList = _getPassengers();
+    _passengerList = SupabaseService.getPassengers(widget.ride.id!);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Ride Overview'),
-          actions: [IconButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => ChatPage(rideId: widget.ride.id!))),
-                  icon: const Icon(Icons.chat, size: 25))]
-        ),
+        appBar: AppBar(title: const Text('Ride Overview'), actions: [
+          IconButton(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ChatPage(rideId: widget.ride.id!))),
+              icon: const Icon(Icons.chat, size: 25))
+        ]),
         body: RefreshIndicator(
           onRefresh: _refresh,
           child: FutureBuilder(
@@ -174,6 +136,12 @@ class _RideOverviewState extends State<RideOverview> {
               if (snapshot.hasError) {
                 return Text(snapshot.error.toString());
               } else if (snapshot.hasData) {
+                final bool isCurrentUserConfirmedPassenger = snapshot.data!
+                    .where((element) =>
+                        element.passengerUserId ==
+                            supabase.auth.currentUser!.id &&
+                        element.status == RidePassengerStatus.confirmed)
+                    .isNotEmpty;
                 return SafeArea(
                     child: Padding(
                   padding:
@@ -206,7 +174,8 @@ class _RideOverviewState extends State<RideOverview> {
                                   style:
                                       Theme.of(context).textTheme.titleMedium),
                               const SizedBox(width: 4),
-                              Text('(${widget.ride.availableSeats} ${widget.ride.availableSeats == 1 ? 'seat' : 'seats'})',
+                              Text(
+                                  '(${widget.ride.availableSeats} ${widget.ride.availableSeats == 1 ? 'seat' : 'seats'})',
                                   style:
                                       Theme.of(context).textTheme.bodyMedium),
                             ],
@@ -226,14 +195,7 @@ class _RideOverviewState extends State<RideOverview> {
                               style: Theme.of(context).textTheme.titleMedium),
                         ]),
                       ),
-                      _displayActionButtons(
-                          snapshot.data!
-                              .where((element) =>
-                                  element.passengerUserId ==
-                                      supabase.auth.currentUser!.id &&
-                                  element.status ==
-                                      RidePassengerStatus.confirmed)
-                              .isNotEmpty,
+                      _displayActionButtons(isCurrentUserConfirmedPassenger,
                           snapshot.data!.length)
                     ],
                   ),
