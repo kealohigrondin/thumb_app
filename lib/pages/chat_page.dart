@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatelessWidget {
-  ChatPage({super.key, this.rideId = ''});
+  const ChatPage({super.key, this.rideId = ''});
 
-  String rideId;
+  final String rideId;
 
   // TODO: create chat_list_page to show a list of chats before this page
   @override

@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/login_page.dart';
@@ -8,7 +6,7 @@ import 'package:thumb_app/pages/profile_edit_page.dart';
 import 'package:thumb_app/styles/button_styles.dart';
 
 class SettingsPage extends StatefulWidget {
-  SettingsPage({super.key});
+  const SettingsPage({super.key});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -19,8 +17,10 @@ class _SettingsPageState extends State<SettingsPage> {
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      ShowErrorSnackBar(
-          context, 'Unexpected error occurred.', error.toString());
+      if (mounted) {
+        ShowErrorSnackBar(
+            context, 'Unexpected error occurred.', error.toString());
+      }
     } finally {
       if (mounted) {
         Navigator.pushReplacement(context,

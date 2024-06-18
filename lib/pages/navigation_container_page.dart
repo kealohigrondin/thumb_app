@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:thumb_app/pages/chat_list_page.dart';
+import 'package:thumb_app/pages/notifications_page.dart';
 import 'package:thumb_app/pages/profile_page.dart';
 import 'package:thumb_app/pages/home_page.dart';
 import 'package:thumb_app/pages/rides_page.dart';
 import 'package:thumb_app/pages/search_page.dart';
-import 'package:thumb_app/pages/chat_page.dart';
 import 'package:thumb_app/pages/search_profile_page.dart';
 import 'package:thumb_app/pages/settings_page.dart';
 
@@ -56,13 +57,20 @@ class NavigationContainerPage extends ConsumerWidget {
                   ? IconButton(
                       onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (context) => SettingsPage())),
+                              builder: (context) => const SettingsPage())),
                       icon: const Icon(Icons.settings, size: 25))
                   : Container(),
+              currentIndex != 3
+                  ? IconButton(
+                      onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => const ChatListPage())),
+                      icon: const Icon(Icons.chat, size: 25))
+                  : Container(),
               IconButton(
-                  onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => ChatPage())),
-                  icon: const Icon(Icons.chat, size: 25)),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const NotificationsPage())),
+                  icon: const Icon(Icons.notifications_rounded, size: 25)),
             ]),
         body: Padding(
           padding: const EdgeInsets.only(left: 2, right: 2),

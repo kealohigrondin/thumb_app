@@ -76,7 +76,10 @@ class _RideOverviewState extends State<RideOverview> {
   Widget _displayActionButtons(
       bool isCurrentUserConfirmedPassenger, int confirmedPassengerCount) {
     final currentUserId = supabase.auth.currentUser!.id;
-    if (currentUserId == widget.ride.driverUserId) {
+    if (!DateTime.now().difference(widget.ride.dateTime).isNegative) {
+      //if ride already happened, don't show any buttons
+      return Container();
+    } else if (currentUserId == widget.ride.driverUserId) {
       return const TextButton(onPressed: null, child: Text('You are driver'));
     } else if (isCurrentUserConfirmedPassenger) {
       return OutlinedButton(
