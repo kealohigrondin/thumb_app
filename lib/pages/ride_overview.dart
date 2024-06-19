@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:thumb_app/components/ride_overview_page/ride_driver_details.dart';
 import 'package:thumb_app/components/shared/center_progress_indicator.dart';
 import 'package:thumb_app/components/ride_overview_page/ride_passenger_list.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
@@ -184,7 +185,7 @@ class _RideOverviewState extends State<RideOverview> {
                                       Theme.of(context).textTheme.titleMedium),
                               const SizedBox(width: 4),
                               Text(
-                                  '(${widget.ride.availableSeats} ${widget.ride.availableSeats == 1 ? 'seat' : 'seats'})',
+                                  '(${widget.ride.availableSeats! - snapshot.data!.length} ${widget.ride.availableSeats! - snapshot.data!.length == 1 ? 'open seat' : 'open seats'})',
                                   style:
                                       Theme.of(context).textTheme.bodyMedium),
                             ],
@@ -195,11 +196,18 @@ class _RideOverviewState extends State<RideOverview> {
                             rideId: widget.ride.id!,
                           ),
                           const SizedBox(height: 24),
-                          //TODO: Hide driver section if currentUser is driver
-                          Text('Driver',
-                              style: Theme.of(context).textTheme.titleMedium),
-                          Text(widget.ride.driverUserId!),
-                          const SizedBox(height: 24),
+                          widget.ride.driverUserId !=
+                                  supabase.auth.currentUser!.id
+                              ? Column(children: [
+                                  Text('Driver',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium),
+                                  RideDriverDetails(
+                                      driverUserId: widget.ride.driverUserId!),
+                                  const SizedBox(height: 24),
+                                ])
+                              : Container(),
                           Text('Vehicle',
                               style: Theme.of(context).textTheme.titleMedium),
                         ]),

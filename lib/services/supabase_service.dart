@@ -31,7 +31,7 @@ class SupabaseService {
     debugPrint('passenger status changed to $newStatus');
   }
 
-  Future<void> updateProfile(BuildContext context, String firstName,
+  static Future<void> updateProfile(BuildContext context, String firstName,
       String lastName, String email, String phoneNumber, String bio) async {
     try {
       final authId = supabase.auth.currentUser!.id;
