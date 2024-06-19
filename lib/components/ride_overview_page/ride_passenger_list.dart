@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
-import 'package:thumb_app/data/types/ride_passenger_profile.dart';
+import 'package:thumb_app/data/types/passenger_profile.dart';
 import 'package:thumb_app/main.dart';
+import 'package:thumb_app/services/supabase_service.dart';
 
 class RidePassengerList extends StatefulWidget {
   const RidePassengerList(
-      {super.key, required this.passengerList, required this.driverUserId, required this.rideId});
+      {super.key,
+      required this.passengerList,
+      required this.driverUserId,
+      required this.rideId});
 
-  final List<RidePassengerProfile> passengerList;
+  final List<PassengerProfile> passengerList;
   final String driverUserId;
   final String rideId;
 
@@ -19,54 +22,42 @@ class RidePassengerList extends StatefulWidget {
 class _RidePassengerListState extends State<RidePassengerList> {
   final String currentUserId = supabase.auth.currentUser!.id;
 
-  void _updatePassengerStatus(RidePassengerStatus newStatus, String passengerUserId) async {
-    try {
-      // create row in ride_passenger table
-      //don't need to pass in intial status or created_at since those are created on the db side
-      await supabase
-          .from('ride_passenger')
-          .update({'status': newStatus.toShortString()})
-          .eq('ride_id', widget.rideId)
-          .eq('passenger_user_id', passengerUserId);
-      if (mounted) {
-        ShowSuccessSnackBar(context, 'Update saved!');
-        // TODO: update UI to reflect new state of DB
-      }
-    } catch (error) {
-      ShowErrorSnackBar(
-          // ignore: use_build_context_synchronously
-          context,
-          'Error updating ride! Try again later.',
-          error.toString());
-    }
-    debugPrint('passenger status changed to $newStatus');
-  }
-
-  Widget _passengerStatusButton(RidePassengerProfile passenger) {
+  Widget _passengerStatusButton(PassengerProfile passenger) {
     if (passenger.status == RidePassengerStatus.requested) {
       return Row(
         children: [
           TextButton(
-              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
-              onPressed: () =>
-                  _updatePassengerStatus(RidePassengerStatus.denied, passenger.passengerUserId),
+              style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error),
+              onPressed: () => SupabaseService.updatePassengerStatus(
+                  context,
+                  widget.rideId,
+                  RidePassengerStatus.denied,
+                  passenger.passengerUserId),
               child: const Text('Deny')),
           const SizedBox(width: 4),
           TextButton(
-              onPressed: () =>
-                  _updatePassengerStatus(RidePassengerStatus.confirmed, passenger.passengerUserId),
+              onPressed: () => SupabaseService.updatePassengerStatus(
+                  context,
+                  widget.rideId,
+                  RidePassengerStatus.confirmed,
+                  passenger.passengerUserId),
               child: const Text('Confirm')),
         ],
       );
     } else if (passenger.status == RidePassengerStatus.confirmed) {
-      return TextButton(onPressed: null, child: Text(passenger.status.toShortString()));
+      return TextButton(
+          onPressed: null, child: Text(passenger.status.toShortString()));
     }
-    return TextButton(onPressed: null, child: Text(passenger.status.toShortString()));
+    return TextButton(
+        onPressed: null, child: Text(passenger.status.toShortString()));
   }
 
   TextStyle _getPassengerNameTextStyle(RidePassengerStatus status) {
-    if (status == RidePassengerStatus.cancelled || status == RidePassengerStatus.denied) {
-      return const TextStyle(color: Colors.grey, decoration: TextDecoration.lineThrough);
+    if (status == RidePassengerStatus.cancelled ||
+        status == RidePassengerStatus.denied) {
+      return const TextStyle(
+          color: Colors.grey, decoration: TextDecoration.lineThrough);
     }
     return const TextStyle();
   }
@@ -96,7 +87,7 @@ class _RidePassengerListState extends State<RidePassengerList> {
       return const Text('No confirmed passengers!');
     }
 
-    // TODO: add 'X passengers requested' in passenger list???
+    // TODO: add 'X passengers requested' in passenger list?
     return Column(
       children: viewablePassengerList
           .map((passenger) => Row(

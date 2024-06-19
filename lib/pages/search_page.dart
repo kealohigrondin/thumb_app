@@ -5,7 +5,7 @@ import 'package:thumb_app/components/search_page/search_card.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/loading_page.dart';
 
-import '../../data/types/ride.dart';
+import '../data/types/ride.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -46,7 +46,6 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    //TODO: Testing will require two devices publishing or an admin making new rides
     //TODO: add chips for filters
     return RefreshIndicator(
       onRefresh: _refresh,

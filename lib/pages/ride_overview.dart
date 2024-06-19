@@ -4,7 +4,9 @@ import 'package:thumb_app/components/shared/center_progress_indicator.dart';
 import 'package:thumb_app/components/ride_overview_page/ride_passenger_list.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
-import 'package:thumb_app/data/types/ride_passenger_profile.dart';
+import 'package:thumb_app/data/types/passenger_profile.dart';
+import 'package:thumb_app/pages/chat_page.dart';
+import 'package:thumb_app/services/supabase_service.dart';
 
 import '../data/types/ride.dart';
 import '../main.dart';
@@ -19,35 +21,22 @@ class RideOverview extends StatefulWidget {
 }
 
 class _RideOverviewState extends State<RideOverview> {
-  late Future<List<RidePassengerProfile>> _passengerList;
+  late Future<List<PassengerProfile>> _passengerList;
 
-  Future<List<RidePassengerProfile>> _getPassengers() async {
-    try {
-      var result = await supabase
-          .from('ride_passenger')
-          .select('passenger_user_id, status, profile(first_name, last_name)')
-          .eq('ride_id', widget.ride.id!);
-      List<RidePassengerProfile> ridePassengerProfile =
-          result.map((item) => RidePassengerProfile.fromJson(item)).toList();
-      return ridePassengerProfile;
-    } catch (err) {
-      debugPrint(err.toString());
-      return [];
-    }
-  }
-
-  void _showInstandBookWarningDialog() {
+  void _showInstantBookWarningDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm instant booking?', style: Theme.of(context).textTheme.titleMedium),
+          title: Text('Confirm instant booking?',
+              style: Theme.of(context).textTheme.titleMedium),
           actions: [
             TextButton(
               onPressed: Navigator.of(context).pop,
               child: const Text('Cancel'),
             ),
-            FilledButton(onPressed: _handleRequestToJoin, child: const Text('Confirm'))
+            FilledButton(
+                onPressed: _handleRequestToJoin, child: const Text('Confirm'))
           ],
         );
       },
@@ -56,7 +45,6 @@ class _RideOverviewState extends State<RideOverview> {
 
   void _handleRequestToJoin() async {
     debugPrint('handle request to join ride');
-
     try {
       dynamic values = {
         'ride_id': widget.ride.id!,
@@ -64,117 +52,136 @@ class _RideOverviewState extends State<RideOverview> {
         'requestor_user_id': supabase.auth.currentUser!.id,
       };
       if (widget.ride.enableInstantBook) {
-        values = {...values, 'status': RidePassengerStatus.confirmed.toShortString()};
+        values = {
+          ...values,
+          'status': RidePassengerStatus.confirmed.toShortString()
+        };
       }
       await supabase.from('ride_passenger').upsert(values);
       // TODO: notify driver that a passenger request was made
       if (mounted) {
         Navigator.of(context).pop();
-        ShowSuccessSnackBar(
-            context, widget.ride.enableInstantBook ? 'Ride Joined!' : 'Ride Requested!');
+        ShowSuccessSnackBar(context,
+            widget.ride.enableInstantBook ? 'Ride Joined!' : 'Ride Requested!');
         _refresh();
       }
     } catch (error) {
-      // ignore: use_build_context_synchronously
-      ShowErrorSnackBar(context, 'Error requesting ride! Try again later.', error.toString());
-    }
-  }
-
-  void _updatePassengerStatus(RidePassengerStatus newStatus, String passengerUserId) async {
-    try {
-      // create row in ride_passenger table
-      //don't need to pass in intial status or created_at since those are created on the db side
-      await supabase
-          .from('ride_passenger')
-          .update({'status': newStatus.toShortString()})
-          .eq('ride_id', widget.ride.id!)
-          .eq('passenger_user_id', passengerUserId);
       if (mounted) {
-        ShowSuccessSnackBar(context, 'Update saved!');
-        _refresh();
+        ShowErrorSnackBar(context, 'Error requesting ride! Try again later.',
+            error.toString());
       }
-    } catch (error) {
-      ShowErrorSnackBar(
-          // ignore: use_build_context_synchronously
-          context,
-          'Error updating ride! Try again later.',
-          error.toString());
     }
-    debugPrint('passenger status changed to $newStatus');
   }
 
-  Widget _displayActionButtons(bool isCurrentUserConfirmedPassenger) {
+  Widget _displayActionButtons(
+      bool isCurrentUserConfirmedPassenger, int confirmedPassengerCount) {
     final currentUserId = supabase.auth.currentUser!.id;
-    if (currentUserId == widget.ride.driverUserId) {
+    if (!DateTime.now().difference(widget.ride.dateTime).isNegative) {
+      //if ride already happened, don't show any buttons
+      return Container();
+    } else if (currentUserId == widget.ride.driverUserId) {
       return const TextButton(onPressed: null, child: Text('You are driver'));
     } else if (isCurrentUserConfirmedPassenger) {
       return OutlinedButton(
           style: OutlinedButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
-              side: BorderSide(color: Theme.of(context).colorScheme.error)), // Border color
+              side: BorderSide(
+                  color: Theme.of(context).colorScheme.error)), // Border color
 
-          onPressed: () => _updatePassengerStatus(RidePassengerStatus.cancelled, currentUserId),
+          onPressed: () => SupabaseService.updatePassengerStatus(context,
+              widget.ride.id!, RidePassengerStatus.cancelled, currentUserId),
           child: const Text('Cancel Ride'));
+    } else if (confirmedPassengerCount == widget.ride.availableSeats) {
+      //no seats left
+      return const FilledButton(
+          onPressed: null, child: Text('No available seats'));
     }
     return FilledButton(
         onPressed: () {
           if (widget.ride.enableInstantBook) {
-            return _showInstandBookWarningDialog();
+            return _showInstantBookWarningDialog();
           }
           _handleRequestToJoin();
         },
-        child: Text(widget.ride.enableInstantBook ? 'Instant Book' : 'Request to Join'));
+        child: Text(widget.ride.enableInstantBook
+            ? 'Instant Book'
+            : 'Request to Join'));
   }
 
   Future<void> _refresh() async {
     setState(() {
-      _passengerList = _getPassengers();
+      _passengerList = SupabaseService.getPassengers(widget.ride.id!);
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _passengerList = _getPassengers();
+    _passengerList = SupabaseService.getPassengers(widget.ride.id!);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [Text('Ride Overview')],
-          ),
-        ),
+        appBar: AppBar(title: const Text('Ride Overview'), actions: [
+          IconButton(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ChatPage(rideId: widget.ride.id!))),
+              icon: const Icon(Icons.chat, size: 25))
+        ]),
         body: RefreshIndicator(
           onRefresh: _refresh,
           child: FutureBuilder(
             future: _passengerList,
-            builder: (BuildContext context, AsyncSnapshot<List<RidePassengerProfile>> snapshot) {
+            builder: (BuildContext context,
+                AsyncSnapshot<List<PassengerProfile>> snapshot) {
               if (snapshot.hasError) {
                 return Text(snapshot.error.toString());
               } else if (snapshot.hasData) {
+                final bool isCurrentUserConfirmedPassenger = snapshot.data!
+                    .where((element) =>
+                        element.passengerUserId ==
+                            supabase.auth.currentUser!.id &&
+                        element.status == RidePassengerStatus.confirmed)
+                    .isNotEmpty;
                 return SafeArea(
                     child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
                   child: Column(
                     children: [
                       Expanded(
                         child: ListView(children: [
-                          Text(widget.ride.title!, style: Theme.of(context).textTheme.titleLarge),
-                          Text(DateFormat.MMMd().add_jm().format(widget.ride.dateTime),
+                          Text(widget.ride.title!,
+                              style: Theme.of(context).textTheme.titleLarge),
+                          Text(
+                              DateFormat.MMMd()
+                                  .add_jm()
+                                  .format(widget.ride.dateTime),
                               style: Theme.of(context).textTheme.labelLarge),
                           const SizedBox(height: 8),
                           Text(widget.ride.description!),
                           const SizedBox(height: 24),
-                          Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text(widget.ride.departAddress!),
-                            const Icon(Icons.arrow_downward),
-                            Text(widget.ride.arriveAddress!),
-                          ]),
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(widget.ride.departAddress!),
+                                const Icon(Icons.arrow_downward),
+                                Text(widget.ride.arriveAddress!),
+                              ]),
                           const SizedBox(height: 24),
-                          Text('Passengers', style: Theme.of(context).textTheme.titleMedium),
+                          Row(
+                            children: [
+                              Text('Passengers',
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium),
+                              const SizedBox(width: 4),
+                              Text(
+                                  '(${widget.ride.availableSeats} ${widget.ride.availableSeats == 1 ? 'seat' : 'seats'})',
+                                  style:
+                                      Theme.of(context).textTheme.bodyMedium),
+                            ],
+                          ),
                           RidePassengerList(
                             passengerList: snapshot.data!,
                             driverUserId: widget.ride.driverUserId!,
@@ -182,17 +189,16 @@ class _RideOverviewState extends State<RideOverview> {
                           ),
                           const SizedBox(height: 24),
                           //TODO: Hide driver section if currentUser is driver
-                          Text('Driver', style: Theme.of(context).textTheme.titleMedium),
+                          Text('Driver',
+                              style: Theme.of(context).textTheme.titleMedium),
                           Text(widget.ride.driverUserId!),
                           const SizedBox(height: 24),
-                          Text('Vehicle', style: Theme.of(context).textTheme.titleMedium),
+                          Text('Vehicle',
+                              style: Theme.of(context).textTheme.titleMedium),
                         ]),
                       ),
-                      _displayActionButtons(snapshot.data!
-                          .where((element) =>
-                              element.passengerUserId == supabase.auth.currentUser!.id &&
-                              element.status == RidePassengerStatus.confirmed)
-                          .isNotEmpty)
+                      _displayActionButtons(isCurrentUserConfirmedPassenger,
+                          snapshot.data!.length)
                     ],
                   ),
                 ));

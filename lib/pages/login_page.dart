@@ -5,8 +5,8 @@ import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/navigation_container_page.dart';
 import 'package:thumb_app/utils/utils.dart';
 
-class LoginPageSupabase extends StatelessWidget {
-  const LoginPageSupabase({super.key});
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
 
   void handleAuthResponse(AuthResponse response, BuildContext ctx) async {
     if (response.user == null) {
@@ -14,8 +14,10 @@ class LoginPageSupabase extends StatelessWidget {
       return;
     }
     try {
-      final profileResult =
-          await supabase.from('profile').select('auth_id').eq('auth_id', response.user!.id);
+      final profileResult = await supabase
+          .from('profile')
+          .select('auth_id')
+          .eq('auth_id', response.user!.id);
       if (profileResult.isEmpty) {
         await supabase.from('profile').upsert({
           'auth_id': response.user!.id,
@@ -27,13 +29,15 @@ class LoginPageSupabase extends StatelessWidget {
       }
       if (ctx.mounted) {
         Navigator.pushReplacement(
-            ctx, MaterialPageRoute(builder: (context) => const NavigationContainerPage()));
+            ctx,
+            MaterialPageRoute(
+                builder: (context) => const NavigationContainerPage()));
       }
     } catch (error) {
       //TODO: add some kind of logging
-
-      // ignore: use_build_context_synchronously
-      ShowErrorSnackBar(ctx, 'Error saving profile data');
+      if (ctx.mounted) {
+        ShowErrorSnackBar(ctx, 'Error saving profile data');
+      }
     }
   }
 
@@ -48,8 +52,10 @@ class LoginPageSupabase extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             child: SupaEmailAuth(
-              onSignInComplete: (response) => handleAuthResponse(response, context),
-              onSignUpComplete: (response) => handleAuthResponse(response, context),
+              onSignInComplete: (response) =>
+                  handleAuthResponse(response, context),
+              onSignUpComplete: (response) =>
+                  handleAuthResponse(response, context),
               metadataFields: [
                 MetaDataField(
                   prefixIcon: const Icon(Icons.person),

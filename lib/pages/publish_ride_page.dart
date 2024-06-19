@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 
 import 'package:thumb_app/main.dart';
 
-import '../../components/publish_page/address_search.dart';
+import '../components/publish_page/address_search.dart';
 
 final titleProvider = StateProvider((ref) => '');
 final selectedDateProvider = StateProvider((ref) => DateTime.now());
@@ -92,7 +92,7 @@ class _PublishRidePageState extends State<PublishRidePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: const Text('Publish a ride'),),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -107,7 +107,7 @@ class _PublishRidePageState extends State<PublishRidePage> {
                     final Suggestion? result = await showSearch(
                         context: context,
                         delegate: AddressSearch(
-                            sessionToken, 'Enter pickup address'));
+                            sessionToken, 'Enter pickup location'));
                     if (result != null) {
                       setState(() {
                         _pickupAddressController.text = result.description;
@@ -115,7 +115,7 @@ class _PublishRidePageState extends State<PublishRidePage> {
                     }
                   },
                   decoration: const InputDecoration.collapsed(
-                      hintText: 'Pickup address*')),
+                      hintText: 'Pickup location*')),
               const SizedBox(height: 20),
               TextFormField(
                   controller: _dropoffAddressController,
@@ -124,7 +124,7 @@ class _PublishRidePageState extends State<PublishRidePage> {
                     final Suggestion? result = await showSearch(
                         context: context,
                         delegate: AddressSearch(
-                            sessionToken, 'Enter dropoff address'));
+                            sessionToken, 'Enter dropoff location'));
                     if (result != null) {
                       setState(() {
                         _dropoffAddressController.text = result.description;
@@ -132,7 +132,7 @@ class _PublishRidePageState extends State<PublishRidePage> {
                     }
                   },
                   decoration: const InputDecoration.collapsed(
-                      hintText: 'Dropoff address*')),
+                      hintText: 'Dropoff location*')),
               const Divider(
                 height: 68,
                 thickness: 2,

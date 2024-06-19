@@ -7,7 +7,7 @@ class AddressSearch extends SearchDelegate<Suggestion> {
   }
 
   late final String sessionToken;
-  String hintText = 'Enter address';
+  String hintText = 'Enter place or address';
   late PlaceApiProvider apiClient;
 
   @override
@@ -24,6 +24,9 @@ class AddressSearch extends SearchDelegate<Suggestion> {
   }
 
   @override
+  
+
+  @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
       tooltip: 'Back',
@@ -32,7 +35,6 @@ class AddressSearch extends SearchDelegate<Suggestion> {
     );
   }
 
-// TODO: Enable search of places not just addresses
   @override
   Widget buildResults(BuildContext context) {
     return FutureBuilder(
