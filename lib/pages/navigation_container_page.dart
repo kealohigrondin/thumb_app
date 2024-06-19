@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thumb_app/pages/chat_list_page.dart';
+import 'package:thumb_app/pages/chat_page.dart';
 import 'package:thumb_app/pages/notifications_page.dart';
 import 'package:thumb_app/pages/profile_page.dart';
 import 'package:thumb_app/pages/home_page.dart';
@@ -64,7 +65,7 @@ class NavigationContainerPage extends ConsumerWidget {
                   ? IconButton(
                       onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (context) => const ChatListPage())),
+                              builder: (context) => const ChatPage(rideId: 'rideId'))),
                       icon: const Icon(Icons.chat, size: 25))
                   : Container(),
               IconButton(

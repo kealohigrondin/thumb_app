@@ -6,6 +6,7 @@ import 'package:thumb_app/data/types/passenger_profile.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
+import 'package:thumb_app/utils/utils.dart';
 
 class SupabaseService {
   static void updatePassengerStatus(BuildContext context, String rideId,
@@ -22,6 +23,8 @@ class SupabaseService {
       // TODO: update UI to reflect new state of DB
     } catch (err) {
       if (context.mounted) {
+        // TODO: implement new showSnackbar functionality
+        //context.showErrorSnackBar(message: 'Unexpected error occurred ${err.toString()}', functionName: 'updatePassengerStatus');
         ShowErrorSnackBar(context, 'Unexpected error occurred.',
             'updatePassengerStatus(): ${err.toString()}');
       }

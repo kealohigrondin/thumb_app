@@ -15,8 +15,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Future<List<Ride>> _rideList;
 
-  
-
   @override
   void initState() {
     super.initState();
