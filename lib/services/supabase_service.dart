@@ -95,6 +95,7 @@ class SupabaseService {
     return Profile();
   }
 
+  // TODO: update to reflect rides only from self or friends
   static Future<List<Ride>> getActivityData() async {
     final result = await supabase
         .from('ride')
@@ -118,16 +119,18 @@ class SupabaseService {
         RidePassengerStatus.confirmed.toShortString(),
         RidePassengerStatus.requested.toShortString()
       ]).lte('ride.datetime', DateTime.now());
-      final passengerRideList =
-          passengerRides.map((item) => Ride.fromJson(item['ride'])).toList();
+      List<Ride> result = passengerRides
+          .where((element) => element['ride'] != null)
+          .map((item) => Ride.fromJson(item['ride']))
+          .toList();
       final driverRides = await supabase
           .from('ride')
           .select()
           .eq('driver_user_id', supabase.auth.currentUser!.id)
           .lte('datetime', DateTime.now());
-      List<Ride> result =
-          driverRides.map((item) => Ride.fromJson(item)).toList();
-      result += passengerRideList;
+      result.addAll(driverRides
+          .where((element) => element['ride'] != null)
+          .map((item) => Ride.fromJson(item['ride'])));
       result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
       return result;
     } catch (err) {
@@ -144,17 +147,21 @@ class SupabaseService {
       final passengerRides = await supabase
           .from('ride_passenger')
           .select('ride(*)')
-          .eq('passenger_user_id', supabase.auth.currentUser!.id);
-      final passengerRideList =
-          passengerRides.map((item) => Ride.fromJson(item['ride'])).toList();
+          .eq('passenger_user_id', supabase.auth.currentUser!.id)
+          .inFilter('status', [
+        RidePassengerStatus.confirmed.toShortString(),
+        RidePassengerStatus.requested.toShortString()
+      ]).gte('ride.datetime', DateTime.now());
+      List<Ride> result = passengerRides
+          .where((element) => element['ride'] != null)
+          .map((item) => Ride.fromJson(item['ride']))
+          .toList();
       final driverRides = await supabase
           .from('ride')
           .select()
           .eq('driver_user_id', supabase.auth.currentUser!.id)
           .gte('datetime', DateTime.now());
-      List<Ride> result =
-          driverRides.map((item) => Ride.fromJson(item)).toList();
-      result += passengerRideList;
+      result.addAll(driverRides.map((item) => Ride.fromJson(item)));
       result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
       return result;
     } catch (err) {
