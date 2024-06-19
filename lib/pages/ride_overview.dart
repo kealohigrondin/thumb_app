@@ -198,15 +198,18 @@ class _RideOverviewState extends State<RideOverview> {
                           const SizedBox(height: 24),
                           widget.ride.driverUserId !=
                                   supabase.auth.currentUser!.id
-                              ? Column(children: [
-                                  Text('Driver',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium),
-                                  RideDriverDetails(
-                                      driverUserId: widget.ride.driverUserId!),
-                                  const SizedBox(height: 24),
-                                ])
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                      Text('Driver',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium),
+                                      RideDriverDetails(
+                                          driverUserId:
+                                              widget.ride.driverUserId!),
+                                      const SizedBox(height: 24),
+                                    ])
                               : Container(),
                           Text('Vehicle',
                               style: Theme.of(context).textTheme.titleMedium),

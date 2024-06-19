@@ -130,9 +130,7 @@ class SupabaseService {
           .select()
           .eq('driver_user_id', supabase.auth.currentUser!.id)
           .lte('datetime', DateTime.now());
-      result.addAll(driverRides
-          .where((element) => element['ride'] != null)
-          .map((item) => Ride.fromJson(item['ride'])));
+      result.addAll(driverRides.map((item) => Ride.fromJson(item)));
       result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
       return result;
     } catch (err) {
