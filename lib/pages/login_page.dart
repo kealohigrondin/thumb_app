@@ -14,8 +14,10 @@ class LoginPage extends StatelessWidget {
       return;
     }
     try {
-      final profileResult =
-          await supabase.from('profile').select('auth_id').eq('auth_id', response.user!.id);
+      final profileResult = await supabase
+          .from('profile')
+          .select('auth_id')
+          .eq('auth_id', response.user!.id);
       if (profileResult.isEmpty) {
         await supabase.from('profile').upsert({
           'auth_id': response.user!.id,
@@ -27,13 +29,15 @@ class LoginPage extends StatelessWidget {
       }
       if (ctx.mounted) {
         Navigator.pushReplacement(
-            ctx, MaterialPageRoute(builder: (context) => const NavigationContainerPage()));
+            ctx,
+            MaterialPageRoute(
+                builder: (context) => const NavigationContainerPage()));
       }
     } catch (error) {
       //TODO: add some kind of logging
-
-      // ignore: use_build_context_synchronously
-      ShowErrorSnackBar(ctx, 'Error saving profile data');
+      if (ctx.mounted) {
+        ShowErrorSnackBar(ctx, 'Error saving profile data');
+      }
     }
   }
 
@@ -48,8 +52,10 @@ class LoginPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             child: SupaEmailAuth(
-              onSignInComplete: (response) => handleAuthResponse(response, context),
-              onSignUpComplete: (response) => handleAuthResponse(response, context),
+              onSignInComplete: (response) =>
+                  handleAuthResponse(response, context),
+              onSignUpComplete: (response) =>
+                  handleAuthResponse(response, context),
               metadataFields: [
                 MetaDataField(
                   prefixIcon: const Icon(Icons.person),

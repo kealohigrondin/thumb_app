@@ -46,7 +46,6 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    //TODO: Testing will require two devices publishing or an admin making new rides
     //TODO: add chips for filters
     return RefreshIndicator(
       onRefresh: _refresh,

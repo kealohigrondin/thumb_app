@@ -108,7 +108,6 @@ class _RideOverviewState extends State<RideOverview> {
             : 'Request to Join'));
   }
 
-// TODO: refetch on supabase request for ride
   Future<void> _refresh() async {
     setState(() {
       _passengerList = SupabaseService.getPassengers(widget.ride.id!);

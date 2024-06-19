@@ -35,7 +35,6 @@ class AddressSearch extends SearchDelegate<Suggestion> {
     );
   }
 
-// TODO: Enable search of places not just addresses
   @override
   Widget buildResults(BuildContext context) {
     return FutureBuilder(

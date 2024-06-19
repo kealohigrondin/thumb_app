@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/search_page/search_card.dart';
-import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 import 'package:thumb_app/data/types/ride.dart';
-import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/publish_ride_page.dart';
 import 'package:thumb_app/pages/loading_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
