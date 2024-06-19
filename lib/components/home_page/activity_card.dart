@@ -31,7 +31,8 @@ class ActivityCard extends StatelessWidget {
                 //     size: 12,
                 //   ),
                 // ),
-                Text(getTimeFromRide(ride.dateTime), style: Theme.of(context).textTheme.labelLarge),
+                Text(getTimeFromRide(ride.dateTime),
+                    style: Theme.of(context).textTheme.labelLarge),
               ],
             ),
           ),
@@ -43,13 +44,15 @@ class ActivityCard extends StatelessWidget {
               maxLines: 2,
             ),
           ),
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 12, 16),
-            child: Text(ride.description!,
-                textAlign: TextAlign.start,
-                maxLines: 2,
-                style: Theme.of(context).textTheme.labelMedium),
-          ),
+          ride.description!.isNotEmpty
+              ? Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 12, 16),
+                  child: Text(ride.description!,
+                      textAlign: TextAlign.start,
+                      maxLines: 2,
+                      style: Theme.of(context).textTheme.labelMedium),
+                )
+              : const SizedBox(height: 4),
           Divider(
             height: 2,
             thickness: 1,
