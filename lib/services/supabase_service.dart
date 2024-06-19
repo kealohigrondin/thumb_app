@@ -6,7 +6,6 @@ import 'package:thumb_app/data/types/passenger_profile.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/utils/utils.dart';
 
 class SupabaseService {
   static void updatePassengerStatus(BuildContext context, String rideId,

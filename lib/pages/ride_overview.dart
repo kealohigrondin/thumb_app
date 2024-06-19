@@ -160,7 +160,14 @@ class _RideOverviewState extends State<RideOverview> {
                                   .format(widget.ride.dateTime),
                               style: Theme.of(context).textTheme.labelLarge),
                           const SizedBox(height: 8),
-                          Text(widget.ride.description!),
+                          widget.ride.description!.isNotEmpty
+                              ? Text(widget.ride.description!)
+                              : Text(
+                                  'No description',
+                                  style: TextStyle(
+                                      color: Colors.grey[400],
+                                      fontStyle: FontStyle.italic),
+                                ),
                           const SizedBox(height: 24),
                           Column(
                               mainAxisAlignment: MainAxisAlignment.center,

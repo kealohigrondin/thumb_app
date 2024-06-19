@@ -148,13 +148,13 @@ class _PublishRidePageState extends State<PublishRidePage> {
                   return null;
                 },
                 decoration:
-                    const InputDecoration.collapsed(hintText: 'Add a title*'),
+                    const InputDecoration.collapsed(hintText: 'Title your ride*'),
               ),
               const SizedBox(height: 20),
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration.collapsed(
-                    hintText: 'Add a description'),
+                    hintText: 'Add a note. Space for bags? Wanna stop for food half way? Let your passengers know what\'s up'),
                 minLines: 1,
                 maxLines: 5,
               ),
