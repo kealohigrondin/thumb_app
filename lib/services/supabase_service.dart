@@ -8,6 +8,9 @@ import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
 
 class SupabaseService {
+  static int increment(int input) {
+    return input + 1;
+  }
   static void updatePassengerStatus(BuildContext context, String rideId,
       RidePassengerStatus newStatus, String passengerUserId) async {
     try {
@@ -68,6 +71,21 @@ class SupabaseService {
     }
   }
 
+  static Future<List<Ride>> getSearchResults() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) {
+      return [];
+    }
+    // TODO: hide rides that currentUser is passenger on from the user
+    final result = await supabase
+        .from('ride')
+        .select('*, ride_passenger(passenger_user_id)')
+        .gte('datetime', DateTime.now())
+        .not('driver_user_id', 'eq', user.id)
+        .order('datetime', ascending: true);
+    return result.map((item) => Ride.fromJson(item)).toList();
+  }
+
   static Future<List<PassengerProfile>> getPassengers(String rideId) async {
     try {
       var result = await supabase
@@ -79,6 +97,23 @@ class SupabaseService {
       return ridePassengerProfile;
     } catch (err) {
       debugPrint('_getPassengers: ${err.toString()}');
+      return [];
+    }
+  }
+
+  static Future<List<Profile>> getFriends(String userId) async {
+    try {
+      var result = await supabase.from('friend')
+      .select('profile(*)')
+      .or('friend.user_id_1.$userId,friend.user_id_2.$userId');
+       List<Profile> friendsList = result
+          .where((element) => element['ride'] != null)
+          .map((item) => Profile.fromJson(item['ride']))
+          .toList();
+      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
+      return friendsList;
+    } catch (err) {
+      debugPrint('getRideHistory(): ${err.toString()}');
       return [];
     }
   }

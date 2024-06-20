@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:thumb_app/components/shared/center_progress_indicator.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/types/profile.dart';
-import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/loading_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 
 class RideDriverDetails extends StatefulWidget {
