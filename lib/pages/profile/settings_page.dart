@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/login_page.dart';
-import 'package:thumb_app/pages/profile_edit_page.dart';
+import 'package:thumb_app/pages/profile/profile_edit_page.dart';
 import 'package:thumb_app/styles/button_styles.dart';
 
 class SettingsPage extends StatefulWidget {

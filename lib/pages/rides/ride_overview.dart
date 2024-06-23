@@ -6,11 +6,11 @@ import 'package:thumb_app/components/ride_overview_page/ride_passenger_list.dart
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 import 'package:thumb_app/data/types/passenger_profile.dart';
-import 'package:thumb_app/pages/chat_page.dart';
+import 'package:thumb_app/pages/app_bar/chat_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 
-import '../data/types/ride.dart';
-import '../main.dart';
+import '../../data/types/ride.dart';
+import '../../main.dart';
 
 class RideOverview extends StatefulWidget {
   const RideOverview({super.key, required this.ride});

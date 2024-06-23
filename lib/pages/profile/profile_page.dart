@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:thumb_app/components/profile_page/friend_list.dart';
-import 'package:thumb_app/components/profile_page/vehicle_list.dart';
-import 'package:thumb_app/components/shared/ride_list.dart';
+import 'package:thumb_app/components/profile_page/profile_card.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/loading_page.dart';
-import 'package:thumb_app/pages/profile_edit_page.dart';
+import 'package:thumb_app/pages/profile/friends_page.dart';
+import 'package:thumb_app/pages/profile/garage_page.dart';
+import 'package:thumb_app/components/shared/loading_page.dart';
+import 'package:thumb_app/pages/profile/profile_edit_page.dart';
+import 'package:thumb_app/pages/profile/ride_history_page.dart';
+import 'package:thumb_app/pages/profile/settings_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 import 'package:thumb_app/styles/button_styles.dart';
 
@@ -57,13 +59,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     padding: const EdgeInsets.fromLTRB(8, 32, 8, 0),
                     child: Column(
                       children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                                radius: 45,
-                                child: Text('${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}', style: const TextStyle(fontSize: 32))),
-                            const SizedBox(width: 8),
-                            Column(
+                        Row(children: [
+                          CircleAvatar(
+                              radius: 45,
+                              child: Text(
+                                  '${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}',
+                                  style: const TextStyle(fontSize: 32))),
+                          const SizedBox(width: 8),
+                          Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
@@ -72,10 +75,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                         .textTheme
                                         .titleMedium),
                                 Text(snapshot.data!.email),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ])
+                        ]),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -101,28 +102,27 @@ class _ProfilePageState extends State<ProfilePage> {
                                           debugPrint('add friend clicked'),
                                       style: squareSmallButton),
                             ]),
-                        const Expanded(
-                            child: DefaultTabController(
-                          length: 3,
-                          child: Scaffold(
-                            appBar: TabBar(
-                              tabs: [
-                                Tab(child: Text('Friends')),
-                                Tab(child: Text('My Garage')),
-                                Tab(child: Text('Ride History')),
-                              ],
-                            ),
-                            body: TabBarView(
-                              children: [
-                                FriendList(),
-                                VehicleList(),
-                                RideList(
-                                    queryFn: SupabaseService.getRideHistory,
-                                    isActivityRideList: false)
-                              ],
-                            ),
+                        const Row(children: [
+                          ProfileCard(
+                            title: 'Rides',
+                            iconData: Icons.airport_shuttle,
+                            navigationDestination: RideHistoryPage(),
                           ),
-                        ))
+                          ProfileCard(
+                              title: 'Friends',
+                              iconData: Icons.group,
+                              navigationDestination: FriendsPage()),
+                        ]),
+                        const Row(children: [
+                          ProfileCard(
+                              title: 'Garage',
+                              iconData: Icons.garage,
+                              navigationDestination: GaragePage()),
+                          ProfileCard(
+                              title: 'Settings',
+                              iconData: Icons.settings,
+                              navigationDestination: SettingsPage()),
+                        ]),
                       ],
                     ),
                   );

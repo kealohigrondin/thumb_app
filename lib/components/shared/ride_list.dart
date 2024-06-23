@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:thumb_app/components/home_page/activity_card.dart';
 import 'package:thumb_app/components/search_page/search_card.dart';
 import 'package:thumb_app/data/types/ride.dart';
-import 'package:thumb_app/pages/loading_page.dart';
+import 'package:thumb_app/components/shared/loading_page.dart';
 
 class RideList extends StatefulWidget {
   const RideList(

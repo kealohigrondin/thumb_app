@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/ride_overview.dart';
+import 'package:thumb_app/pages/rides/ride_overview.dart';
 import 'package:thumb_app/utils/utils.dart';
 
 import '../../data/types/ride.dart';

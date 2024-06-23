@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/shared/ride_list.dart';
-import 'package:thumb_app/pages/publish_ride_page.dart';
+import 'package:thumb_app/pages/rides/publish_ride_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 
 class RidesPage extends StatelessWidget {

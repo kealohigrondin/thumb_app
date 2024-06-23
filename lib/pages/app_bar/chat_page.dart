@@ -7,7 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:thumb_app/data/types/message.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/loading_page.dart';
+import 'package:thumb_app/components/shared/loading_page.dart';
 import 'package:thumb_app/utils/utils.dart';
 
 /// Page to chat with someone.

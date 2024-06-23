@@ -10,6 +10,6 @@ class VehicleList extends StatefulWidget {
 class _VehicleListState extends State<VehicleList> {
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Vehicles'));
+    return const Center(child: Text('Vehicles list'));
   }
 }
