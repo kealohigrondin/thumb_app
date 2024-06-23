@@ -198,7 +198,7 @@ class _ChatBubble extends StatelessWidget {
       if (!message.isMine)
         CircleAvatar(
           child: profile == null
-              ? const LoadingPage()
+              ? Container()
               : Text('${profile!.firstName[0]}${profile!.lastName[0]}'),
         ),
       const SizedBox(width: 12),

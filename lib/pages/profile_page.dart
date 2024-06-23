@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/profile_page/friend_list.dart';
 import 'package:thumb_app/components/profile_page/vehicle_list.dart';
-import 'package:thumb_app/components/search_page/search_card.dart';
 import 'package:thumb_app/components/shared/ride_list.dart';
 import 'package:thumb_app/data/types/profile.dart';
-import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/loading_page.dart';
 import 'package:thumb_app/pages/profile_edit_page.dart';
@@ -21,35 +19,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late Future<Profile> _profile;
-
-  Widget renderRideList(
-      BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
-    switch (snapshot.connectionState) {
-      case ConnectionState.waiting:
-        return const LoadingPage();
-      case ConnectionState.done:
-        if (snapshot.hasError) {
-          return ListView.builder(
-              itemCount: 1,
-              itemBuilder: (ctx, index) => Text(snapshot.error.toString()));
-        }
-        if (snapshot.data!.isEmpty) {
-          return ListView.builder(
-              itemCount: 1,
-              itemBuilder: (ctx, index) => const Padding(
-                    padding: EdgeInsets.only(top: 32),
-                    child: Center(child: Text('No rides!')),
-                  ));
-        }
-        return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (ctx, index) =>
-                SearchCard(ride: snapshot.data![index]));
-      default:
-        return const Center(
-            child: Text('Something unaccounted for has occurred...'));
-    }
-  }
 
   Future<void> _refreshProfile() async {
     final result = SupabaseService.getProfile(
@@ -92,7 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             CircleAvatar(
                                 radius: 45,
-                                child: Image.asset('assets/images/user.png')),
+                                child: Text('${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}', style: const TextStyle(fontSize: 32))),
                             const SizedBox(width: 8),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
