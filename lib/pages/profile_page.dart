@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:thumb_app/components/profile_page/friend_list.dart';
+import 'package:thumb_app/components/profile_page/vehicle_list.dart';
 import 'package:thumb_app/components/search_page/search_card.dart';
+import 'package:thumb_app/components/shared/ride_list.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
@@ -18,7 +21,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late Future<Profile> _profile;
-  late Future<List<Ride>> _rideHistoryList;
 
   Widget renderRideList(
       BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
@@ -49,12 +51,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _refreshHistory() async {
-    setState(() {
-      _rideHistoryList = SupabaseService.getRideHistory();
-    });
-  }
-
   Future<void> _refreshProfile() async {
     final result = SupabaseService.getProfile(
         widget.authId ?? supabase.auth.currentUser!.id);
@@ -68,7 +64,6 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _profile = SupabaseService.getProfile(
         widget.authId ?? supabase.auth.currentUser!.id);
-    _rideHistoryList = SupabaseService.getRideHistory();
   }
 
   // TODO: refresh when navigating back from edit profile page
@@ -137,11 +132,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                           debugPrint('add friend clicked'),
                                       style: squareSmallButton),
                             ]),
-                        Expanded(
+                        const Expanded(
                             child: DefaultTabController(
                           length: 3,
                           child: Scaffold(
-                            appBar: const TabBar(
+                            appBar: TabBar(
                               tabs: [
                                 Tab(child: Text('Friends')),
                                 Tab(child: Text('My Garage')),
@@ -150,17 +145,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             body: TabBarView(
                               children: [
-                                const Text('friends'),
-                                const Text('cars'),
-                                RefreshIndicator(
-                                  onRefresh: _refreshHistory,
-                                  child: FutureBuilder(
-                                      future: _rideHistoryList,
-                                      builder: (BuildContext context,
-                                              AsyncSnapshot<List<Ride>>
-                                                  snapshot) =>
-                                          renderRideList(context, snapshot)),
-                                ),
+                                FriendList(),
+                                VehicleList(),
+                                RideList(
+                                    queryFn: SupabaseService.getRideHistory,
+                                    isActivityRideList: false)
                               ],
                             ),
                           ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:thumb_app/pages/chat_list_page.dart';
 import 'package:thumb_app/pages/chat_page.dart';
 import 'package:thumb_app/pages/notifications_page.dart';
 import 'package:thumb_app/pages/profile_page.dart';
