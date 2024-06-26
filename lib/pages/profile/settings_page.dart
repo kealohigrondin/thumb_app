@@ -3,7 +3,6 @@ import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/login_page.dart';
 import 'package:thumb_app/pages/profile/profile_edit_page.dart';
-import 'package:thumb_app/styles/button_styles.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -37,36 +36,18 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: ListView(
         children: [
-          SettingsRowItem(
-              onPressed: () => Navigator.push(
+          ListTile(
+              onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const ProfileEditPage())),
-              title: 'Edit Profile'),
-          SettingsRowItem(onPressed: () => _signOut(), title: 'Sign out')
+              title: const Text('Edit Profile')),
+          ListTile(onTap: () => _signOut(), title: const Text('Sign out')),
+          ListTile(
+              onTap: () => debugPrint('toggle dark mode'),
+              title: const Text('Toggle Dark Mode'))
         ],
       ),
-    );
-  }
-}
-
-class SettingsRowItem extends StatelessWidget {
-  const SettingsRowItem(
-      {super.key, required this.onPressed, required this.title});
-
-  final VoidCallback onPressed;
-  final String title;
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 64,
-      child: TextButton(
-          style: settingsRowButton,
-          onPressed: onPressed,
-          child: Align(
-              alignment: Alignment.centerLeft,
-              child:
-                  Text(title, style: Theme.of(context).textTheme.bodyLarge))),
     );
   }
 }
