@@ -92,7 +92,6 @@ class _VehicleFormState extends State<VehicleForm> {
                 controller: _yearController,
                 validator: (value) {
                   if (value == null ||
-                      value == '' ||
                       int.tryParse(value) == null ||
                       int.parse(value) < 1950 ||
                       int.parse(value) > DateTime.now().year + 1) {
@@ -103,12 +102,13 @@ class _VehicleFormState extends State<VehicleForm> {
                 decoration: const InputDecoration.collapsed(hintText: 'Year*'),
               ),
               const SizedBox(height: 20),
+              // TODO: Store makes and models in json locally and convert these to dropdowns
               TextFormField(
                 controller: _makeController,
                 decoration: const InputDecoration.collapsed(
                     hintText: 'Make (Honda, Ford, etc.)'),
                 validator: (value) {
-                  if (value == null || value == '') {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter a valid make.';
                   }
                   return null;
@@ -120,7 +120,7 @@ class _VehicleFormState extends State<VehicleForm> {
                 decoration: const InputDecoration.collapsed(
                     hintText: 'Model (Civic, F-150, etc.)'),
                 validator: (value) {
-                  if (value == null || value == '') {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter a valid model.';
                   }
                   return null;
@@ -147,7 +147,7 @@ class _VehicleFormState extends State<VehicleForm> {
                       decoration:
                           const InputDecoration.collapsed(hintText: 'Plate #'),
                       validator: (value) {
-                        if (value == null || value == '') {
+                        if (value == null || value.isEmpty) {
                           return 'Please enter a valid model.';
                         }
                         return null;
@@ -159,10 +159,9 @@ class _VehicleFormState extends State<VehicleForm> {
               const SizedBox(height: 60),
               TextFormField(
                 controller: _colorController,
-                decoration: const InputDecoration.collapsed(
-                    hintText: 'Color'),
+                decoration: const InputDecoration.collapsed(hintText: 'Color'),
                 validator: (value) {
-                  if (value == null || value == '') {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter a valid color.';
                   }
                   return null;
