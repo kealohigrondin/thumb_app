@@ -32,18 +32,13 @@ class ProfileHeader extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             child: Text(profile.bio),
           )),
-          supabase.auth.currentUser!.id == profile.authId
-              ? TextButton.icon(
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Edit'),
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const ProfileEditPage())),
-                  style: squareSmallButton)
-              : FilledButton.icon(
+          supabase.auth.currentUser!.id != profile.authId
+              ? FilledButton.icon(
                   icon: const Icon(Icons.person_add),
                   label: const Text('Add'),
                   onPressed: () => debugPrint('add friend clicked'),
-                  style: squareSmallButton),
+                  style: squareSmallButton)
+              : Container(),
         ])
       ]),
     );

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/profile_page/profile_header.dart';
+import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
+import 'package:thumb_app/pages/login_page.dart';
 import 'package:thumb_app/pages/profile/friends_page.dart';
 import 'package:thumb_app/pages/profile/garage_page.dart';
 import 'package:thumb_app/components/shared/loading_page.dart';
+import 'package:thumb_app/pages/profile/profile_edit_page.dart';
 import 'package:thumb_app/pages/profile/ride_history_page.dart';
-import 'package:thumb_app/pages/profile/settings_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -19,6 +21,21 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late Future<Profile> _profile;
+  Future<void> _signOut() async {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      if (mounted) {
+        ShowErrorSnackBar(
+            context, 'Unexpected error occurred.', error.toString());
+      }
+    } finally {
+      if (mounted) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const LoginPage()));
+      }
+    }
+  }
 
   Future<void> _refreshProfile() async {
     final result = SupabaseService.getProfile(
@@ -90,15 +107,25 @@ class _ProfilePageState extends State<ProfilePage> {
                           onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (context) => const GaragePage()))),
+                      const Divider(),
                       ListTile(
                           title: const Row(children: [
-                            Icon(Icons.settings),
+                            Icon(Icons.edit),
                             SizedBox(width: 8),
-                            Text('Settings'),
+                            Text('Edit Profile'),
                           ]),
                           onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
-                                  builder: (context) => const SettingsPage()))),
+                                  builder: (context) =>
+                                      const ProfileEditPage()))),
+                      ListTile(
+                        title: const Row(children: [
+                          Icon(Icons.logout),
+                          SizedBox(width: 8),
+                          Text('Sign out'),
+                        ]),
+                        onTap: _signOut,
+                      )
                     ],
                   );
 
