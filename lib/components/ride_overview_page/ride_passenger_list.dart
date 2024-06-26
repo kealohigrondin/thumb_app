@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 import 'package:thumb_app/data/types/passenger_profile.dart';
 import 'package:thumb_app/main.dart';
+import 'package:thumb_app/pages/profile/visiting_profile_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 
 class RidePassengerList extends StatefulWidget {
@@ -66,13 +67,26 @@ class _RidePassengerListState extends State<RidePassengerList> {
     //view all passengers regardless of status
     return Column(
       children: widget.passengerList
-          .map((passenger) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${passenger.firstName} ${passenger.lastName}',
-                      style: _getPassengerNameTextStyle(passenger.status)),
-                  _passengerStatusButton(passenger)
-                ],
+          .map((passenger) => Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                child: ListTile(
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CircleAvatar(
+                        child: Text(
+                            '${passenger.firstName[0]}${passenger.lastName[0]}'),
+                      ),
+                      const SizedBox(width: 4),
+                      Text('${passenger.firstName} ${passenger.lastName}',
+                          style: _getPassengerNameTextStyle(passenger.status)),
+                      _passengerStatusButton(passenger)
+                    ],
+                  ),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => VisitingProfilePage(
+                          authId: passenger.passengerUserId))),
+                ),
               ))
           .toList(),
     );
@@ -90,16 +104,29 @@ class _RidePassengerListState extends State<RidePassengerList> {
     // TODO: add 'X passengers requested' in passenger list?
     return Column(
       children: viewablePassengerList
-          .map((passenger) => Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(passenger.passengerUserId == currentUserId
-                      ? '(You) ${passenger.firstName} ${passenger.lastName}'
-                      : '${passenger.firstName} ${passenger.lastName}'),
-                  Text(passenger.status != RidePassengerStatus.confirmed
-                      ? ' (${passenger.status.toShortString()})'
-                      : '')
-                ],
+          .map((passenger) => Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                child: ListTile(
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        child: Text(
+                            '${passenger.firstName[0]}${passenger.lastName[0]}'),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(passenger.passengerUserId == currentUserId
+                          ? '(You) ${passenger.firstName} ${passenger.lastName}'
+                          : '${passenger.firstName} ${passenger.lastName}'),
+                      Text(passenger.status != RidePassengerStatus.confirmed
+                          ? ' (${passenger.status.toShortString()})'
+                          : '')
+                    ],
+                  ),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => VisitingProfilePage(
+                          authId: passenger.passengerUserId))),
+                ),
               ))
           .toList(),
     );
