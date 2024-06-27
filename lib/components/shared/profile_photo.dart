@@ -14,6 +14,6 @@ class ProfilePhoto extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
         radius: radius,
-        child: Text(initials, style: TextStyle(fontSize: radius * 0.8)));
+        child: Text(initials, style: TextStyle(fontSize: radius * 0.75)));
   }
 }

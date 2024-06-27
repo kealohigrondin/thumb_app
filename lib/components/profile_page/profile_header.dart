@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:thumb_app/components/shared/profile_photo.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/profile/profile_edit_page.dart';
 import 'package:thumb_app/styles/button_styles.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -15,10 +15,9 @@ class ProfileHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(8, 32, 8, 0),
       child: Column(children: [
         Row(children: [
-          CircleAvatar(
-              radius: 45,
-              child: Text('${profile.firstName[0]}${profile.lastName[0]}',
-                  style: const TextStyle(fontSize: 32))),
+          ProfilePhoto(
+              initials: '${profile.firstName[0]}${profile.lastName[0]}',
+              authId: profile.authId),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('${profile.firstName} ${profile.lastName}',

@@ -16,7 +16,7 @@ class RideOverview extends StatefulWidget {
   const RideOverview({super.key, required this.ride});
 
   final Ride ride;
-
+  final double horizontalPadding = 12;
   @override
   State<RideOverview> createState() => _RideOverviewState();
 }
@@ -77,10 +77,7 @@ class _RideOverviewState extends State<RideOverview> {
   Widget _displayActionButtons(
       bool isCurrentUserConfirmedPassenger, int confirmedPassengerCount) {
     final currentUserId = supabase.auth.currentUser!.id;
-    if (!DateTime.now().difference(widget.ride.dateTime).isNegative) {
-      //if ride already happened, don't show any buttons
-      return Container();
-    } else if (currentUserId == widget.ride.driverUserId) {
+    if (currentUserId == widget.ride.driverUserId) {
       return const TextButton(onPressed: null, child: Text('You are driver'));
     } else if (isCurrentUserConfirmedPassenger) {
       return OutlinedButton(
@@ -146,39 +143,60 @@ class _RideOverviewState extends State<RideOverview> {
                         element.status == RidePassengerStatus.confirmed)
                     .isNotEmpty;
                 return SafeArea(
-                    child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: ListView(children: [
-                          Text(widget.ride.title!,
+                    child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView(children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(widget.horizontalPadding,
+                              widget.horizontalPadding, 18, 0),
+                          child: Text(widget.ride.title!,
                               style: Theme.of(context).textTheme.titleLarge),
-                          Text(
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: widget.horizontalPadding),
+                          child: Text(
                               DateFormat.MMMd()
                                   .add_jm()
                                   .format(widget.ride.dateTime),
                               style: Theme.of(context).textTheme.labelLarge),
-                          const SizedBox(height: 8),
-                          widget.ride.description!.isNotEmpty
-                              ? Text(widget.ride.description!)
-                              : Text(
-                                  'No description',
-                                  style: TextStyle(
-                                      color: Colors.grey[400],
-                                      fontStyle: FontStyle.italic),
-                                ),
-                          const SizedBox(height: 24),
-                          Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(widget.ride.departAddress!),
-                                const Icon(Icons.arrow_downward),
-                                Text(widget.ride.arriveAddress!),
-                              ]),
-                          const SizedBox(height: 24),
-                          Row(
+                        ),
+                        const SizedBox(height: 8),
+                        if (widget.ride.description!.isNotEmpty)
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 0,
+                                horizontal: widget.horizontalPadding),
+                            child: Text(widget.ride.description!),
+                          )
+                        else
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 0,
+                                horizontal: widget.horizontalPadding),
+                            child: Text(
+                              'No description',
+                              style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontStyle: FontStyle.italic),
+                            ),
+                          ),
+                        const SizedBox(height: 24),
+                        Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(widget.ride.departAddress!),
+                              const Icon(Icons.arrow_downward),
+                              Text(widget.ride.arriveAddress!),
+                            ]),
+                        const SizedBox(height: 24),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 0,
+                              horizontal: widget.horizontalPadding),
+                          child: Row(
                             children: [
                               Text('Passengers',
                                   style:
@@ -190,35 +208,43 @@ class _RideOverviewState extends State<RideOverview> {
                                       Theme.of(context).textTheme.bodyMedium),
                             ],
                           ),
-                          RidePassengerList(
-                            passengerList: snapshot.data!,
-                            driverUserId: widget.ride.driverUserId!,
-                            rideId: widget.ride.id!,
-                          ),
-                          const SizedBox(height: 24),
-                          widget.ride.driverUserId !=
-                                  supabase.auth.currentUser!.id
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                      Text('Driver',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium),
-                                      RideDriverDetails(
-                                          driverUserId:
-                                              widget.ride.driverUserId!),
-                                      const SizedBox(height: 24),
-                                    ])
-                              : Container(),
-                          Text('Vehicle',
+                        ),
+                        RidePassengerList(
+                          passengerList: snapshot.data!,
+                          driverUserId: widget.ride.driverUserId!,
+                          rideId: widget.ride.id!,
+                        ),
+                        const SizedBox(height: 24),
+                        if (widget.ride.driverUserId !=
+                            supabase.auth.currentUser!.id)
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 0,
+                                      horizontal: widget.horizontalPadding),
+                                  child: Text('Driver',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium),
+                                ),
+                                RideDriverDetails(
+                                    driverUserId: widget.ride.driverUserId!),
+                                const SizedBox(height: 24),
+                              ]),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 0,
+                              horizontal: widget.horizontalPadding),
+                          child: Text('Vehicle',
                               style: Theme.of(context).textTheme.titleMedium),
-                        ]),
-                      ),
-                      _displayActionButtons(isCurrentUserConfirmedPassenger,
-                          snapshot.data!.length)
-                    ],
-                  ),
+                        ),
+                      ]),
+                    ),
+                    _displayActionButtons(
+                        isCurrentUserConfirmedPassenger, snapshot.data!.length)
+                  ],
                 ));
               } else {
                 return const CenterProgressIndicator();

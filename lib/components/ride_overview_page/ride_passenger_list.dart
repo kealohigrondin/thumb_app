@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thumb_app/components/shared/profile_photo.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 import 'package:thumb_app/data/types/passenger_profile.dart';
 import 'package:thumb_app/main.dart';
@@ -46,12 +47,8 @@ class _RidePassengerListState extends State<RidePassengerList> {
               child: const Text('Confirm')),
         ],
       );
-    } else if (passenger.status == RidePassengerStatus.confirmed) {
-      return TextButton(
-          onPressed: null, child: Text(passenger.status.toShortString()));
     }
-    return TextButton(
-        onPressed: null, child: Text(passenger.status.toShortString()));
+    return Text('(${passenger.status.toShortString()})');
   }
 
   TextStyle _getPassengerNameTextStyle(RidePassengerStatus status) {
@@ -70,19 +67,14 @@ class _RidePassengerListState extends State<RidePassengerList> {
           .map((passenger) => Padding(
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: ListTile(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CircleAvatar(
-                        child: Text(
-                            '${passenger.firstName[0]}${passenger.lastName[0]}'),
-                      ),
-                      const SizedBox(width: 4),
-                      Text('${passenger.firstName} ${passenger.lastName}',
-                          style: _getPassengerNameTextStyle(passenger.status)),
-                      _passengerStatusButton(passenger)
-                    ],
-                  ),
+                  leading: ProfilePhoto(
+                      initials:
+                          '${passenger.firstName[0]}${passenger.lastName[0]}',
+                      authId: passenger.passengerUserId,
+                      radius: 20),
+                  title: Text('${passenger.firstName} ${passenger.lastName}',
+                      style: _getPassengerNameTextStyle(passenger.status)),
+                  trailing: _passengerStatusButton(passenger),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => VisitingProfilePage(
                           authId: passenger.passengerUserId))),
@@ -98,7 +90,10 @@ class _RidePassengerListState extends State<RidePassengerList> {
         .toList();
 
     if (viewablePassengerList.isEmpty) {
-      return const Text('No confirmed passengers!');
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+        child: Text('No confirmed passengers!'),
+      );
     }
 
     // TODO: add 'X passengers requested' in passenger list?
@@ -107,22 +102,14 @@ class _RidePassengerListState extends State<RidePassengerList> {
           .map((passenger) => Padding(
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: ListTile(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      CircleAvatar(
-                        child: Text(
-                            '${passenger.firstName[0]}${passenger.lastName[0]}'),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(passenger.passengerUserId == currentUserId
-                          ? '(You) ${passenger.firstName} ${passenger.lastName}'
-                          : '${passenger.firstName} ${passenger.lastName}'),
-                      Text(passenger.status != RidePassengerStatus.confirmed
-                          ? ' (${passenger.status.toShortString()})'
-                          : '')
-                    ],
-                  ),
+                  leading: ProfilePhoto(
+                      initials:
+                          '${passenger.firstName[0]}${passenger.lastName[0]}',
+                      authId: passenger.passengerUserId,
+                      radius: 20),
+                  title: Text(passenger.passengerUserId == currentUserId
+                      ? '(You) ${passenger.firstName} ${passenger.lastName}'
+                      : '${passenger.firstName} ${passenger.lastName}'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => VisitingProfilePage(
                           authId: passenger.passengerUserId))),
@@ -135,7 +122,10 @@ class _RidePassengerListState extends State<RidePassengerList> {
   @override
   Widget build(BuildContext context) {
     if (widget.passengerList.isEmpty) {
-      return const Text('No passengers!');
+      return const Padding(
+        padding: EdgeInsets.all(12),
+        child: Text('No passengers!'),
+      );
     } else if (widget.driverUserId == currentUserId) {
       return _driverPassengerView();
     } else {

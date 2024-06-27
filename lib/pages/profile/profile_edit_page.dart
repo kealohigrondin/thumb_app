@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:thumb_app/components/shared/center_progress_indicator.dart';
+import 'package:thumb_app/components/shared/profile_photo.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
@@ -97,9 +98,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                 children: [
                   GestureDetector(
                     onTap: () => debugPrint('edit profile photo tapped'),
-                    child: CircleAvatar(
-                        radius: 45,
-                        child: Image.asset('assets/images/user.png')),
+                    child: ProfilePhoto(initials: '${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}', authId: snapshot.data!.authId),
                   ),
                   TextFormField(
                     controller: _firstNameController,
