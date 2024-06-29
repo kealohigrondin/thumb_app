@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "309988151266",
+    "project_id": "thumb-27vrhr",
+    "storage_bucket": "thumb-27vrhr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:309988151266:android:153b4431928796b4c6b3bb",
+        "android_client_info": {
+          "package_name": "com.example.thumb_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK2cKXMHjkri78cL5-uZ9UnIgLoIgeWqU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:309988151266:android:adc6feebb462b600c6b3bb",
+        "android_client_info": {
+          "package_name": "com.mycompany.thumb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK2cKXMHjkri78cL5-uZ9UnIgLoIgeWqU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
