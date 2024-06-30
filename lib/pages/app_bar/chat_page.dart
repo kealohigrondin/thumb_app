@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:thumb_app/components/shared/profile_photo.dart';
 import 'package:timeago/timeago.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:thumb_app/data/types/message.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
-import 'package:thumb_app/pages/loading_page.dart';
+import 'package:thumb_app/components/shared/loading_page.dart';
 import 'package:thumb_app/utils/utils.dart';
 
 /// Page to chat with someone.
@@ -195,12 +196,11 @@ class _ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> chatContents = [
-      if (!message.isMine)
-        CircleAvatar(
-          child: profile == null
-              ? const LoadingPage()
-              : Text('${profile!.firstName[0]}${profile!.lastName[0]}'),
-        ),
+      if (!message.isMine && profile != null)
+        ProfilePhoto(
+            initials: '${profile?.firstName[0]}${profile?.lastName[0]}',
+            authId: profile!.authId,
+            radius: 24),
       const SizedBox(width: 12),
       Flexible(
         child: Container(

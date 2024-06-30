@@ -9,6 +9,6 @@ class SearchPage extends StatelessWidget {
   Widget build(BuildContext context) {
     //TODO: add chips for filters
     return const RideList(
-        queryFn: SupabaseService.getSearchResults, isActivityRideList: false);
+        queryFn: SupabaseService.getRideSearchResults, isActivityRideList: false);
   }
 }

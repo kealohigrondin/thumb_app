@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:thumb_app/pages/chat_page.dart';
-import 'package:thumb_app/pages/notifications_page.dart';
-import 'package:thumb_app/pages/profile_page.dart';
+import 'package:thumb_app/pages/app_bar/chat_page.dart';
+import 'package:thumb_app/pages/app_bar/notifications_page.dart';
+import 'package:thumb_app/pages/profile/profile_page.dart';
 import 'package:thumb_app/pages/home_page.dart';
-import 'package:thumb_app/pages/rides_page.dart';
+import 'package:thumb_app/pages/rides/rides_page.dart';
 import 'package:thumb_app/pages/search_page.dart';
-import 'package:thumb_app/pages/search_profile_page.dart';
-import 'package:thumb_app/pages/settings_page.dart';
 
 final bottomNavIndexProvider = StateProvider((ref) => 0);
 
@@ -45,26 +43,13 @@ class NavigationContainerPage extends ConsumerWidget {
                 Text(pageTitles[currentIndex]),
               ],
             ),
-            actions: [
-              currentIndex == 3
-                  ? IconButton(
-                      onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) => const SearchProfilePage())),
-                      icon: const Icon(Icons.search, size: 25))
-                  : Container(),
-              currentIndex == 3
-                  ? IconButton(
-                      onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) => const SettingsPage())),
-                      icon: const Icon(Icons.settings, size: 25))
-                  : Container(),
+            actions: [              
               currentIndex != 3
                   ? IconButton(
                       onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (context) => const ChatPage(rideId: 'rideId'))),
+                              builder: (context) =>
+                                  const ChatPage(rideId: 'rideId'))),
                       icon: const Icon(Icons.chat, size: 25))
                   : Container(),
               IconButton(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/shared/center_progress_indicator.dart';
+import 'package:thumb_app/components/shared/profile_photo.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/types/profile.dart';
+import 'package:thumb_app/pages/profile/visiting_profile_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 
 class RideDriverDetails extends StatefulWidget {
@@ -30,8 +32,19 @@ class _RideDriverDetailsState extends State<RideDriverDetails> {
             ShowErrorSnackBar(context, snapshot.error.toString());
             return Text(snapshot.error.toString());
           } else if (snapshot.hasData) {
-            return Text(
-                '${snapshot.data!.firstName} ${snapshot.data!.lastName}');
+            return ListTile(
+              leading: ProfilePhoto(
+                  initials:
+                      '${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}',
+                  authId: snapshot.data!.authId,
+                  radius: 20),
+              title: Text(
+                  '${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => VisitingProfilePage(
+                        authId: snapshot.data!.authId,
+                      ))),
+            );
           } else {
             return const CenterProgressIndicator();
           }

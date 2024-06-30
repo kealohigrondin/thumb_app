@@ -11,6 +11,7 @@ class SupabaseService {
   static int increment(int input) {
     return input + 1;
   }
+
   static void updatePassengerStatus(BuildContext context, String rideId,
       RidePassengerStatus newStatus, String passengerUserId) async {
     try {
@@ -71,7 +72,7 @@ class SupabaseService {
     }
   }
 
-  static Future<List<Ride>> getSearchResults() async {
+  static Future<List<Ride>> getRideSearchResults() async {
     final user = supabase.auth.currentUser;
     if (user == null) {
       return [];
@@ -84,6 +85,16 @@ class SupabaseService {
         .not('driver_user_id', 'eq', user.id)
         .order('datetime', ascending: true);
     return result.map((item) => Ride.fromJson(item)).toList();
+  }
+
+  static Future<List<Profile>> getProfileSearchResults(
+      String searchTerm) async {
+    final result = await supabase
+        .from('profile')
+        .select()
+        .neq('auth_id', supabase.auth.currentUser!.id)
+        .or('first_name.ilike.%$searchTerm%,last_name.ilike.%$searchTerm%,email.ilike.%$searchTerm%');
+    return result.map((item) => Profile.fromJson(item)).toList();
   }
 
   static Future<List<PassengerProfile>> getPassengers(String rideId) async {
@@ -103,14 +114,16 @@ class SupabaseService {
 
   static Future<List<Profile>> getFriends(String userId) async {
     try {
-      var result = await supabase.from('friend')
-      .select('profile(*)')
-      .or('friend.user_id_1.$userId,friend.user_id_2.$userId');
-       List<Profile> friendsList = result
+      var result = await supabase
+          .from('friend')
+          .select('profile(*)')
+          .or('friend.user_id_1.$userId,friend.user_id_2.$userId');
+      List<Profile> friendsList = result
           .where((element) => element['ride'] != null)
           .map((item) => Profile.fromJson(item['ride']))
           .toList();
-      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
+      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
+          .compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
     } catch (err) {
       debugPrint('getRideHistory(): ${err.toString()}');
