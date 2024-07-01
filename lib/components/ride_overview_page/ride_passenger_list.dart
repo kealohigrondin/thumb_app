@@ -8,10 +8,7 @@ import 'package:thumb_app/services/supabase_service.dart';
 
 class RidePassengerList extends StatefulWidget {
   const RidePassengerList(
-      {super.key,
-      required this.passengerList,
-      required this.driverUserId,
-      required this.rideId});
+      {super.key, required this.passengerList, required this.driverUserId, required this.rideId});
 
   final List<PassengerProfile> passengerList;
   final String driverUserId;
@@ -29,21 +26,14 @@ class _RidePassengerListState extends State<RidePassengerList> {
       return Row(
         children: [
           TextButton(
-              style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error),
+              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
               onPressed: () => SupabaseService.updatePassengerStatus(
-                  context,
-                  widget.rideId,
-                  RidePassengerStatus.denied,
-                  passenger.passengerUserId),
+                  context, widget.rideId, RidePassengerStatus.denied, passenger.passengerUserId),
               child: const Text('Deny')),
           const SizedBox(width: 4),
           TextButton(
               onPressed: () => SupabaseService.updatePassengerStatus(
-                  context,
-                  widget.rideId,
-                  RidePassengerStatus.confirmed,
-                  passenger.passengerUserId),
+                  context, widget.rideId, RidePassengerStatus.confirmed, passenger.passengerUserId),
               child: const Text('Confirm')),
         ],
       );
@@ -52,12 +42,10 @@ class _RidePassengerListState extends State<RidePassengerList> {
   }
 
   TextStyle _getPassengerNameTextStyle(RidePassengerStatus status) {
-    if (status == RidePassengerStatus.cancelled ||
-        status == RidePassengerStatus.denied) {
-      return const TextStyle(
-          color: Colors.grey, decoration: TextDecoration.lineThrough);
+    if (status == RidePassengerStatus.cancelled || status == RidePassengerStatus.denied) {
+      return const TextStyle(color: Colors.grey, decoration: TextDecoration.lineThrough);
     }
-    return const TextStyle();
+    return Theme.of(context).textTheme.bodyMedium!;
   }
 
   Widget _driverPassengerView() {
@@ -68,16 +56,15 @@ class _RidePassengerListState extends State<RidePassengerList> {
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: ListTile(
                   leading: ProfilePhoto(
-                      initials:
-                          '${passenger.firstName[0]}${passenger.lastName[0]}',
+                      initials: '${passenger.firstName[0]}${passenger.lastName[0]}',
                       authId: passenger.passengerUserId,
                       radius: 20),
                   title: Text('${passenger.firstName} ${passenger.lastName}',
                       style: _getPassengerNameTextStyle(passenger.status)),
                   trailing: _passengerStatusButton(passenger),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => VisitingProfilePage(
-                          authId: passenger.passengerUserId))),
+                      builder: (context) =>
+                          VisitingProfilePage(authId: passenger.passengerUserId))),
                 ),
               ))
           .toList(),
@@ -103,16 +90,17 @@ class _RidePassengerListState extends State<RidePassengerList> {
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: ListTile(
                   leading: ProfilePhoto(
-                      initials:
-                          '${passenger.firstName[0]}${passenger.lastName[0]}',
+                      initials: '${passenger.firstName[0]}${passenger.lastName[0]}',
                       authId: passenger.passengerUserId,
                       radius: 20),
-                  title: Text(passenger.passengerUserId == currentUserId
-                      ? '(You) ${passenger.firstName} ${passenger.lastName}'
-                      : '${passenger.firstName} ${passenger.lastName}'),
+                  title: Text(
+                      passenger.passengerUserId == currentUserId
+                          ? '(You) ${passenger.firstName} ${passenger.lastName}'
+                          : '${passenger.firstName} ${passenger.lastName}',
+                      style: Theme.of(context).textTheme.bodyMedium),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => VisitingProfilePage(
-                          authId: passenger.passengerUserId))),
+                      builder: (context) =>
+                          VisitingProfilePage(authId: passenger.passengerUserId))),
                 ),
               ))
           .toList(),

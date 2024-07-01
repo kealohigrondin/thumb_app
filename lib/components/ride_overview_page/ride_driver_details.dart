@@ -34,12 +34,11 @@ class _RideDriverDetailsState extends State<RideDriverDetails> {
           } else if (snapshot.hasData) {
             return ListTile(
               leading: ProfilePhoto(
-                  initials:
-                      '${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}',
+                  initials: '${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}',
                   authId: snapshot.data!.authId,
                   radius: 20),
-              title: Text(
-                  '${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
+              title: Text('${snapshot.data!.firstName} ${snapshot.data!.lastName}',
+                  style: Theme.of(context).textTheme.bodyMedium),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => VisitingProfilePage(
                         authId: snapshot.data!.authId,

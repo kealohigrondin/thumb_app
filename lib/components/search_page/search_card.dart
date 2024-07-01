@@ -29,16 +29,11 @@ class SearchCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(DateFormat.MMMd().add_jm().format(ride.dateTime),
-                    style: Theme.of(context).textTheme.headlineSmall),
+                    style: Theme.of(context).textTheme.titleLarge),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(ride.title ?? 'Title', style: Theme.of(context).textTheme.labelLarge),
-                  Text(formatDoubleToCurrency(ride.passengerCost!),
-                      style: Theme.of(context).textTheme.labelLarge)
-                ],
-              ),
+              Text(ride.title ?? 'Title', style: Theme.of(context).textTheme.labelLarge),
+              Text(formatDoubleToCurrency(ride.passengerCost!),
+                  style: Theme.of(context).textTheme.labelLarge),
               Text(ride.departAddress!,
                   textAlign: TextAlign.start,
                   maxLines: 2,

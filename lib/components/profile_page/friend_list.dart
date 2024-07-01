@@ -34,15 +34,13 @@ class _FriendListState extends State<FriendList> {
         onRefresh: _refreshHistory,
         child: FutureBuilder(
             future: _profileList,
-            builder:
-                (BuildContext context, AsyncSnapshot<List<Profile>> snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<List<Profile>> snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
                   return const LoadingPage();
                 case ConnectionState.done:
                   return ListView.builder(
-                      itemCount:
-                          snapshot.data!.length > 1 ? snapshot.data!.length : 1,
+                      itemCount: snapshot.data!.length > 1 ? snapshot.data!.length : 1,
                       itemBuilder: (ctx, index) {
                         if (snapshot.hasError) {
                           return Text(snapshot.error.toString());
@@ -59,20 +57,22 @@ class _FriendListState extends State<FriendList> {
                               authId: snapshot.data![index].authId,
                               radius: 20),
                           title: Text(
-                              '${snapshot.data![index].firstName} ${snapshot.data![index].lastName}'),
+                              '${snapshot.data![index].firstName} ${snapshot.data![index].lastName}',
+                              style: Theme.of(context).textTheme.bodyMedium),
                           trailing: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.all(0),
+                                textStyle: Theme.of(context).textTheme.labelSmall),
                             onPressed: () => debugPrint('action pressed'),
                             child: const Text('Actions'),
                           ),
-                          onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => VisitingProfilePage(
-                                      authId: snapshot.data![index].authId))),
+                          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  VisitingProfilePage(authId: snapshot.data![index].authId))),
                         );
                       });
                 default:
-                  return const Center(
-                      child: Text('Something unaccounted for has occurred...'));
+                  return const Center(child: Text('Something unaccounted for has occurred...'));
               }
             }));
   }
