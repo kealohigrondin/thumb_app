@@ -32,6 +32,27 @@ class SupabaseService {
     }
   }
 
+  static void removeFollower(BuildContext context, String authIdToRemove) async {
+    try {
+      final authId = supabase.auth.currentUser!.id;
+      await supabase
+          .from('follower')
+          .delete()
+          .eq('follower_user_id', authIdToRemove)
+          .eq('target_user_id', authId);
+      if (context.mounted) {
+        ShowSuccessSnackBar(context, 'Account removed from followers.');
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
+    } catch (err) {
+      if (context.mounted) {
+        ShowErrorSnackBar(
+            context, 'Unexpected error occurred.', 'removeFollower(): ${err.toString()}');
+      }
+    }
+  }
+
   static void updatePassengerStatus(BuildContext context, String rideId,
       RidePassengerStatus newStatus, String passengerUserId) async {
     try {

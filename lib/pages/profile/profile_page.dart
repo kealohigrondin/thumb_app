@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:thumb_app/components/profile_page/profile_header.dart';
+import 'package:thumb_app/components/shared/profile_photo.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/types/profile.dart';
 import 'package:thumb_app/main.dart';
@@ -10,6 +10,7 @@ import 'package:thumb_app/components/shared/loading_page.dart';
 import 'package:thumb_app/pages/profile/profile_edit_page.dart';
 import 'package:thumb_app/pages/profile/ride_history_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
+import 'package:thumb_app/styles/button_styles.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.visiting, this.authId});
@@ -52,6 +53,38 @@ class _ProfilePageState extends State<ProfilePage> {
         widget.visiting ? widget.authId! : supabase.auth.currentUser!.id);
   }
 
+  Widget _getProfileHeader(Profile profile) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 32, 8, 0),
+      child: Column(children: [
+        Row(children: [
+          ProfilePhoto(
+              initials: '${profile.firstName[0]}${profile.lastName[0]}', authId: profile.authId),
+          const SizedBox(width: 8),
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('${profile.firstName} ${profile.lastName}',
+                style: Theme.of(context).textTheme.titleMedium),
+            Text(profile.email),
+          ])
+        ]),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Flexible(
+              child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(profile.bio),
+          )),
+          supabase.auth.currentUser!.id != profile.authId
+              ? FilledButton.icon(
+                  icon: const Icon(Icons.person_add),
+                  label: const Text('Add'),
+                  onPressed: () => debugPrint('add friend clicked'),
+                  style: squareSmallButton)
+              : Container(),
+        ])
+      ]),
+    );
+  }
+
   // TODO: refresh when navigating back from edit profile page
   @override
   Widget build(BuildContext context) {
@@ -70,7 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   }
                   return ListView(
                     children: [
-                      ProfileHeader(profile: snapshot.data!),
+                      _getProfileHeader(snapshot.data!),
                       ListTile(
                         title: const Row(
                           children: [

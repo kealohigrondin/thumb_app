@@ -41,15 +41,11 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         data: updates,
       ));
       final profileUpdates = {'auth_id': authId, ...updates};
-      await supabase
-          .from('profile')
-          .upsert(profileUpdates)
-          .eq('auth_id', authId);
+      await supabase.from('profile').upsert(profileUpdates).eq('auth_id', authId);
       ShowSuccessSnackBar(context, 'Profile saved!');
       Navigator.of(context).pop();
     } catch (error) {
-      ShowErrorSnackBar(
-          context, 'Unexpected error occurred.', error.toString());
+      ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
     } finally {
       //close keyboard
       if (FocusManager.instance.primaryFocus != null) {
@@ -75,7 +71,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     super.dispose();
   }
 
-// TODO: Add vehicle form
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,12 +88,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
               _bioController.text = snapshot.data!.bio;
 
               return ListView(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
                 children: [
                   GestureDetector(
                     onTap: () => debugPrint('edit profile photo tapped'),
-                    child: ProfilePhoto(initials: '${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}', authId: snapshot.data!.authId),
+                    child: ProfilePhoto(
+                        initials: '${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}',
+                        authId: snapshot.data!.authId),
                   ),
                   TextFormField(
                     controller: _firstNameController,
@@ -122,8 +118,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   TextFormField(
                     controller: _phoneNumberController,
                     keyboardType: TextInputType.phone,
-                    decoration:
-                        const InputDecoration(labelText: 'Phone Number'),
+                    decoration: const InputDecoration(labelText: 'Phone Number'),
                   ),
                   const SizedBox(height: 18),
                   TextFormField(
