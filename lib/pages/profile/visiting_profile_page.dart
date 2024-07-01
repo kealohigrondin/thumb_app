@@ -8,6 +8,6 @@ class VisitingProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(), body: ProfilePage(authId: authId));
+    return Scaffold(appBar: AppBar(), body: ProfilePage(visiting: true, authId: authId));
   }
 }

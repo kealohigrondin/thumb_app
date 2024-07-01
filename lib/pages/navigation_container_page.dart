@@ -15,8 +15,7 @@ class NavigationContainerPage extends ConsumerWidget {
   static final bottomNavItems = [
     const NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
     const NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
-    const NavigationDestination(
-        icon: Icon(Icons.airport_shuttle), label: 'Rides'),
+    const NavigationDestination(icon: Icon(Icons.airport_shuttle), label: 'Rides'),
     const NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
   ];
 
@@ -26,7 +25,7 @@ class NavigationContainerPage extends ConsumerWidget {
     const HomePage(),
     const SearchPage(),
     const RidesPage(),
-    const ProfilePage()
+    const ProfilePage(visiting: false)
   ];
 
   @override
@@ -43,18 +42,16 @@ class NavigationContainerPage extends ConsumerWidget {
                 Text(pageTitles[currentIndex]),
               ],
             ),
-            actions: [              
+            actions: [
               currentIndex != 3
                   ? IconButton(
-                      onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const ChatPage(rideId: 'rideId'))),
+                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const ChatPage(rideId: 'rideId'))),
                       icon: const Icon(Icons.chat, size: 25))
                   : Container(),
               IconButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const NotificationsPage())),
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => const NotificationsPage())),
                   icon: const Icon(Icons.notifications_rounded, size: 25)),
             ]),
         body: Padding(

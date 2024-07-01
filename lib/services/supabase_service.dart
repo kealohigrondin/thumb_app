@@ -12,6 +12,26 @@ class SupabaseService {
     return input + 1;
   }
 
+  static void unfollow(BuildContext context, String authIdToUnfollow) async {
+    try {
+      final authId = supabase.auth.currentUser!.id;
+      await supabase
+          .from('follower')
+          .delete()
+          .eq('follower_user_id', authId)
+          .eq('target_user_id', authIdToUnfollow);
+      if (context.mounted) {
+        ShowSuccessSnackBar(context, 'Account unfollowed.');
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
+    } catch (err) {
+      if (context.mounted) {
+        ShowErrorSnackBar(context, 'Unexpected error occurred.', 'unfollow(): ${err.toString()}');
+      }
+    }
+  }
+
   static void updatePassengerStatus(BuildContext context, String rideId,
       RidePassengerStatus newStatus, String passengerUserId) async {
     try {
@@ -28,15 +48,15 @@ class SupabaseService {
       if (context.mounted) {
         // TODO: implement new showSnackbar functionality
         //context.showErrorSnackBar(message: 'Unexpected error occurred ${err.toString()}', functionName: 'updatePassengerStatus');
-        ShowErrorSnackBar(context, 'Unexpected error occurred.',
-            'updatePassengerStatus(): ${err.toString()}');
+        ShowErrorSnackBar(
+            context, 'Unexpected error occurred.', 'updatePassengerStatus(): ${err.toString()}');
       }
     }
     debugPrint('passenger status changed to $newStatus');
   }
 
-  static Future<void> updateProfile(BuildContext context, String firstName,
-      String lastName, String email, String phoneNumber, String bio) async {
+  static Future<void> updateProfile(BuildContext context, String firstName, String lastName,
+      String email, String phoneNumber, String bio) async {
     try {
       final authId = supabase.auth.currentUser!.id;
       final updates = {
@@ -50,18 +70,15 @@ class SupabaseService {
         data: updates,
       ));
       final profileUpdates = {'auth_id': authId, ...updates};
-      await supabase
-          .from('profile')
-          .upsert(profileUpdates)
-          .eq('auth_id', authId);
+      await supabase.from('profile').upsert(profileUpdates).eq('auth_id', authId);
       if (context.mounted) {
         ShowSuccessSnackBar(context, 'Profile saved!');
         Navigator.of(context).pop();
       }
     } catch (err) {
       if (context.mounted) {
-        ShowErrorSnackBar(context, 'Unexpected error occurred.',
-            'updateProfile(): ${err.toString()}');
+        ShowErrorSnackBar(
+            context, 'Unexpected error occurred.', 'updateProfile(): ${err.toString()}');
       }
     } finally {
       //close keyboard
@@ -87,8 +104,7 @@ class SupabaseService {
     return result.map((item) => Ride.fromJson(item)).toList();
   }
 
-  static Future<List<Profile>> getProfileSearchResults(
-      String searchTerm) async {
+  static Future<List<Profile>> getProfileSearchResults(String searchTerm) async {
     final result = await supabase
         .from('profile')
         .select()
@@ -114,11 +130,7 @@ class SupabaseService {
 
   static Future<Profile> getProfile(String authId) async {
     try {
-      final result = await supabase
-          .from('profile')
-          .select()
-          .eq('auth_id', authId)
-          .single();
+      final result = await supabase.from('profile').select().eq('auth_id', authId).single();
       return Profile.fromJson(result);
     } catch (err) {
       debugPrint('getProfile(): ${err.toString()}');
@@ -132,8 +144,7 @@ class SupabaseService {
         .from('ride')
         .select()
         .lt('datetime', DateTime.now())
-        .order('datetime',
-            ascending: false); //get activity data in descending datetime
+        .order('datetime', ascending: false); //get activity data in descending datetime
     return result.map((item) => Ride.fromJson(item)).toList();
   }
 
@@ -204,31 +215,34 @@ class SupabaseService {
       var result = await supabase
           .from('follower')
           .select('profile!follower_target_user_id_fkey(*)')
+          .eq('status', 'CONFIRMED')
           .eq('follower_user_id', authId);
       List<Profile> friendsList = result
           .where((element) => element['profile'] != null)
           .map((item) => Profile.fromJson(item['profile']))
           .toList();
-      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
-          .compareTo('${prof2.firstName}${prof2.lastName}'));
+      friendsList.sort((prof1, prof2) =>
+          '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
     } catch (err) {
       debugPrint('getFollowingProfiles(): ${err.toString()}');
       return [];
     }
   }
+
   static Future<List<Profile>> getFollowerProfiles(String authId) async {
     try {
       var result = await supabase
           .from('follower')
           .select('profile!follower_follower_user_id_fkey(*)')
+          .eq('status', 'CONFIRMED')
           .eq('target_user_id', authId);
       List<Profile> friendsList = result
           .where((element) => element['profile'] != null)
           .map((item) => Profile.fromJson(item['profile']))
           .toList();
-      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
-          .compareTo('${prof2.firstName}${prof2.lastName}'));
+      friendsList.sort((prof1, prof2) =>
+          '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
     } catch (err) {
       debugPrint('getFollowerProfiles(): ${err.toString()}');

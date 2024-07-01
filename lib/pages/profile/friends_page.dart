@@ -20,14 +20,11 @@ class FriendsPage extends StatelessWidget {
                 onPressed: () async {
                   final Profile? result = await showSearch(
                       context: context,
-                      delegate: ProfileSearch(
-                          'Search by first name, last name, or email'));
+                      delegate: ProfileSearch('Search by first name, last name, or email'));
                   if (result != null && context.mounted) {
-                    debugPrint(
-                        '${result.firstName} ${result.lastName} clicked');
+                    debugPrint('${result.firstName} ${result.lastName} clicked');
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            VisitingProfilePage(authId: result.authId)));
+                        builder: (context) => VisitingProfilePage(authId: result.authId)));
                   }
                 },
                 icon: const Icon(Icons.add))
@@ -35,15 +32,13 @@ class FriendsPage extends StatelessWidget {
         body: DefaultTabController(
           length: 2,
           child: Scaffold(
-            appBar: const TabBar(
-                tabs: [Tab(text: 'Following'), Tab(text: 'Followers')]),
+            appBar: const TabBar(tabs: [Tab(text: 'Following'), Tab(text: 'Followers')]),
             body: TabBarView(
               children: [
                 FriendList(
-                    queryFn: () =>
-                        SupabaseService.getFollowingProfiles(authId)),
+                    type: 'FOLLOWING', queryFn: () => SupabaseService.getFollowingProfiles(authId)),
                 FriendList(
-                    queryFn: () => SupabaseService.getFollowerProfiles(authId)),
+                    type: 'FOLLOWERS', queryFn: () => SupabaseService.getFollowerProfiles(authId)),
               ],
             ),
           ),
