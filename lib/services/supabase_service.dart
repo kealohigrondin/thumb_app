@@ -112,25 +112,6 @@ class SupabaseService {
     }
   }
 
-  static Future<List<Profile>> getFriends(String userId) async {
-    try {
-      var result = await supabase
-          .from('friend')
-          .select('profile(*)')
-          .or('friend.user_id_1.$userId,friend.user_id_2.$userId');
-      List<Profile> friendsList = result
-          .where((element) => element['ride'] != null)
-          .map((item) => Profile.fromJson(item['ride']))
-          .toList();
-      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
-          .compareTo('${prof2.firstName}${prof2.lastName}'));
-      return friendsList;
-    } catch (err) {
-      debugPrint('getRideHistory(): ${err.toString()}');
-      return [];
-    }
-  }
-
   static Future<Profile> getProfile(String authId) async {
     try {
       final result = await supabase
@@ -214,6 +195,43 @@ class SupabaseService {
       return result;
     } catch (err) {
       debugPrint('getRidesPlanned(): ${err.toString()}');
+      return [];
+    }
+  }
+
+  static Future<List<Profile>> getFollowingProfiles(String authId) async {
+    try {
+      var result = await supabase
+          .from('follower')
+          .select('profile!follower_target_user_id_fkey(*)')
+          .eq('follower_user_id', authId);
+      List<Profile> friendsList = result
+          .where((element) => element['profile'] != null)
+          .map((item) => Profile.fromJson(item['profile']))
+          .toList();
+      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
+          .compareTo('${prof2.firstName}${prof2.lastName}'));
+      return friendsList;
+    } catch (err) {
+      debugPrint('getFollowingProfiles(): ${err.toString()}');
+      return [];
+    }
+  }
+  static Future<List<Profile>> getFollowerProfiles(String authId) async {
+    try {
+      var result = await supabase
+          .from('follower')
+          .select('profile!follower_follower_user_id_fkey(*)')
+          .eq('target_user_id', authId);
+      List<Profile> friendsList = result
+          .where((element) => element['profile'] != null)
+          .map((item) => Profile.fromJson(item['profile']))
+          .toList();
+      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
+          .compareTo('${prof2.firstName}${prof2.lastName}'));
+      return friendsList;
+    } catch (err) {
+      debugPrint('getFollowerProfiles(): ${err.toString()}');
       return [];
     }
   }
