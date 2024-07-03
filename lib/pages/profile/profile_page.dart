@@ -28,12 +28,13 @@ class _ProfilePageState extends State<ProfilePage> {
       await supabase.auth.signOut();
     } catch (error) {
       if (mounted) {
-        ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
+        ShowErrorSnackBar(
+            context, 'Unexpected error occurred.', error.toString());
       }
     } finally {
       if (mounted) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const LoginPage()));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const LoginPage()));
       }
     }
   }
@@ -59,7 +60,8 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(children: [
         Row(children: [
           ProfilePhoto(
-              initials: '${profile.firstName[0]}${profile.lastName[0]}', authId: profile.authId),
+              initials: '${profile.firstName[0]}${profile.lastName[0]}',
+              authId: profile.authId),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('${profile.firstName} ${profile.lastName}',
@@ -73,13 +75,12 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.all(8),
             child: Text(profile.bio),
           )),
-          supabase.auth.currentUser!.id != profile.authId
-              ? FilledButton.icon(
-                  icon: const Icon(Icons.person_add),
-                  label: const Text('Add'),
-                  onPressed: () => debugPrint('add friend clicked'),
-                  style: squareSmallButton)
-              : Container(),
+          if (widget.visiting)
+            FilledButton.icon(
+                icon: const Icon(Icons.person_add),
+                label: const Text('Add'),
+                onPressed: () => debugPrint('add friend clicked'),
+                style: squareSmallButton),
         ])
       ]),
     );
@@ -99,7 +100,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 case ConnectionState.done:
                   if (snapshot.hasError) {
                     return ListView.builder(
-                        itemCount: 1, itemBuilder: (ctx, index) => Text(snapshot.error.toString()));
+                        itemCount: 1,
+                        itemBuilder: (ctx, index) =>
+                            Text(snapshot.error.toString()));
                   }
                   return ListView(
                     children: [
@@ -112,8 +115,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             Text('Rides'),
                           ],
                         ),
-                        onTap: () => Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (context) => const RideHistoryPage())),
+                        onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    RideHistoryPage(profile: snapshot.data!))),
                       ),
                       ListTile(
                           title: const Row(
@@ -123,15 +128,20 @@ class _ProfilePageState extends State<ProfilePage> {
                               Text('Friends'),
                             ],
                           ),
-                          onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => FriendsPage(
-                                    authId: snapshot.data!.authId,
-                                  )))),
+                          onTap: () =>
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => FriendsPage(
+                                        authId: snapshot.data!.authId,
+                                      )))),
                       ListTile(
-                          title: const Row(
-                              children: [Icon(Icons.garage), SizedBox(width: 8), Text('Garage')]),
-                          onTap: () => Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (context) => const GaragePage()))),
+                          title: const Row(children: [
+                            Icon(Icons.garage),
+                            SizedBox(width: 8),
+                            Text('Garage')
+                          ]),
+                          onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => const GaragePage()))),
                       const Divider(),
                       if (!widget.visiting)
                         ListTile(
@@ -141,7 +151,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               Text('Edit Profile'),
                             ]),
                             onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(builder: (context) => const ProfileEditPage()))),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ProfileEditPage()))),
                       if (!widget.visiting)
                         ListTile(
                             title: const Row(children: [
@@ -150,7 +162,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               Text('Blocked Accounts'),
                             ]),
                             onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(builder: (context) => const ProfileEditPage()))),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ProfileEditPage()))),
                       if (!widget.visiting)
                         ListTile(
                           title: const Row(children: [
@@ -164,7 +178,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
 
                 default:
-                  return const Center(child: Text('Something unaccounted for has occurred...'));
+                  return const Center(
+                      child: Text('Something unaccounted for has occurred...'));
               }
             }));
   }

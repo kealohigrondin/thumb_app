@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/rides/ride_overview.dart';
 import 'package:thumb_app/utils/utils.dart';
 
@@ -18,7 +17,6 @@ class SearchCard extends StatelessWidget {
       onTap: () => Navigator.push(
           context, MaterialPageRoute(builder: (context) => RideOverview(ride: ride))),
       child: Card(
-        color: supabase.auth.currentUser!.id == ride.driverUserId ? Colors.amber[100] : null,
         child: Padding(
           padding: const EdgeInsets.all(4),
           child: Column(

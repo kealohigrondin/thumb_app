@@ -27,7 +27,7 @@ class FriendsPage extends StatelessWidget {
                         builder: (context) => VisitingProfilePage(authId: result.authId)));
                   }
                 },
-                icon: const Icon(Icons.add))
+                icon: const Icon(Icons.search))
         ]),
         body: DefaultTabController(
           length: 2,

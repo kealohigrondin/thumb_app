@@ -7,6 +7,7 @@ environment:
   sdk: '>=3.3.1 <4.0.0'
 
 dependencies:
+  darq: ^2.0.0
   flutter:
     sdk: flutter
   flutter_dotenv: ^5.1.0

@@ -1,3 +1,4 @@
+import 'package:darq/darq.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
@@ -27,12 +28,14 @@ class SupabaseService {
       }
     } catch (err) {
       if (context.mounted) {
-        ShowErrorSnackBar(context, 'Unexpected error occurred.', 'unfollow(): ${err.toString()}');
+        ShowErrorSnackBar(context, 'Unexpected error occurred.',
+            'unfollow(): ${err.toString()}');
       }
     }
   }
 
-  static void removeFollower(BuildContext context, String authIdToRemove) async {
+  static void removeFollower(
+      BuildContext context, String authIdToRemove) async {
     try {
       final authId = supabase.auth.currentUser!.id;
       await supabase
@@ -47,8 +50,8 @@ class SupabaseService {
       }
     } catch (err) {
       if (context.mounted) {
-        ShowErrorSnackBar(
-            context, 'Unexpected error occurred.', 'removeFollower(): ${err.toString()}');
+        ShowErrorSnackBar(context, 'Unexpected error occurred.',
+            'removeFollower(): ${err.toString()}');
       }
     }
   }
@@ -69,15 +72,15 @@ class SupabaseService {
       if (context.mounted) {
         // TODO: implement new showSnackbar functionality
         //context.showErrorSnackBar(message: 'Unexpected error occurred ${err.toString()}', functionName: 'updatePassengerStatus');
-        ShowErrorSnackBar(
-            context, 'Unexpected error occurred.', 'updatePassengerStatus(): ${err.toString()}');
+        ShowErrorSnackBar(context, 'Unexpected error occurred.',
+            'updatePassengerStatus(): ${err.toString()}');
       }
     }
     debugPrint('passenger status changed to $newStatus');
   }
 
-  static Future<void> updateProfile(BuildContext context, String firstName, String lastName,
-      String email, String phoneNumber, String bio) async {
+  static Future<void> updateProfile(BuildContext context, String firstName,
+      String lastName, String email, String phoneNumber, String bio) async {
     try {
       final authId = supabase.auth.currentUser!.id;
       final updates = {
@@ -91,15 +94,18 @@ class SupabaseService {
         data: updates,
       ));
       final profileUpdates = {'auth_id': authId, ...updates};
-      await supabase.from('profile').upsert(profileUpdates).eq('auth_id', authId);
+      await supabase
+          .from('profile')
+          .upsert(profileUpdates)
+          .eq('auth_id', authId);
       if (context.mounted) {
         ShowSuccessSnackBar(context, 'Profile saved!');
         Navigator.of(context).pop();
       }
     } catch (err) {
       if (context.mounted) {
-        ShowErrorSnackBar(
-            context, 'Unexpected error occurred.', 'updateProfile(): ${err.toString()}');
+        ShowErrorSnackBar(context, 'Unexpected error occurred.',
+            'updateProfile(): ${err.toString()}');
       }
     } finally {
       //close keyboard
@@ -125,7 +131,8 @@ class SupabaseService {
     return result.map((item) => Ride.fromJson(item)).toList();
   }
 
-  static Future<List<Profile>> getProfileSearchResults(String searchTerm) async {
+  static Future<List<Profile>> getProfileSearchResults(
+      String searchTerm) async {
     final result = await supabase
         .from('profile')
         .select()
@@ -151,7 +158,11 @@ class SupabaseService {
 
   static Future<Profile> getProfile(String authId) async {
     try {
-      final result = await supabase.from('profile').select().eq('auth_id', authId).single();
+      final result = await supabase
+          .from('profile')
+          .select()
+          .eq('auth_id', authId)
+          .single();
       return Profile.fromJson(result);
     } catch (err) {
       debugPrint('getProfile(): ${err.toString()}');
@@ -159,25 +170,53 @@ class SupabaseService {
     return Profile();
   }
 
-  // TODO: update to reflect rides only from self or friends
   static Future<List<Ride>> getActivityData() async {
-    final result = await supabase
-        .from('ride')
-        .select()
-        .lt('datetime', DateTime.now())
-        .order('datetime', ascending: false); //get activity data in descending datetime
-    return result.map((item) => Ride.fromJson(item)).toList();
-  }
+    final followingProfiles =
+        await getFollowingProfiles(supabase.auth.currentUser!.id);
+    final followingAuthIds = followingProfiles.map((item) => item.authId);
+    final searchAuthIds = [...followingAuthIds, supabase.auth.currentUser!.id];
 
-  static Future<List<Ride>> getRideHistory() async {
-    if (supabase.auth.currentUser == null) {
+    try {
+      final passengerResults = await supabase
+          .from('ride_passenger')
+          .select('ride(*)')
+          .inFilter('passenger_user_id', searchAuthIds)
+          .inFilter('status', [
+        RidePassengerStatus.confirmed.toShortString(),
+        RidePassengerStatus.requested.toShortString()
+      ]).lte('ride.datetime', DateTime.now());
+
+      List<Ride> result = passengerResults
+          .where((element) => element['ride'] != null)
+          .map((item) => Ride.fromJson(item['ride']))
+          .toList();
+
+      final driverResults = await supabase
+          .from('ride')
+          .select()
+          .lt('datetime', DateTime.now())
+          .inFilter('driver_user_id', searchAuthIds)
+          .order('datetime',
+              ascending: false); //get activity data in descending datetime
+
+      result.addAll(driverResults.map((item) => Ride.fromJson(item)));
+      result.sort((ride1, ride2) =>
+          ride1.dateTime.compareTo(ride2.dateTime)); //sort by date
+      final noDupes = result.distinct((ride) => ride.id!);
+      return noDupes.toList();
+    } catch (err) {
+      debugPrint('getActivityData(): ${err.toString()}');
       return [];
     }
+  }
+
+  static Future<List<Ride>> getRideHistory(String authId) async {
+ 
     try {
       final passengerRides = await supabase
           .from('ride_passenger')
           .select('ride(*)')
-          .eq('passenger_user_id', supabase.auth.currentUser!.id)
+          .eq('passenger_user_id', authId)
           .inFilter('status', [
         RidePassengerStatus.confirmed.toShortString(),
         RidePassengerStatus.requested.toShortString()
@@ -189,10 +228,9 @@ class SupabaseService {
       final driverRides = await supabase
           .from('ride')
           .select()
-          .eq('driver_user_id', supabase.auth.currentUser!.id)
+          .eq('driver_user_id', authId)
           .lte('datetime', DateTime.now());
       result.addAll(driverRides.map((item) => Ride.fromJson(item)));
-      result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
       return result;
     } catch (err) {
       debugPrint('getRideHistory(): ${err.toString()}');
@@ -242,8 +280,8 @@ class SupabaseService {
           .where((element) => element['profile'] != null)
           .map((item) => Profile.fromJson(item['profile']))
           .toList();
-      friendsList.sort((prof1, prof2) =>
-          '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
+      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
+          .compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
     } catch (err) {
       debugPrint('getFollowingProfiles(): ${err.toString()}');
@@ -262,8 +300,8 @@ class SupabaseService {
           .where((element) => element['profile'] != null)
           .map((item) => Profile.fromJson(item['profile']))
           .toList();
-      friendsList.sort((prof1, prof2) =>
-          '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
+      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
+          .compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
     } catch (err) {
       debugPrint('getFollowerProfiles(): ${err.toString()}');

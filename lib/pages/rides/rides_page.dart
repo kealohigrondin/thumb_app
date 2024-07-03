@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/shared/ride_list.dart';
+import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/rides/publish_ride_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 
@@ -15,12 +16,12 @@ class RidesPage extends StatelessWidget {
           Tab(icon: Icon(Icons.history)),
           Tab(icon: Icon(Icons.calendar_month))
         ]),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
             RideList(
-                queryFn: SupabaseService.getRideHistory,
+                queryFn: () => SupabaseService.getRideHistory(supabase.auth.currentUser!.id),
                 isActivityRideList: false),
-            RideList(
+            const RideList(
                 queryFn: SupabaseService.getRidesPlanned,
                 isActivityRideList: false),
           ],
