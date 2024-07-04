@@ -23,6 +23,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late Future<Profile> _profile;
+  late Future<bool> _isFollowing;
+
   Future<void> _signOut() async {
     try {
       await supabase.auth.signOut();
@@ -75,10 +77,17 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.all(8),
             child: Text(profile.bio),
           )),
+          // TODO: implement futurebuilder to show follow button or disable if they are already following the person
           if (widget.visiting)
             FilledButton.icon(
-                icon: const Icon(Icons.person_add),
-                label: const Text('Add'),
+                icon: const Padding(
+                  padding: EdgeInsets.fromLTRB(2, 0, 0, 0),
+                  child: Icon(Icons.person_add),
+                ),
+                label: const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                  child: Text('Follow'),
+                ),
                 onPressed: () => debugPrint('add friend clicked'),
                 style: squareSmallButton),
         ])

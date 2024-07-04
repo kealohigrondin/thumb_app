@@ -211,7 +211,6 @@ class SupabaseService {
   }
 
   static Future<List<Ride>> getRideHistory(String authId) async {
- 
     try {
       final passengerRides = await supabase
           .from('ride_passenger')
@@ -307,5 +306,13 @@ class SupabaseService {
       debugPrint('getFollowerProfiles(): ${err.toString()}');
       return [];
     }
+  }
+
+  static Future<bool> isFollowing(String targetUserId, String userId) async {
+    List<Profile> profiles = await getFollowingProfiles(targetUserId);
+    Profile followerProfile = profiles.firstWhere(
+        (element) => element.authId == userId,
+        orElse: () => Profile());
+    return followerProfile.authId == userId;
   }
 }
