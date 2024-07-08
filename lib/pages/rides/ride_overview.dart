@@ -44,6 +44,17 @@ class _RideOverviewState extends State<RideOverview> {
     );
   }
 
+void _updatePassengerStatus(
+      String rideId, RidePassengerStatus status, String passengerUserId) {
+    try {
+      SupabaseService.updatePassengerStatus(rideId, status, passengerUserId);
+      ShowSuccessSnackBar(context, 'Passenger Status updated');
+    } catch (err) {
+      ShowErrorSnackBar(context,
+          'Error updating passenger status. Try again later.', err.toString());
+    }
+  }
+
   void _handleRequestToJoin() async {
     debugPrint('handle request to join ride');
     try {
@@ -58,7 +69,7 @@ class _RideOverviewState extends State<RideOverview> {
           'status': RidePassengerStatus.confirmed.toShortString()
         };
       }
-      await supabase.from('ride_passenger').upsert(values);
+      SupabaseService.upsertPassenger(values);
       // TODO: notify driver that a passenger request was made
       if (mounted) {
         Navigator.of(context).pop();
@@ -86,8 +97,7 @@ class _RideOverviewState extends State<RideOverview> {
               side: BorderSide(
                   color: Theme.of(context).colorScheme.error)), // Border color
 
-          onPressed: () => SupabaseService.updatePassengerStatus(context,
-              widget.ride.id!, RidePassengerStatus.cancelled, currentUserId),
+          onPressed: () => _updatePassengerStatus(widget.ride.id!, RidePassengerStatus.cancelled, currentUserId),
           child: const Text('Cancel Ride'));
     } else if (confirmedPassengerCount == widget.ride.availableSeats) {
       //no seats left

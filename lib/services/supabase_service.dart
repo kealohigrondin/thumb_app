@@ -1,7 +1,6 @@
 import 'package:darq/darq.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 import 'package:thumb_app/data/types/passenger_profile.dart';
 import 'package:thumb_app/data/types/profile.dart';
@@ -13,29 +12,45 @@ class SupabaseService {
     return input + 1;
   }
 
-  static void unfollow(BuildContext context, String authIdToUnfollow) async {
+  static Future<void> upsertPassenger(dynamic values) async {
     try {
-      final authId = supabase.auth.currentUser!.id;
-      await supabase
-          .from('follower')
-          .delete()
-          .eq('follower_user_id', authId)
-          .eq('target_user_id', authIdToUnfollow);
-      if (context.mounted) {
-        ShowSuccessSnackBar(context, 'Account unfollowed.');
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
-      }
-    } catch (err) {
-      if (context.mounted) {
-        ShowErrorSnackBar(context, 'Unexpected error occurred.',
-            'unfollow(): ${err.toString()}');
-      }
+      await supabase.from('ride_passenger').upsert(values);
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
   }
 
-  static void removeFollower(
-      BuildContext context, String authIdToRemove) async {
+  static Future<void> follow(String authIdToFollow) async {
+    try {
+      final authId = supabase.auth.currentUser!.id;
+      await supabase.from('follower').insert({
+        'follower_user_id': authId,
+        'target_user_id': authIdToFollow,
+        'status': 'CONFIRMED'
+      });
+    } on PostgrestException catch (error) {
+      //can also capture stacktrace with second argument after 'error'
+      debugPrint(error.message);
+      rethrow;
+    }
+  }
+
+  static Future<void> unfollow(
+      String authIdToUnfollow, String followerUserId) async {
+    try {
+      await supabase
+          .from('follower')
+          .delete()
+          .eq('follower_user_id', followerUserId)
+          .eq('target_user_id', authIdToUnfollow);
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
+    }
+  }
+
+  static void removeFollower(String authIdToRemove) async {
     try {
       final authId = supabase.auth.currentUser!.id;
       await supabase
@@ -43,20 +58,13 @@ class SupabaseService {
           .delete()
           .eq('follower_user_id', authIdToRemove)
           .eq('target_user_id', authId);
-      if (context.mounted) {
-        ShowSuccessSnackBar(context, 'Account removed from followers.');
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
-      }
-    } catch (err) {
-      if (context.mounted) {
-        ShowErrorSnackBar(context, 'Unexpected error occurred.',
-            'removeFollower(): ${err.toString()}');
-      }
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
   }
 
-  static void updatePassengerStatus(BuildContext context, String rideId,
+  static void updatePassengerStatus(String rideId,
       RidePassengerStatus newStatus, String passengerUserId) async {
     try {
       // create row in ride_passenger table
@@ -68,19 +76,14 @@ class SupabaseService {
           .eq('passenger_user_id', passengerUserId);
       debugPrint('updatePassengerStatus: Update saved!');
       // TODO: update UI to reflect new state of DB
-    } catch (err) {
-      if (context.mounted) {
-        // TODO: implement new showSnackbar functionality
-        //context.showErrorSnackBar(message: 'Unexpected error occurred ${err.toString()}', functionName: 'updatePassengerStatus');
-        ShowErrorSnackBar(context, 'Unexpected error occurred.',
-            'updatePassengerStatus(): ${err.toString()}');
-      }
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
-    debugPrint('passenger status changed to $newStatus');
   }
 
-  static Future<void> updateProfile(BuildContext context, String firstName,
-      String lastName, String email, String phoneNumber, String bio) async {
+  static Future<void> updateProfile(String firstName, String lastName,
+      String email, String phoneNumber, String bio) async {
     try {
       final authId = supabase.auth.currentUser!.id;
       final updates = {
@@ -90,55 +93,55 @@ class SupabaseService {
         'phone_number': phoneNumber.trim(),
         'bio': bio.trim(),
       };
+      //update auth
       await supabase.auth.updateUser(UserAttributes(
         data: updates,
       ));
+      //update profile table
       final profileUpdates = {'auth_id': authId, ...updates};
       await supabase
           .from('profile')
           .upsert(profileUpdates)
           .eq('auth_id', authId);
-      if (context.mounted) {
-        ShowSuccessSnackBar(context, 'Profile saved!');
-        Navigator.of(context).pop();
-      }
-    } catch (err) {
-      if (context.mounted) {
-        ShowErrorSnackBar(context, 'Unexpected error occurred.',
-            'updateProfile(): ${err.toString()}');
-      }
-    } finally {
-      //close keyboard
-      if (FocusManager.instance.primaryFocus != null) {
-        FocusManager.instance.primaryFocus!.unfocus();
-      }
-      //unfocus all text fields
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
   }
 
   static Future<List<Ride>> getRideSearchResults() async {
-    final user = supabase.auth.currentUser;
-    if (user == null) {
-      return [];
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) {
+        return [];
+      }
+      // TODO: hide rides that currentUser is passenger on from the user
+      final result = await supabase
+          .from('ride')
+          .select('*, ride_passenger(passenger_user_id)')
+          .gte('datetime', DateTime.now())
+          .not('driver_user_id', 'eq', user.id)
+          .order('datetime', ascending: true);
+      return result.map((item) => Ride.fromJson(item)).toList();
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
-    // TODO: hide rides that currentUser is passenger on from the user
-    final result = await supabase
-        .from('ride')
-        .select('*, ride_passenger(passenger_user_id)')
-        .gte('datetime', DateTime.now())
-        .not('driver_user_id', 'eq', user.id)
-        .order('datetime', ascending: true);
-    return result.map((item) => Ride.fromJson(item)).toList();
   }
 
   static Future<List<Profile>> getProfileSearchResults(
       String searchTerm) async {
-    final result = await supabase
-        .from('profile')
-        .select()
-        .neq('auth_id', supabase.auth.currentUser!.id)
-        .or('first_name.ilike.%$searchTerm%,last_name.ilike.%$searchTerm%,email.ilike.%$searchTerm%');
-    return result.map((item) => Profile.fromJson(item)).toList();
+    try {
+      final result = await supabase
+          .from('profile')
+          .select()
+          .neq('auth_id', supabase.auth.currentUser!.id)
+          .or('first_name.ilike.%$searchTerm%,last_name.ilike.%$searchTerm%,email.ilike.%$searchTerm%');
+      return result.map((item) => Profile.fromJson(item)).toList();
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
+    }
   }
 
   static Future<List<PassengerProfile>> getPassengers(String rideId) async {
@@ -150,9 +153,9 @@ class SupabaseService {
       List<PassengerProfile> ridePassengerProfile =
           result.map((item) => PassengerProfile.fromJson(item)).toList();
       return ridePassengerProfile;
-    } catch (err) {
-      debugPrint('_getPassengers: ${err.toString()}');
-      return [];
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
   }
 
@@ -164,15 +167,15 @@ class SupabaseService {
           .eq('auth_id', authId)
           .single();
       return Profile.fromJson(result);
-    } catch (err) {
-      debugPrint('getProfile(): ${err.toString()}');
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
-    return Profile();
   }
 
   static Future<List<Ride>> getActivityData() async {
     final followingProfiles =
-        await getFollowingProfiles(supabase.auth.currentUser!.id);
+        await getProfilesFollowed(supabase.auth.currentUser!.id);
     final followingAuthIds = followingProfiles.map((item) => item.authId);
     final searchAuthIds = [...followingAuthIds, supabase.auth.currentUser!.id];
 
@@ -204,9 +207,9 @@ class SupabaseService {
           ride1.dateTime.compareTo(ride2.dateTime)); //sort by date
       final noDupes = result.distinct((ride) => ride.id!);
       return noDupes.toList();
-    } catch (err) {
-      debugPrint('getActivityData(): ${err.toString()}');
-      return [];
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
   }
 
@@ -231,9 +234,9 @@ class SupabaseService {
           .lte('datetime', DateTime.now());
       result.addAll(driverRides.map((item) => Ride.fromJson(item)));
       return result;
-    } catch (err) {
-      debugPrint('getRideHistory(): ${err.toString()}');
-      return [];
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
   }
 
@@ -262,13 +265,13 @@ class SupabaseService {
       result.addAll(driverRides.map((item) => Ride.fromJson(item)));
       result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
       return result;
-    } catch (err) {
-      debugPrint('getRidesPlanned(): ${err.toString()}');
-      return [];
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
   }
 
-  static Future<List<Profile>> getFollowingProfiles(String authId) async {
+  static Future<List<Profile>> getProfilesFollowed(String authId) async {
     try {
       var result = await supabase
           .from('follower')
@@ -282,9 +285,9 @@ class SupabaseService {
       friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
           .compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
-    } catch (err) {
-      debugPrint('getFollowingProfiles(): ${err.toString()}');
-      return [];
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
   }
 
@@ -302,17 +305,23 @@ class SupabaseService {
       friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
           .compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
-    } catch (err) {
-      debugPrint('getFollowerProfiles(): ${err.toString()}');
-      return [];
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
     }
   }
 
-  static Future<bool> isFollowing(String targetUserId, String userId) async {
-    List<Profile> profiles = await getFollowingProfiles(targetUserId);
-    Profile followerProfile = profiles.firstWhere(
-        (element) => element.authId == userId,
-        orElse: () => Profile());
-    return followerProfile.authId == userId;
+  static Future<bool> isFollowing(
+      String targetUserId, String currentUserId) async {
+    try {
+      List<Profile> followedProfiles = await getProfilesFollowed(currentUserId);
+      Profile targetProfileFound = followedProfiles.firstWhere(
+          (element) => element.authId == targetUserId,
+          orElse: () => Profile());
+      return targetProfileFound.authId == targetUserId;
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
+    }
   }
 }

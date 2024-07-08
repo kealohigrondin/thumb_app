@@ -41,12 +41,58 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  void _follow() async {
+    try {
+      await SupabaseService.follow(widget.authId!);
+      if (mounted) {
+        ShowSuccessSnackBar(context, 'Account followed.');
+      }
+    } catch (err) {
+      if (mounted) {
+        ShowErrorSnackBar(context, 'Error following account. Try again later.',
+            'profilePage.follow(): ${err.toString()}');
+      }
+    } finally {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
+  void _unfollow() async {
+    try {
+      await SupabaseService.unfollow(
+          widget.authId!, supabase.auth.currentUser!.id);
+      if (mounted) {
+        ShowSuccessSnackBar(context, 'Account unfollowed.');
+      }
+    } catch (err) {
+      debugPrint(err.toString());
+      if (mounted) {
+        ShowErrorSnackBar(
+            context,
+            'Error unfollowing account. Try again later.',
+            'profilePage.unfollow): ${err.toString()}');
+      }
+    } finally {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
   Future<void> _refreshProfile() async {
     final result = SupabaseService.getProfile(
         widget.visiting ? widget.authId! : supabase.auth.currentUser!.id);
     setState(() {
       _profile = result;
     });
+    if (widget.visiting) {
+      _isFollowing = (widget.visiting
+          ? SupabaseService.isFollowing(
+              widget.authId!, supabase.auth.currentUser!.id)
+          : null)!;
+    }
   }
 
   @override
@@ -54,6 +100,10 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _profile = SupabaseService.getProfile(
         widget.visiting ? widget.authId! : supabase.auth.currentUser!.id);
+    if (widget.visiting && widget.authId != null) {
+      _isFollowing = SupabaseService.isFollowing(
+          widget.authId!, supabase.auth.currentUser!.id);
+    }
   }
 
   Widget _getProfileHeader(Profile profile) {
@@ -77,19 +127,54 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.all(8),
             child: Text(profile.bio),
           )),
-          // TODO: implement futurebuilder to show follow button or disable if they are already following the person
           if (widget.visiting)
-            FilledButton.icon(
-                icon: const Padding(
-                  padding: EdgeInsets.fromLTRB(2, 0, 0, 0),
-                  child: Icon(Icons.person_add),
-                ),
-                label: const Padding(
-                  padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
-                  child: Text('Follow'),
-                ),
-                onPressed: () => debugPrint('add friend clicked'),
-                style: squareSmallButton),
+            FutureBuilder(
+              future: _isFollowing,
+              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.waiting:
+                    return FilledButton(
+                        onPressed: null,
+                        style: squareSmallButton,
+                        child: const Padding(
+                            padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                            child: Text('Loading')));
+                  case ConnectionState.done:
+                    if (!snapshot.data!) {
+                      return FilledButton.icon(
+                          icon: const Padding(
+                            padding: EdgeInsets.fromLTRB(2, 0, 0, 0),
+                            child: Icon(Icons.person_add),
+                          ),
+                          label: const Padding(
+                            padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                            child: Text('Follow'),
+                          ),
+                          onPressed: _follow,
+                          style: squareSmallButton);
+                    } else {
+                      return OutlinedButton.icon(
+                          icon: const Padding(
+                            padding: EdgeInsets.fromLTRB(2, 0, 0, 0),
+                            child: Icon(Icons.person_remove),
+                          ),
+                          label: const Padding(
+                            padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                            child: Text('Unfollow'),
+                          ),
+                          onPressed: _unfollow,
+                          style: squareSmallButton);
+                    }
+                  default:
+                    return FilledButton(
+                        onPressed: null,
+                        style: squareSmallButton,
+                        child: const Padding(
+                            padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                            child: Text('Error')));
+                }
+              },
+            ),
         ])
       ]),
     );

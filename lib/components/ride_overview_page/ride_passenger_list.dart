@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/shared/profile_photo.dart';
+import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 import 'package:thumb_app/data/types/passenger_profile.dart';
 import 'package:thumb_app/main.dart';
@@ -8,7 +9,10 @@ import 'package:thumb_app/services/supabase_service.dart';
 
 class RidePassengerList extends StatefulWidget {
   const RidePassengerList(
-      {super.key, required this.passengerList, required this.driverUserId, required this.rideId});
+      {super.key,
+      required this.passengerList,
+      required this.driverUserId,
+      required this.rideId});
 
   final List<PassengerProfile> passengerList;
   final String driverUserId;
@@ -21,19 +25,31 @@ class RidePassengerList extends StatefulWidget {
 class _RidePassengerListState extends State<RidePassengerList> {
   final String currentUserId = supabase.auth.currentUser!.id;
 
+  void _updatePassengerStatus(
+      String rideId, RidePassengerStatus status, String passengerUserId) {
+    try {
+      SupabaseService.updatePassengerStatus(rideId, status, passengerUserId);
+      ShowSuccessSnackBar(context, 'Passenger Status updated');
+    } catch (err) {
+      ShowErrorSnackBar(context,
+          'Error updating passenger status. Try again later.', err.toString());
+    }
+  }
+
   Widget _passengerStatusButton(PassengerProfile passenger) {
     if (passenger.status == RidePassengerStatus.requested) {
       return Row(
         children: [
           TextButton(
-              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
-              onPressed: () => SupabaseService.updatePassengerStatus(
-                  context, widget.rideId, RidePassengerStatus.denied, passenger.passengerUserId),
+              style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error),
+              onPressed: () => _updatePassengerStatus(widget.rideId,
+                  RidePassengerStatus.denied, passenger.passengerUserId),
               child: const Text('Deny')),
           const SizedBox(width: 4),
           TextButton(
-              onPressed: () => SupabaseService.updatePassengerStatus(
-                  context, widget.rideId, RidePassengerStatus.confirmed, passenger.passengerUserId),
+              onPressed: () => _updatePassengerStatus(widget.rideId,
+                  RidePassengerStatus.confirmed, passenger.passengerUserId),
               child: const Text('Confirm')),
         ],
       );
@@ -42,8 +58,10 @@ class _RidePassengerListState extends State<RidePassengerList> {
   }
 
   TextStyle _getPassengerNameTextStyle(RidePassengerStatus status) {
-    if (status == RidePassengerStatus.cancelled || status == RidePassengerStatus.denied) {
-      return const TextStyle(color: Colors.grey, decoration: TextDecoration.lineThrough);
+    if (status == RidePassengerStatus.cancelled ||
+        status == RidePassengerStatus.denied) {
+      return const TextStyle(
+          color: Colors.grey, decoration: TextDecoration.lineThrough);
     }
     return Theme.of(context).textTheme.bodyMedium!;
   }
@@ -56,15 +74,16 @@ class _RidePassengerListState extends State<RidePassengerList> {
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: ListTile(
                   leading: ProfilePhoto(
-                      initials: '${passenger.firstName[0]}${passenger.lastName[0]}',
+                      initials:
+                          '${passenger.firstName[0]}${passenger.lastName[0]}',
                       authId: passenger.passengerUserId,
                       radius: 20),
                   title: Text('${passenger.firstName} ${passenger.lastName}',
                       style: _getPassengerNameTextStyle(passenger.status)),
                   trailing: _passengerStatusButton(passenger),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          VisitingProfilePage(authId: passenger.passengerUserId))),
+                      builder: (context) => VisitingProfilePage(
+                          authId: passenger.passengerUserId))),
                 ),
               ))
           .toList(),
@@ -90,7 +109,8 @@ class _RidePassengerListState extends State<RidePassengerList> {
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: ListTile(
                   leading: ProfilePhoto(
-                      initials: '${passenger.firstName[0]}${passenger.lastName[0]}',
+                      initials:
+                          '${passenger.firstName[0]}${passenger.lastName[0]}',
                       authId: passenger.passengerUserId,
                       radius: 20),
                   title: Text(
@@ -99,8 +119,8 @@ class _RidePassengerListState extends State<RidePassengerList> {
                           : '${passenger.firstName} ${passenger.lastName}',
                       style: Theme.of(context).textTheme.bodyMedium),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          VisitingProfilePage(authId: passenger.passengerUserId))),
+                      builder: (context) => VisitingProfilePage(
+                          authId: passenger.passengerUserId))),
                 ),
               ))
           .toList(),

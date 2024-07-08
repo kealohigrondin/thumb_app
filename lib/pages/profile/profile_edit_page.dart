@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:thumb_app/components/shared/center_progress_indicator.dart';
 import 'package:thumb_app/components/shared/profile_photo.dart';
 import 'package:thumb_app/components/shared/snackbars_custom.dart';
@@ -29,29 +28,24 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   /// Called when user taps `Update` button
   Future<void> _updateProfile() async {
     try {
-      final authId = supabase.auth.currentUser!.id;
-      final updates = {
-        'first_name': _firstNameController.text.trim(),
-        'last_name': _lastNameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'phone_number': _phoneNumberController.text.trim(),
-        'bio': _bioController.text.trim(),
-      };
-      await supabase.auth.updateUser(UserAttributes(
-        data: updates,
-      ));
-      final profileUpdates = {'auth_id': authId, ...updates};
-      await supabase.from('profile').upsert(profileUpdates).eq('auth_id', authId);
-      ShowSuccessSnackBar(context, 'Profile saved!');
+      await SupabaseService.updateProfile(
+          _firstNameController.text,
+          _lastNameController.text,
+          _emailController.text,
+          _phoneNumberController.text,
+          _bioController.text);
+      ShowSuccessSnackBar(context, 'Profile saved! (Pull to refresh)');
       Navigator.of(context).pop();
-    } catch (error) {
-      ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
+    } catch (err) {
+      if (context.mounted) {
+        ShowErrorSnackBar(context, 'Unexpected error occurred.',
+            'profilePage.updateProfile(): ${err.toString()}');
+      }
     } finally {
-      //close keyboard
+      //close keyboard and unfocus all text fields
       if (FocusManager.instance.primaryFocus != null) {
         FocusManager.instance.primaryFocus!.unfocus();
       }
-      //unfocus all text fields
     }
   }
 
@@ -88,12 +82,14 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
               _bioController.text = snapshot.data!.bio;
 
               return ListView(
-                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
                 children: [
                   GestureDetector(
                     onTap: () => debugPrint('edit profile photo tapped'),
                     child: ProfilePhoto(
-                        initials: '${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}',
+                        initials:
+                            '${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}',
                         authId: snapshot.data!.authId),
                   ),
                   TextFormField(
@@ -118,7 +114,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   TextFormField(
                     controller: _phoneNumberController,
                     keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(labelText: 'Phone Number'),
+                    decoration:
+                        const InputDecoration(labelText: 'Phone Number'),
                   ),
                   const SizedBox(height: 18),
                   TextFormField(

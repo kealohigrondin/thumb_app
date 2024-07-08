@@ -36,7 +36,7 @@ class FriendsPage extends StatelessWidget {
             body: TabBarView(
               children: [
                 FriendList(
-                    type: 'FOLLOWING', queryFn: () => SupabaseService.getFollowingProfiles(authId)),
+                    type: 'FOLLOWING', queryFn: () => SupabaseService.getProfilesFollowed(authId)),
                 FriendList(
                     type: 'FOLLOWERS', queryFn: () => SupabaseService.getFollowerProfiles(authId)),
               ],
