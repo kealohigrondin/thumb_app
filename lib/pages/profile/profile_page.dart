@@ -30,13 +30,12 @@ class _ProfilePageState extends State<ProfilePage> {
       await supabase.auth.signOut();
     } catch (error) {
       if (mounted) {
-        ShowErrorSnackBar(
-            context, 'Unexpected error occurred.', error.toString());
+        ShowErrorSnackBar(context, 'Unexpected error occurred.', error.toString());
       }
     } finally {
       if (mounted) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const LoginPage()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => const LoginPage()));
       }
     }
   }
@@ -61,17 +60,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _unfollow() async {
     try {
-      await SupabaseService.unfollow(
-          widget.authId!, supabase.auth.currentUser!.id);
+      await SupabaseService.unfollow(widget.authId!, supabase.auth.currentUser!.id);
       if (mounted) {
         ShowSuccessSnackBar(context, 'Account unfollowed.');
       }
     } catch (err) {
       debugPrint(err.toString());
       if (mounted) {
-        ShowErrorSnackBar(
-            context,
-            'Error unfollowing account. Try again later.',
+        ShowErrorSnackBar(context, 'Error unfollowing account. Try again later.',
             'profilePage.unfollow): ${err.toString()}');
       }
     } finally {
@@ -89,8 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
     if (widget.visiting) {
       _isFollowing = (widget.visiting
-          ? SupabaseService.isFollowing(
-              widget.authId!, supabase.auth.currentUser!.id)
+          ? SupabaseService.isFollowing(widget.authId!, supabase.auth.currentUser!.id)
           : null)!;
     }
   }
@@ -101,8 +96,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _profile = SupabaseService.getProfile(
         widget.visiting ? widget.authId! : supabase.auth.currentUser!.id);
     if (widget.visiting && widget.authId != null) {
-      _isFollowing = SupabaseService.isFollowing(
-          widget.authId!, supabase.auth.currentUser!.id);
+      _isFollowing = SupabaseService.isFollowing(widget.authId!, supabase.auth.currentUser!.id);
     }
   }
 
@@ -112,8 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(children: [
         Row(children: [
           ProfilePhoto(
-              initials: '${profile.firstName[0]}${profile.lastName[0]}',
-              authId: profile.authId),
+              initials: '${profile.firstName[0]}${profile.lastName[0]}', authId: profile.authId),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('${profile.firstName} ${profile.lastName}',
@@ -137,8 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         onPressed: null,
                         style: squareSmallButton,
                         child: const Padding(
-                            padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
-                            child: Text('Loading')));
+                            padding: EdgeInsets.fromLTRB(0, 0, 2, 0), child: Text('Loading')));
                   case ConnectionState.done:
                     if (!snapshot.data!) {
                       return FilledButton.icon(
@@ -170,8 +162,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         onPressed: null,
                         style: squareSmallButton,
                         child: const Padding(
-                            padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
-                            child: Text('Error')));
+                            padding: EdgeInsets.fromLTRB(0, 0, 2, 0), child: Text('Error')));
                 }
               },
             ),
@@ -194,9 +185,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 case ConnectionState.done:
                   if (snapshot.hasError) {
                     return ListView.builder(
-                        itemCount: 1,
-                        itemBuilder: (ctx, index) =>
-                            Text(snapshot.error.toString()));
+                        itemCount: 1, itemBuilder: (ctx, index) => Text(snapshot.error.toString()));
                   }
                   return ListView(
                     children: [
@@ -209,10 +198,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             Text('Rides'),
                           ],
                         ),
-                        onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    RideHistoryPage(profile: snapshot.data!))),
+                        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => RideHistoryPage(profile: snapshot.data!))),
                       ),
                       ListTile(
                           title: const Row(
@@ -222,20 +209,15 @@ class _ProfilePageState extends State<ProfilePage> {
                               Text('Friends'),
                             ],
                           ),
-                          onTap: () =>
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => FriendsPage(
-                                        authId: snapshot.data!.authId,
-                                      )))),
+                          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => FriendsPage(
+                                    authId: snapshot.data!.authId,
+                                  )))),
                       ListTile(
-                          title: const Row(children: [
-                            Icon(Icons.garage),
-                            SizedBox(width: 8),
-                            Text('Garage')
-                          ]),
-                          onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => const GaragePage()))),
+                          title: const Row(
+                              children: [Icon(Icons.garage), SizedBox(width: 8), Text('Garage')]),
+                          onTap: () => Navigator.of(context)
+                              .push(MaterialPageRoute(builder: (context) => const GaragePage()))),
                       const Divider(),
                       if (!widget.visiting)
                         ListTile(
@@ -245,20 +227,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               Text('Edit Profile'),
                             ]),
                             onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ProfileEditPage()))),
-                      if (!widget.visiting)
-                        ListTile(
-                            title: const Row(children: [
-                              Icon(Icons.block),
-                              SizedBox(width: 8),
-                              Text('Blocked Accounts'),
-                            ]),
-                            onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ProfileEditPage()))),
+                                MaterialPageRoute(builder: (context) => const ProfileEditPage()))),
                       if (!widget.visiting)
                         ListTile(
                           title: const Row(children: [
@@ -272,8 +241,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
 
                 default:
-                  return const Center(
-                      child: Text('Something unaccounted for has occurred...'));
+                  return const Center(child: Text('Something unaccounted for has occurred...'));
               }
             }));
   }

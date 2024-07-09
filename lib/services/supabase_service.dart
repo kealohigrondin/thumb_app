@@ -23,12 +23,10 @@ class SupabaseService {
 
   static Future<void> follow(String authIdToFollow) async {
     try {
+      // TODO: set status to 'requested' once push notifications are added
       final authId = supabase.auth.currentUser!.id;
-      await supabase.from('follower').insert({
-        'follower_user_id': authId,
-        'target_user_id': authIdToFollow,
-        'status': 'CONFIRMED'
-      });
+      await supabase.from('follower').insert(
+          {'follower_user_id': authId, 'target_user_id': authIdToFollow, 'status': 'CONFIRMED'});
     } on PostgrestException catch (error) {
       //can also capture stacktrace with second argument after 'error'
       debugPrint(error.message);
@@ -36,8 +34,7 @@ class SupabaseService {
     }
   }
 
-  static Future<void> unfollow(
-      String authIdToUnfollow, String followerUserId) async {
+  static Future<void> unfollow(String authIdToUnfollow, String followerUserId) async {
     try {
       await supabase
           .from('follower')
@@ -64,8 +61,8 @@ class SupabaseService {
     }
   }
 
-  static void updatePassengerStatus(String rideId,
-      RidePassengerStatus newStatus, String passengerUserId) async {
+  static void updatePassengerStatus(
+      String rideId, RidePassengerStatus newStatus, String passengerUserId) async {
     try {
       // create row in ride_passenger table
       //don't need to pass in intial status or created_at since those are created on the db side
@@ -82,8 +79,8 @@ class SupabaseService {
     }
   }
 
-  static Future<void> updateProfile(String firstName, String lastName,
-      String email, String phoneNumber, String bio) async {
+  static Future<void> updateProfile(
+      String firstName, String lastName, String email, String phoneNumber, String bio) async {
     try {
       final authId = supabase.auth.currentUser!.id;
       final updates = {
@@ -99,10 +96,7 @@ class SupabaseService {
       ));
       //update profile table
       final profileUpdates = {'auth_id': authId, ...updates};
-      await supabase
-          .from('profile')
-          .upsert(profileUpdates)
-          .eq('auth_id', authId);
+      await supabase.from('profile').upsert(profileUpdates).eq('auth_id', authId);
     } on PostgrestException catch (error) {
       debugPrint(error.message);
       rethrow;
@@ -129,8 +123,7 @@ class SupabaseService {
     }
   }
 
-  static Future<List<Profile>> getProfileSearchResults(
-      String searchTerm) async {
+  static Future<List<Profile>> getProfileSearchResults(String searchTerm) async {
     try {
       final result = await supabase
           .from('profile')
@@ -161,11 +154,7 @@ class SupabaseService {
 
   static Future<Profile> getProfile(String authId) async {
     try {
-      final result = await supabase
-          .from('profile')
-          .select()
-          .eq('auth_id', authId)
-          .single();
+      final result = await supabase.from('profile').select().eq('auth_id', authId).single();
       return Profile.fromJson(result);
     } on PostgrestException catch (error) {
       debugPrint(error.message);
@@ -174,8 +163,7 @@ class SupabaseService {
   }
 
   static Future<List<Ride>> getActivityData() async {
-    final followingProfiles =
-        await getProfilesFollowed(supabase.auth.currentUser!.id);
+    final followingProfiles = await getProfilesFollowed(supabase.auth.currentUser!.id);
     final followingAuthIds = followingProfiles.map((item) => item.authId);
     final searchAuthIds = [...followingAuthIds, supabase.auth.currentUser!.id];
 
@@ -199,12 +187,10 @@ class SupabaseService {
           .select()
           .lt('datetime', DateTime.now())
           .inFilter('driver_user_id', searchAuthIds)
-          .order('datetime',
-              ascending: false); //get activity data in descending datetime
+          .order('datetime', ascending: false); //get activity data in descending datetime
 
       result.addAll(driverResults.map((item) => Ride.fromJson(item)));
-      result.sort((ride1, ride2) =>
-          ride1.dateTime.compareTo(ride2.dateTime)); //sort by date
+      result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime)); //sort by date
       final noDupes = result.distinct((ride) => ride.id!);
       return noDupes.toList();
     } on PostgrestException catch (error) {
@@ -282,8 +268,8 @@ class SupabaseService {
           .where((element) => element['profile'] != null)
           .map((item) => Profile.fromJson(item['profile']))
           .toList();
-      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
-          .compareTo('${prof2.firstName}${prof2.lastName}'));
+      friendsList.sort((prof1, prof2) =>
+          '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
     } on PostgrestException catch (error) {
       debugPrint(error.message);
@@ -302,8 +288,8 @@ class SupabaseService {
           .where((element) => element['profile'] != null)
           .map((item) => Profile.fromJson(item['profile']))
           .toList();
-      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'
-          .compareTo('${prof2.firstName}${prof2.lastName}'));
+      friendsList.sort((prof1, prof2) =>
+          '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
     } on PostgrestException catch (error) {
       debugPrint(error.message);
@@ -311,13 +297,11 @@ class SupabaseService {
     }
   }
 
-  static Future<bool> isFollowing(
-      String targetUserId, String currentUserId) async {
+  static Future<bool> isFollowing(String targetUserId, String currentUserId) async {
     try {
       List<Profile> followedProfiles = await getProfilesFollowed(currentUserId);
-      Profile targetProfileFound = followedProfiles.firstWhere(
-          (element) => element.authId == targetUserId,
-          orElse: () => Profile());
+      Profile targetProfileFound = followedProfiles
+          .firstWhere((element) => element.authId == targetUserId, orElse: () => Profile());
       return targetProfileFound.authId == targetUserId;
     } on PostgrestException catch (error) {
       debugPrint(error.message);

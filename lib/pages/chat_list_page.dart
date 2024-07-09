@@ -10,13 +10,9 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Chats'),
-        ),
-        body: const Center(
-            child: Column(
-          children: [Text('list of chats here')],
-        )));
+    return Center(
+        child: Column(
+      children: [Text('list of chats here')],
+    ));
   }
 }
