@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thumb_app/components/shared/profile_photo.dart';
+import 'package:thumb_app/components/shared/snackbars_custom.dart';
 import 'package:thumb_app/data/enums/ride_passenger_status.dart';
 import 'package:thumb_app/data/types/passenger_profile.dart';
 import 'package:thumb_app/main.dart';
@@ -24,6 +25,17 @@ class RidePassengerList extends StatefulWidget {
 class _RidePassengerListState extends State<RidePassengerList> {
   final String currentUserId = supabase.auth.currentUser!.id;
 
+  void _updatePassengerStatus(
+      String rideId, RidePassengerStatus status, String passengerUserId) {
+    try {
+      SupabaseService.updatePassengerStatus(rideId, status, passengerUserId);
+      ShowSuccessSnackBar(context, 'Passenger Status updated');
+    } catch (err) {
+      ShowErrorSnackBar(context,
+          'Error updating passenger status. Try again later.', err.toString());
+    }
+  }
+
   Widget _passengerStatusButton(PassengerProfile passenger) {
     if (passenger.status == RidePassengerStatus.requested) {
       return Row(
@@ -31,19 +43,13 @@ class _RidePassengerListState extends State<RidePassengerList> {
           TextButton(
               style: TextButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.error),
-              onPressed: () => SupabaseService.updatePassengerStatus(
-                  context,
-                  widget.rideId,
-                  RidePassengerStatus.denied,
-                  passenger.passengerUserId),
+              onPressed: () => _updatePassengerStatus(widget.rideId,
+                  RidePassengerStatus.denied, passenger.passengerUserId),
               child: const Text('Deny')),
           const SizedBox(width: 4),
           TextButton(
-              onPressed: () => SupabaseService.updatePassengerStatus(
-                  context,
-                  widget.rideId,
-                  RidePassengerStatus.confirmed,
-                  passenger.passengerUserId),
+              onPressed: () => _updatePassengerStatus(widget.rideId,
+                  RidePassengerStatus.confirmed, passenger.passengerUserId),
               child: const Text('Confirm')),
         ],
       );
@@ -57,7 +63,7 @@ class _RidePassengerListState extends State<RidePassengerList> {
       return const TextStyle(
           color: Colors.grey, decoration: TextDecoration.lineThrough);
     }
-    return const TextStyle();
+    return Theme.of(context).textTheme.bodyMedium!;
   }
 
   Widget _driverPassengerView() {
@@ -107,9 +113,11 @@ class _RidePassengerListState extends State<RidePassengerList> {
                           '${passenger.firstName[0]}${passenger.lastName[0]}',
                       authId: passenger.passengerUserId,
                       radius: 20),
-                  title: Text(passenger.passengerUserId == currentUserId
-                      ? '(You) ${passenger.firstName} ${passenger.lastName}'
-                      : '${passenger.firstName} ${passenger.lastName}'),
+                  title: Text(
+                      passenger.passengerUserId == currentUserId
+                          ? '(You) ${passenger.firstName} ${passenger.lastName}'
+                          : '${passenger.firstName} ${passenger.lastName}',
+                      style: Theme.of(context).textTheme.bodyMedium),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => VisitingProfilePage(
                           authId: passenger.passengerUserId))),

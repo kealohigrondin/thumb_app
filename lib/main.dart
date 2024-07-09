@@ -11,6 +11,7 @@ final theme = ThemeData(
   useMaterial3: true,
   colorScheme: colorScheme,
   appBarTheme: AppBarTheme(color: themeColor, foregroundColor: colorScheme.onPrimary),
+  //TODO: Theme all buttons
 );
 
 void main() async {

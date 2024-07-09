@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:thumb_app/main.dart';
 import 'package:thumb_app/pages/rides/ride_overview.dart';
 import 'package:thumb_app/utils/utils.dart';
 
@@ -18,7 +17,6 @@ class SearchCard extends StatelessWidget {
       onTap: () => Navigator.push(
           context, MaterialPageRoute(builder: (context) => RideOverview(ride: ride))),
       child: Card(
-        color: supabase.auth.currentUser!.id == ride.driverUserId ? Colors.amber[100] : null,
         child: Padding(
           padding: const EdgeInsets.all(4),
           child: Column(
@@ -29,16 +27,11 @@ class SearchCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(DateFormat.MMMd().add_jm().format(ride.dateTime),
-                    style: Theme.of(context).textTheme.headlineSmall),
+                    style: Theme.of(context).textTheme.titleLarge),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(ride.title ?? 'Title', style: Theme.of(context).textTheme.labelLarge),
-                  Text(formatDoubleToCurrency(ride.passengerCost!),
-                      style: Theme.of(context).textTheme.labelLarge)
-                ],
-              ),
+              Text(ride.title ?? 'Title', style: Theme.of(context).textTheme.labelLarge),
+              Text(formatDoubleToCurrency(ride.passengerCost!),
+                  style: Theme.of(context).textTheme.labelLarge),
               Text(ride.departAddress!,
                   textAlign: TextAlign.start,
                   maxLines: 2,

@@ -24,8 +24,6 @@ class AddressSearch extends SearchDelegate<Suggestion> {
   }
 
   @override
-  
-
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
@@ -49,7 +47,8 @@ class AddressSearch extends SearchDelegate<Suggestion> {
           : snapshot.hasData
               ? ListView.builder(
                   itemBuilder: (context, index) => ListTile(
-                    title: Text(snapshot.data![index].description),
+                    title: Text(snapshot.data![index].description,
+                        style: Theme.of(context).textTheme.bodyMedium),
                     onTap: () {
                       close(context, snapshot.data![index]);
                     },
@@ -74,7 +73,8 @@ class AddressSearch extends SearchDelegate<Suggestion> {
           : snapshot.hasData
               ? ListView.builder(
                   itemBuilder: (context, index) => ListTile(
-                    title: Text(snapshot.data![index].description),
+                    title: Text(snapshot.data![index].description,
+                        style: Theme.of(context).textTheme.bodyMedium),
                     onTap: () {
                       close(context, snapshot.data![index]);
                     },

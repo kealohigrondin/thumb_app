@@ -33,19 +33,18 @@ class ProfileSearch extends SearchDelegate<Profile> {
   @override
   Widget buildResults(BuildContext context) {
     return FutureBuilder(
-      future:
-          query == "" ? null : SupabaseService.getProfileSearchResults(query),
+      future: query == "" ? null : SupabaseService.getProfileSearchResults(query),
       builder: (context, snapshot) => query == ''
           ? Container(
               padding: const EdgeInsets.all(16.0),
-              child: Text(hintText,
-                  style: Theme.of(context).textTheme.labelMedium),
+              child: Text(hintText, style: Theme.of(context).textTheme.labelMedium),
             )
           : snapshot.hasData
               ? ListView.builder(
                   itemBuilder: (context, index) => ListTile(
                     title: Text(
-                        '${snapshot.data![index].firstName} ${snapshot.data![index].lastName}'),
+                        '${snapshot.data![index].firstName} ${snapshot.data![index].lastName}',
+                        style: Theme.of(context).textTheme.bodyMedium),
                     onTap: () {
                       close(context, snapshot.data![index]);
                     },
@@ -59,19 +58,18 @@ class ProfileSearch extends SearchDelegate<Profile> {
   @override
   Widget buildSuggestions(BuildContext context) {
     return FutureBuilder(
-      future:
-          query == "" ? null : SupabaseService.getProfileSearchResults(query),
+      future: query == "" ? null : SupabaseService.getProfileSearchResults(query),
       builder: (context, snapshot) => query == ''
           ? Container(
               padding: const EdgeInsets.all(16.0),
-              child: Text(hintText,
-                  style: Theme.of(context).textTheme.labelMedium),
+              child: Text(hintText, style: Theme.of(context).textTheme.labelMedium),
             )
           : snapshot.hasData
               ? ListView.builder(
                   itemBuilder: (context, index) => ListTile(
                     title: Text(
-                        '${snapshot.data![index].firstName} ${snapshot.data![index].lastName}'),
+                        '${snapshot.data![index].firstName} ${snapshot.data![index].lastName}',
+                        style: Theme.of(context).textTheme.bodyMedium),
                     onTap: () {
                       close(context, snapshot.data![index]);
                     },
