@@ -5,8 +5,7 @@ import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/components/shared/loading_page.dart';
 
 class RideList extends StatefulWidget {
-  const RideList(
-      {super.key, required this.queryFn, required this.isActivityRideList});
+  const RideList({super.key, required this.queryFn, required this.isActivityRideList});
 
   final Future<List<Ride>> Function() queryFn;
   final bool isActivityRideList;
@@ -36,31 +35,26 @@ class _RideListState extends State<RideList> {
         onRefresh: _refreshHistory,
         child: FutureBuilder(
             future: _rideHistoryList,
-            builder:
-                (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
                   return const LoadingPage();
                 case ConnectionState.done:
                   return ListView.builder(
-                      itemCount:
-                          snapshot.data!.length > 1 ? snapshot.data!.length : 1,
+                      itemCount: snapshot.data!.length > 1 ? snapshot.data!.length : 1,
                       itemBuilder: (ctx, index) {
                         if (snapshot.hasError) {
                           return Text(snapshot.error.toString());
                         }
                         if (snapshot.data!.isEmpty) {
-                          return const Padding(
-                              padding: EdgeInsets.only(top: 32),
-                              child: Center(child: Text('No rides!')));
+                          return const Padding(padding: EdgeInsets.only(top: 32), child: Center(child: Text('No rides!')));
                         }
                         return widget.isActivityRideList
                             ? ActivityCard(ride: snapshot.data![index])
                             : SearchCard(ride: snapshot.data![index]);
                       });
                 default:
-                  return const Center(
-                      child: Text('Something unaccounted for has occurred...'));
+                  return const Center(child: Text('Something unaccounted for has occurred...'));
               }
             }));
   }

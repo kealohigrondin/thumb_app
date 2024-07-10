@@ -1,19 +1,16 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:thumb_app/components/shared/profile_photo.dart';
+import 'package:thumb_app/services/supabase_service.dart';
 import 'package:timeago/timeago.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:thumb_app/main.dart';
+import 'package:thumb_app/utils/utils.dart';
 import 'package:thumb_app/data/types/message.dart';
 import 'package:thumb_app/data/types/profile.dart';
-import 'package:thumb_app/main.dart';
 import 'package:thumb_app/components/shared/loading_page.dart';
-import 'package:thumb_app/utils/utils.dart';
+import 'package:thumb_app/components/shared/profile_photo.dart';
 
-/// Page to chat with someone.
-///
-/// Displays chat bubbles as a ListView and TextField to enter new chat.
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key, required this.rideId});
 
@@ -32,11 +29,9 @@ class _ChatPageState extends State<ChatPage> {
     _messagesStream = supabase
         .from('chat')
         .stream(primaryKey: ['id'])
+        .eq('ride_id', widget.rideId)
         .order('created_at')
-        .map((maps) => maps
-            .map((map) => Message.fromJson(
-                map: map, myUserId: supabase.auth.currentUser!.id))
-            .toList());
+        .map((maps) => maps.map((map) => Message.fromJson(map: map, myUserId: supabase.auth.currentUser!.id)).toList());
     super.initState();
   }
 
@@ -44,12 +39,7 @@ class _ChatPageState extends State<ChatPage> {
     if (_profileCache[profileId] != null) {
       return;
     }
-    final profileData = await supabase
-        .from('profile')
-        .select()
-        .eq('auth_id', profileId)
-        .single();
-    final profile = Profile.fromJson(profileData);
+    final profile = await SupabaseService.getProfile(profileId);
     setState(() {
       _profileCache[profileId] = profile;
     });
@@ -64,31 +54,28 @@ class _ChatPageState extends State<ChatPage> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final messages = snapshot.data!;
-            return Column(
-              children: [
-                Expanded(
-                  child: messages.isEmpty
-                      ? const Center(
-                          child: Text('Start your conversation now :)'),
-                        )
-                      : ListView.builder(
-                          reverse: true,
-                          itemCount: messages.length,
-                          itemBuilder: (context, index) {
-                            final message = messages[index];
+            return Column(children: [
+              Expanded(
+                child: messages.isEmpty
+                    ? const Center(
+                        child: Text('Start your conversation now :)'),
+                      )
+                    : ListView.builder(
+                        reverse: true,
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          final message = messages[index];
 
-                            _loadProfileCache(message.userId);
+                          _loadProfileCache(message.userId);
 
-                            return _ChatBubble(
-                              message: message,
-                              profile: _profileCache[message.userId],
-                            );
-                          },
-                        ),
-                ),
-                const _MessageBar(),
-              ],
-            );
+                          return _ChatBubble(
+                            message: message,
+                            profile: _profileCache[message.userId],
+                          );
+                        }),
+              ),
+              _MessageBar(rideId: widget.rideId)
+            ]);
           } else {
             return const LoadingPage();
           }
@@ -100,7 +87,9 @@ class _ChatPageState extends State<ChatPage> {
 
 /// Set of widget that contains TextField and Button to submit message
 class _MessageBar extends StatefulWidget {
-  const _MessageBar();
+  const _MessageBar({required this.rideId});
+
+  final String rideId;
 
   @override
   State<_MessageBar> createState() => _MessageBarState();
@@ -163,22 +152,14 @@ class _MessageBarState extends State<_MessageBar> {
     }
     _textController.clear();
     try {
-      await supabase.from('chat').insert({
-        'user_id': myUserId,
-        'content': text,
-        'ride_id': 'f306d82d-2a03-4c2b-a6d1-0653f6bbc177'
-      });
+      await supabase.from('chat').insert({'user_id': myUserId, 'content': text, 'ride_id': widget.rideId});
     } on PostgrestException catch (error) {
       if (mounted) {
-        context.showErrorSnackBar(
-            message: error.toString(),
-            functionName: 'chat_page._submitMessage()');
+        context.showErrorSnackBar(message: error.toString(), functionName: 'chat_page._submitMessage()');
       }
     } catch (_) {
       if (mounted) {
-        context.showErrorSnackBar(
-            message: 'Unexpected error occurred',
-            functionName: 'chat_page._submitMessage()');
+        context.showErrorSnackBar(message: 'Unexpected error occurred', functionName: 'chat_page._submitMessage()');
       }
     }
   }
@@ -197,10 +178,7 @@ class _ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> chatContents = [
       if (!message.isMine && profile != null)
-        ProfilePhoto(
-            initials: '${profile?.firstName[0]}${profile?.lastName[0]}',
-            authId: profile!.authId,
-            radius: 24),
+        ProfilePhoto(initials: '${profile?.firstName[0]}${profile?.lastName[0]}', authId: profile!.authId, radius: 24),
       const SizedBox(width: 12),
       Flexible(
         child: Container(
@@ -209,16 +187,11 @@ class _ChatBubble extends StatelessWidget {
             horizontal: 12,
           ),
           decoration: BoxDecoration(
-            color: message.isMine
-                ? Theme.of(context).primaryColor
-                : Colors.grey[300],
+            color: message.isMine ? Theme.of(context).primaryColor : Colors.grey[300],
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(message.content,
-              style: TextStyle(
-                  color: message.isMine
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Colors.black)),
+          child:
+              Text(message.content, style: TextStyle(color: message.isMine ? Theme.of(context).colorScheme.onPrimary : Colors.black)),
         ),
       ),
       const SizedBox(width: 12),
@@ -231,8 +204,7 @@ class _ChatBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 18),
       child: Row(
-        mainAxisAlignment:
-            message.isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: message.isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: chatContents,
       ),
     );

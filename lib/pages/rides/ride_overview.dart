@@ -48,8 +48,7 @@ class _RideOverviewState extends State<RideOverview> {
       SupabaseService.updatePassengerStatus(rideId, status, passengerUserId);
       ShowSuccessSnackBar(context, 'Passenger Status updated');
     } catch (err) {
-      ShowErrorSnackBar(
-          context, 'Error updating passenger status. Try again later.', err.toString());
+      ShowErrorSnackBar(context, 'Error updating passenger status. Try again later.', err.toString());
     }
   }
 
@@ -68,8 +67,7 @@ class _RideOverviewState extends State<RideOverview> {
       // TODO: notify driver that a passenger request was made
       if (mounted) {
         Navigator.of(context).pop();
-        ShowSuccessSnackBar(
-            context, widget.ride.enableInstantBook ? 'Ride Joined!' : 'Ride Requested!');
+        ShowSuccessSnackBar(context, widget.ride.enableInstantBook ? 'Ride Joined!' : 'Ride Requested!');
         _refresh();
       }
     } catch (error) {
@@ -81,7 +79,9 @@ class _RideOverviewState extends State<RideOverview> {
 
   Widget _displayActionButtons(bool isCurrentUserConfirmedPassenger, int confirmedPassengerCount) {
     final currentUserId = supabase.auth.currentUser!.id;
-    if (currentUserId == widget.ride.driverUserId) {
+    if (widget.ride.dateTime.compareTo(DateTime.now()) < 0) {
+      return const OutlinedButton(onPressed: null, child: Text('Ride has completed'));
+    } else if (currentUserId == widget.ride.driverUserId) {
       return const TextButton(onPressed: null, child: Text('You are driver'));
     } else if (isCurrentUserConfirmedPassenger) {
       return OutlinedButton(
@@ -89,8 +89,7 @@ class _RideOverviewState extends State<RideOverview> {
               foregroundColor: Theme.of(context).colorScheme.error,
               side: BorderSide(color: Theme.of(context).colorScheme.error)), // Border color
 
-          onPressed: () =>
-              _updatePassengerStatus(widget.ride.id!, RidePassengerStatus.cancelled, currentUserId),
+          onPressed: () => _updatePassengerStatus(widget.ride.id!, RidePassengerStatus.cancelled, currentUserId),
           child: const Text('Cancel Ride'));
     } else if (confirmedPassengerCount == widget.ride.availableSeats) {
       //no seats left
@@ -122,10 +121,11 @@ class _RideOverviewState extends State<RideOverview> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: const Text('Ride Overview'), actions: [
-          IconButton(
-              onPressed: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => ChatPage(rideId: widget.ride.id!))),
-              icon: const Icon(Icons.chat, size: 25))
+          if (true) // TODO: restrict chat button to driver and passengers
+            IconButton(
+                onPressed: () =>
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(rideId: widget.ride.id!))),
+                icon: const Icon(Icons.chat, size: 25))
         ]),
         body: RefreshIndicator(
           onRefresh: _refresh,
@@ -137,8 +137,7 @@ class _RideOverviewState extends State<RideOverview> {
               } else if (snapshot.hasData) {
                 final bool isCurrentUserConfirmedPassenger = snapshot.data!
                     .where((element) =>
-                        element.passengerUserId == supabase.auth.currentUser!.id &&
-                        element.status == RidePassengerStatus.confirmed)
+                        element.passengerUserId == supabase.auth.currentUser!.id && element.status == RidePassengerStatus.confirmed)
                     .isNotEmpty;
                 return SafeArea(
                     child: Column(
@@ -146,38 +145,31 @@ class _RideOverviewState extends State<RideOverview> {
                     Expanded(
                       child: ListView(children: [
                         Padding(
-                          padding: EdgeInsets.fromLTRB(
-                              widget.horizontalPadding, widget.horizontalPadding, 18, 0),
-                          child: Text(widget.ride.title!,
-                              style: Theme.of(context).textTheme.titleLarge),
+                          padding: EdgeInsets.fromLTRB(widget.horizontalPadding, widget.horizontalPadding, 18, 0),
+                          child: Text(widget.ride.title!, style: Theme.of(context).textTheme.titleLarge),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 8, horizontal: widget.horizontalPadding),
+                          padding: EdgeInsets.symmetric(vertical: 8, horizontal: widget.horizontalPadding),
                           child: Text(DateFormat.MMMd().add_jm().format(widget.ride.dateTime),
                               style: Theme.of(context).textTheme.labelLarge),
                         ),
                         const SizedBox(height: 8),
                         if (widget.ride.description!.isNotEmpty)
                           Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 0, horizontal: widget.horizontalPadding),
+                            padding: EdgeInsets.symmetric(vertical: 0, horizontal: widget.horizontalPadding),
                             child: Text(widget.ride.description!),
                           )
                         else
                           Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 0, horizontal: widget.horizontalPadding),
+                            padding: EdgeInsets.symmetric(vertical: 0, horizontal: widget.horizontalPadding),
                             child: Text(
                               'No description',
-                              style:
-                                  TextStyle(color: Colors.grey[400], fontStyle: FontStyle.italic),
+                              style: TextStyle(color: Colors.grey[400], fontStyle: FontStyle.italic),
                             ),
                           ),
                         const SizedBox(height: 24),
                         Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 0, horizontal: widget.horizontalPadding),
+                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: widget.horizontalPadding),
                           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                             Text(widget.ride.departAddress!),
                             const Icon(Icons.arrow_downward),
@@ -186,8 +178,7 @@ class _RideOverviewState extends State<RideOverview> {
                         ),
                         const SizedBox(height: 24),
                         Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 0, horizontal: widget.horizontalPadding),
+                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: widget.horizontalPadding),
                           child: Row(
                             children: [
                               Text('Passengers', style: Theme.of(context).textTheme.titleMedium),
@@ -207,16 +198,14 @@ class _RideOverviewState extends State<RideOverview> {
                         if (widget.ride.driverUserId != supabase.auth.currentUser!.id)
                           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 0, horizontal: widget.horizontalPadding),
+                              padding: EdgeInsets.symmetric(vertical: 0, horizontal: widget.horizontalPadding),
                               child: Text('Driver', style: Theme.of(context).textTheme.titleMedium),
                             ),
                             RideDriverDetails(driverUserId: widget.ride.driverUserId!),
                             const SizedBox(height: 24),
                           ]),
                         Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 0, horizontal: widget.horizontalPadding),
+                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: widget.horizontalPadding),
                           child: Text('Vehicle', style: Theme.of(context).textTheme.titleMedium),
                         ),
                       ]),
