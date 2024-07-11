@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:thumb_app/components/shared/loading_page.dart';
+import 'package:thumb_app/data/types/ride.dart';
+import 'package:thumb_app/main.dart';
+import 'package:thumb_app/services/supabase_service.dart';
 
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
@@ -8,11 +12,48 @@ class ChatListPage extends StatefulWidget {
 }
 
 class _ChatListPageState extends State<ChatListPage> {
+  late Future<List<Ride>> _ridesWithChats;
+
+  @override
+  void initState() {
+    super.initState();
+    _ridesWithChats = SupabaseService.getRidesWithChats(supabase.auth.currentUser!.id);
+  }
+
+  Future<void> _refreshHistory() async {
+    setState(() {
+      _ridesWithChats = SupabaseService.getRidesWithChats(supabase.auth.currentUser!.id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: Column(
-      children: [Text('list of chats here')],
-    ));
+    return RefreshIndicator(
+        onRefresh: _refreshHistory,
+        child: FutureBuilder(
+            future: _ridesWithChats,
+            builder: (BuildContext context, AsyncSnapshot<List<Ride>> snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return const LoadingPage();
+                case ConnectionState.done:
+                  return ListView.builder(
+                      itemCount: snapshot.data!.length > 1 ? snapshot.data!.length : 1,
+                      itemBuilder: (ctx, index) {
+                        if (snapshot.hasError) {
+                          return Text(snapshot.error.toString());
+                        }
+                        if (snapshot.data!.isEmpty) {
+                          return const Padding(
+                              padding: EdgeInsets.only(top: 32),
+                              child: Text(
+                                  'No rides with messages sent! To get your messages to show up here, send one from the ride overview page'));
+                        }
+                        return ListTile(title: Text(snapshot.data![index].title!));
+                      });
+                default:
+                  return const Center(child: Text('Something unaccounted for has occurred...'));
+              }
+            }));
   }
 }

@@ -62,7 +62,6 @@ class SupabaseService {
           .eq('ride_id', rideId)
           .eq('passenger_user_id', passengerUserId);
       debugPrint('updatePassengerStatus: Update saved!');
-      // TODO: update UI to reflect new state of DB
     } on PostgrestException catch (error) {
       debugPrint(error.message);
       rethrow;
@@ -203,21 +202,17 @@ class SupabaseService {
     }
   }
 
-  static Future<List<Ride>> getRidesPlanned() async {
-    if (supabase.auth.currentUser == null) {
-      return [];
-    }
+  static Future<List<Ride>> getRidesPlanned(String authId) async {
     try {
       final passengerRides = await supabase
           .from('ride_passenger')
           .select('ride(*)')
-          .eq('passenger_user_id', supabase.auth.currentUser!.id)
+          .eq('passenger_user_id', authId)
           .inFilter('status', [RidePassengerStatus.confirmed.toShortString(), RidePassengerStatus.requested.toShortString()]).gte(
               'ride.datetime', DateTime.now());
       List<Ride> result =
           passengerRides.where((element) => element['ride'] != null).map((item) => Ride.fromJson(item['ride'])).toList();
-      final driverRides =
-          await supabase.from('ride').select().eq('driver_user_id', supabase.auth.currentUser!.id).gte('datetime', DateTime.now());
+      final driverRides = await supabase.from('ride').select().eq('driver_user_id', authId).gte('datetime', DateTime.now());
       result.addAll(driverRides.map((item) => Ride.fromJson(item)));
       result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
       return result;
@@ -266,6 +261,39 @@ class SupabaseService {
       List<Profile> followedProfiles = await getProfilesFollowed(currentUserId);
       Profile targetProfileFound = followedProfiles.firstWhere((element) => element.authId == targetUserId, orElse: () => Profile());
       return targetProfileFound.authId == targetUserId;
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
+    }
+  }
+
+  static Future<List<Ride>> getRidesWithChats(String authId) async {
+    try {
+      //1. get rides for user
+      final passengerRides = await supabase
+          .from('ride_passenger')
+          .select('ride(*)')
+          .eq('passenger_user_id', authId)
+          .inFilter('status', [RidePassengerStatus.confirmed.toShortString(), RidePassengerStatus.requested.toShortString()]);
+
+      List<Ride> allRides = passengerRides.where((data) => data['ride'] != null).map((item) => Ride.fromJson(item['ride'])).toList();
+      final driverRides = await supabase.from('ride').select().eq('driver_user_id', authId);
+
+      allRides.addAll(driverRides.map((item) => Ride.fromJson(item)));
+      allRides.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
+
+      //2. get list of rideIDs from ridelist that are in chat table
+      List<String> rideIDs = allRides.map((ride) => ride.id!).toList();
+
+      //3. filter ridelist by rideIDs found in chat table
+      final rideIDsWithChats = await supabase.from('chat').select('ride_id', {distinct: true}).inFilter('ride_id', rideIDs);
+      rideIDsWithChats.distinct((item) {
+        final temp = item['ride_id'];
+        debugPrint(temp);
+        return true;
+      });
+      debugPrint(rideIDsWithChats.toString());
+      return allRides;
     } on PostgrestException catch (error) {
       debugPrint(error.message);
       rethrow;

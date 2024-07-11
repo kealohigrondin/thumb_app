@@ -57,17 +57,13 @@ class _ChatPageState extends State<ChatPage> {
             return Column(children: [
               Expanded(
                 child: messages.isEmpty
-                    ? const Center(
-                        child: Text('Start your conversation now :)'),
-                      )
+                    ? const Center(child: Text('Start your conversation now :)'))
                     : ListView.builder(
                         reverse: true,
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
                           final message = messages[index];
-
                           _loadProfileCache(message.userId);
-
                           return _ChatBubble(
                             message: message,
                             profile: _profileCache[message.userId],

@@ -8,11 +8,7 @@ import 'package:thumb_app/pages/profile/visiting_profile_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 
 class RidePassengerList extends StatefulWidget {
-  const RidePassengerList(
-      {super.key,
-      required this.passengerList,
-      required this.driverUserId,
-      required this.rideId});
+  const RidePassengerList({super.key, required this.passengerList, required this.driverUserId, required this.rideId});
 
   final List<PassengerProfile> passengerList;
   final String driverUserId;
@@ -25,14 +21,12 @@ class RidePassengerList extends StatefulWidget {
 class _RidePassengerListState extends State<RidePassengerList> {
   final String currentUserId = supabase.auth.currentUser!.id;
 
-  void _updatePassengerStatus(
-      String rideId, RidePassengerStatus status, String passengerUserId) {
+  void _updatePassengerStatus(String rideId, RidePassengerStatus status, String passengerUserId) {
     try {
       SupabaseService.updatePassengerStatus(rideId, status, passengerUserId);
-      ShowSuccessSnackBar(context, 'Passenger Status updated');
+      ShowSuccessSnackBar(context, 'Passenger Status updated. (pull to refresh)');
     } catch (err) {
-      ShowErrorSnackBar(context,
-          'Error updating passenger status. Try again later.', err.toString());
+      ShowErrorSnackBar(context, 'Error updating passenger status. Try again later.', err.toString());
     }
   }
 
@@ -41,15 +35,12 @@ class _RidePassengerListState extends State<RidePassengerList> {
       return Row(
         children: [
           TextButton(
-              style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error),
-              onPressed: () => _updatePassengerStatus(widget.rideId,
-                  RidePassengerStatus.denied, passenger.passengerUserId),
+              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+              onPressed: () => _updatePassengerStatus(widget.rideId, RidePassengerStatus.denied, passenger.passengerUserId),
               child: const Text('Deny')),
           const SizedBox(width: 4),
           TextButton(
-              onPressed: () => _updatePassengerStatus(widget.rideId,
-                  RidePassengerStatus.confirmed, passenger.passengerUserId),
+              onPressed: () => _updatePassengerStatus(widget.rideId, RidePassengerStatus.confirmed, passenger.passengerUserId),
               child: const Text('Confirm')),
         ],
       );
@@ -58,10 +49,8 @@ class _RidePassengerListState extends State<RidePassengerList> {
   }
 
   TextStyle _getPassengerNameTextStyle(RidePassengerStatus status) {
-    if (status == RidePassengerStatus.cancelled ||
-        status == RidePassengerStatus.denied) {
-      return const TextStyle(
-          color: Colors.grey, decoration: TextDecoration.lineThrough);
+    if (status == RidePassengerStatus.cancelled || status == RidePassengerStatus.denied) {
+      return const TextStyle(color: Colors.grey, decoration: TextDecoration.lineThrough);
     }
     return Theme.of(context).textTheme.bodyMedium!;
   }
@@ -74,16 +63,11 @@ class _RidePassengerListState extends State<RidePassengerList> {
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: ListTile(
                   leading: ProfilePhoto(
-                      initials:
-                          '${passenger.firstName[0]}${passenger.lastName[0]}',
-                      authId: passenger.passengerUserId,
-                      radius: 20),
-                  title: Text('${passenger.firstName} ${passenger.lastName}',
-                      style: _getPassengerNameTextStyle(passenger.status)),
+                      initials: '${passenger.firstName[0]}${passenger.lastName[0]}', authId: passenger.passengerUserId, radius: 20),
+                  title: Text('${passenger.firstName} ${passenger.lastName}', style: _getPassengerNameTextStyle(passenger.status)),
                   trailing: _passengerStatusButton(passenger),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => VisitingProfilePage(
-                          authId: passenger.passengerUserId))),
+                  onTap: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => VisitingProfilePage(authId: passenger.passengerUserId))),
                 ),
               ))
           .toList(),
@@ -91,9 +75,8 @@ class _RidePassengerListState extends State<RidePassengerList> {
   }
 
   Widget _defaultPassengerView() {
-    final viewablePassengerList = widget.passengerList
-        .where((passenger) => passenger.status == RidePassengerStatus.confirmed)
-        .toList();
+    final viewablePassengerList =
+        widget.passengerList.where((passenger) => passenger.status == RidePassengerStatus.confirmed).toList();
 
     if (viewablePassengerList.isEmpty) {
       return const Padding(
@@ -102,25 +85,21 @@ class _RidePassengerListState extends State<RidePassengerList> {
       );
     }
 
-    // TODO: add 'X passengers requested' in passenger list?
+    // TODO: (opt.) add 'X passengers requested' in passenger list?
     return Column(
       children: viewablePassengerList
           .map((passenger) => Padding(
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: ListTile(
                   leading: ProfilePhoto(
-                      initials:
-                          '${passenger.firstName[0]}${passenger.lastName[0]}',
-                      authId: passenger.passengerUserId,
-                      radius: 20),
+                      initials: '${passenger.firstName[0]}${passenger.lastName[0]}', authId: passenger.passengerUserId, radius: 20),
                   title: Text(
                       passenger.passengerUserId == currentUserId
                           ? '(You) ${passenger.firstName} ${passenger.lastName}'
                           : '${passenger.firstName} ${passenger.lastName}',
                       style: Theme.of(context).textTheme.bodyMedium),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => VisitingProfilePage(
-                          authId: passenger.passengerUserId))),
+                  onTap: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => VisitingProfilePage(authId: passenger.passengerUserId))),
                 ),
               ))
           .toList(),

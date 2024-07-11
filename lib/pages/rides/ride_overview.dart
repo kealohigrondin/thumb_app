@@ -46,7 +46,7 @@ class _RideOverviewState extends State<RideOverview> {
   void _updatePassengerStatus(String rideId, RidePassengerStatus status, String passengerUserId) {
     try {
       SupabaseService.updatePassengerStatus(rideId, status, passengerUserId);
-      ShowSuccessSnackBar(context, 'Passenger Status updated');
+      ShowSuccessSnackBar(context, 'Passenger Status updated (pull to refresh)');
     } catch (err) {
       ShowErrorSnackBar(context, 'Error updating passenger status. Try again later.', err.toString());
     }
