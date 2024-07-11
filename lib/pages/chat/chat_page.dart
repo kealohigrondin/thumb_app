@@ -54,6 +54,11 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         centerTitle: false,
         title: Text(widget.rideTitle, style: Theme.of(context).primaryTextTheme.titleSmall),
+        actions: [
+          IconButton(
+              onPressed: () => debugPrint('icon button pressed'),
+              icon: const Icon(Icons.info_outline))
+        ],
       ),
       body: StreamBuilder<List<Message>>(
         stream: _messagesStream,

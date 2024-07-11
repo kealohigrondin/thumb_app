@@ -1,19 +1,18 @@
-enum RidePassengerStatus {
-  requested, confirmed, denied, cancelled, unknown
-}
+enum RidePassengerStatus { requested, confirmed, denied, cancelled, unknown }
+
 extension RideStatusExtension on RidePassengerStatus {
   String toShortString() {
     switch (this) {
       case RidePassengerStatus.requested:
-        return 'Requested';
+        return 'REQUESTED';
       case RidePassengerStatus.cancelled:
-        return 'Cancelled';
+        return 'CANCELLED';
       case RidePassengerStatus.denied:
-        return 'Denied';
+        return 'DENIED';
       case RidePassengerStatus.confirmed:
-        return 'Confirmed';
+        return 'CONFIRMED';
       default:
-        return 'Unknown';
+        return 'UNKNOWN';
     }
   }
 }

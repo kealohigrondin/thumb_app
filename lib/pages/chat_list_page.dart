@@ -51,7 +51,10 @@ class _ChatListPageState extends State<ChatListPage> {
                                   'No rides with messages sent! To get your messages to show up here, send one from the ride overview page'));
                         }
                         return ListTile(
-                          title: Text(snapshot.data![index].title!),
+                          title: Text(
+                            snapshot.data![index].title!,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
                           onTap: () => Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => ChatPage(
                                     rideId: snapshot.data![index].id!,

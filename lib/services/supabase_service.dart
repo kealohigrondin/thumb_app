@@ -123,6 +123,20 @@ class SupabaseService {
     }
   }
 
+  static Future<Ride> getRideById(String rideId) async {
+    try {
+      final result = await supabase
+          .from('ride')
+          .select('*, ride_passenger(passenger_user_id)')
+          .eq('id', rideId)
+          .single();
+      return Ride.fromJson(result);
+    } on PostgrestException catch (error) {
+      debugPrint(error.message);
+      rethrow;
+    }
+  }
+
   static Future<List<Profile>> getProfileSearchResults(String searchTerm) async {
     try {
       final result = await supabase
