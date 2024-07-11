@@ -12,9 +12,10 @@ import 'package:thumb_app/components/shared/loading_page.dart';
 import 'package:thumb_app/components/shared/profile_photo.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key, required this.rideId});
+  const ChatPage({super.key, required this.rideId, required this.rideTitle});
 
   final String rideId;
+  final String rideTitle;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -31,7 +32,9 @@ class _ChatPageState extends State<ChatPage> {
         .stream(primaryKey: ['id'])
         .eq('ride_id', widget.rideId)
         .order('created_at')
-        .map((maps) => maps.map((map) => Message.fromJson(map: map, myUserId: supabase.auth.currentUser!.id)).toList());
+        .map((maps) => maps
+            .map((map) => Message.fromJson(map: map, myUserId: supabase.auth.currentUser!.id))
+            .toList());
     super.initState();
   }
 
@@ -48,7 +51,10 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat')),
+      appBar: AppBar(
+        centerTitle: false,
+        title: Text(widget.rideTitle, style: Theme.of(context).primaryTextTheme.titleSmall),
+      ),
       body: StreamBuilder<List<Message>>(
         stream: _messagesStream,
         builder: (context, snapshot) {
@@ -148,14 +154,18 @@ class _MessageBarState extends State<_MessageBar> {
     }
     _textController.clear();
     try {
-      await supabase.from('chat').insert({'user_id': myUserId, 'content': text, 'ride_id': widget.rideId});
+      await supabase
+          .from('chat')
+          .insert({'user_id': myUserId, 'content': text, 'ride_id': widget.rideId});
     } on PostgrestException catch (error) {
       if (mounted) {
-        context.showErrorSnackBar(message: error.toString(), functionName: 'chat_page._submitMessage()');
+        context.showErrorSnackBar(
+            message: error.toString(), functionName: 'chat_page._submitMessage()');
       }
     } catch (_) {
       if (mounted) {
-        context.showErrorSnackBar(message: 'Unexpected error occurred', functionName: 'chat_page._submitMessage()');
+        context.showErrorSnackBar(
+            message: 'Unexpected error occurred', functionName: 'chat_page._submitMessage()');
       }
     }
   }
@@ -174,7 +184,10 @@ class _ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> chatContents = [
       if (!message.isMine && profile != null)
-        ProfilePhoto(initials: '${profile?.firstName[0]}${profile?.lastName[0]}', authId: profile!.authId, radius: 24),
+        ProfilePhoto(
+            initials: '${profile?.firstName[0]}${profile?.lastName[0]}',
+            authId: profile!.authId,
+            radius: 24),
       const SizedBox(width: 12),
       Flexible(
         child: Container(
@@ -186,8 +199,9 @@ class _ChatBubble extends StatelessWidget {
             color: message.isMine ? Theme.of(context).primaryColor : Colors.grey[300],
             borderRadius: BorderRadius.circular(8),
           ),
-          child:
-              Text(message.content, style: TextStyle(color: message.isMine ? Theme.of(context).colorScheme.onPrimary : Colors.black)),
+          child: Text(message.content,
+              style: TextStyle(
+                  color: message.isMine ? Theme.of(context).colorScheme.onPrimary : Colors.black)),
         ),
       ),
       const SizedBox(width: 12),

@@ -25,7 +25,8 @@ class SupabaseService {
     try {
       // TODO: set status to 'requested' once push notifications are added
       final authId = supabase.auth.currentUser!.id;
-      await supabase.from('follower').insert({'follower_user_id': authId, 'target_user_id': authIdToFollow, 'status': 'CONFIRMED'});
+      await supabase.from('follower').insert(
+          {'follower_user_id': authId, 'target_user_id': authIdToFollow, 'status': 'CONFIRMED'});
     } on PostgrestException catch (error) {
       //can also capture stacktrace with second argument after 'error'
       debugPrint(error.message);
@@ -35,7 +36,11 @@ class SupabaseService {
 
   static Future<void> unfollow(String authIdToUnfollow, String followerUserId) async {
     try {
-      await supabase.from('follower').delete().eq('follower_user_id', followerUserId).eq('target_user_id', authIdToUnfollow);
+      await supabase
+          .from('follower')
+          .delete()
+          .eq('follower_user_id', followerUserId)
+          .eq('target_user_id', authIdToUnfollow);
     } on PostgrestException catch (error) {
       debugPrint(error.message);
       rethrow;
@@ -45,14 +50,19 @@ class SupabaseService {
   static void removeFollower(String authIdToRemove) async {
     try {
       final authId = supabase.auth.currentUser!.id;
-      await supabase.from('follower').delete().eq('follower_user_id', authIdToRemove).eq('target_user_id', authId);
+      await supabase
+          .from('follower')
+          .delete()
+          .eq('follower_user_id', authIdToRemove)
+          .eq('target_user_id', authId);
     } on PostgrestException catch (error) {
       debugPrint(error.message);
       rethrow;
     }
   }
 
-  static void updatePassengerStatus(String rideId, RidePassengerStatus newStatus, String passengerUserId) async {
+  static void updatePassengerStatus(
+      String rideId, RidePassengerStatus newStatus, String passengerUserId) async {
     try {
       // create row in ride_passenger table
       //don't need to pass in intial status or created_at since those are created on the db side
@@ -68,7 +78,8 @@ class SupabaseService {
     }
   }
 
-  static Future<void> updateProfile(String firstName, String lastName, String email, String phoneNumber, String bio) async {
+  static Future<void> updateProfile(
+      String firstName, String lastName, String email, String phoneNumber, String bio) async {
     try {
       final authId = supabase.auth.currentUser!.id;
       final updates = {
@@ -132,7 +143,8 @@ class SupabaseService {
           .from('ride_passenger')
           .select('passenger_user_id, status, profile(first_name, last_name)')
           .eq('ride_id', rideId);
-      List<PassengerProfile> ridePassengerProfile = result.map((item) => PassengerProfile.fromJson(item)).toList();
+      List<PassengerProfile> ridePassengerProfile =
+          result.map((item) => PassengerProfile.fromJson(item)).toList();
       return ridePassengerProfile;
     } on PostgrestException catch (error) {
       debugPrint(error.message);
@@ -160,11 +172,15 @@ class SupabaseService {
           .from('ride_passenger')
           .select('ride(*)')
           .inFilter('passenger_user_id', searchAuthIds)
-          .inFilter('status', [RidePassengerStatus.confirmed.toShortString(), RidePassengerStatus.requested.toShortString()]).lte(
-              'ride.datetime', DateTime.now());
+          .inFilter('status', [
+        RidePassengerStatus.confirmed.toShortString(),
+        RidePassengerStatus.requested.toShortString()
+      ]).lte('ride.datetime', DateTime.now());
 
-      List<Ride> result =
-          passengerResults.where((element) => element['ride'] != null).map((item) => Ride.fromJson(item['ride'])).toList();
+      List<Ride> result = passengerResults
+          .where((element) => element['ride'] != null)
+          .map((item) => Ride.fromJson(item['ride']))
+          .toList();
 
       final driverResults = await supabase
           .from('ride')
@@ -189,12 +205,21 @@ class SupabaseService {
           .from('ride_passenger')
           .select('ride(*)')
           .eq('passenger_user_id', authId)
-          .inFilter('status', [RidePassengerStatus.confirmed.toShortString(), RidePassengerStatus.requested.toShortString()]).lte(
-              'ride.datetime', DateTime.now());
-      List<Ride> result =
-          passengerRides.where((element) => element['ride'] != null).map((item) => Ride.fromJson(item['ride'])).toList();
-      final driverRides = await supabase.from('ride').select().eq('driver_user_id', authId).lte('datetime', DateTime.now());
+          .inFilter('status', [
+        RidePassengerStatus.confirmed.toShortString(),
+        RidePassengerStatus.requested.toShortString()
+      ]).lte('ride.datetime', DateTime.now());
+      List<Ride> result = passengerRides
+          .where((element) => element['ride'] != null)
+          .map((item) => Ride.fromJson(item['ride']))
+          .toList();
+      final driverRides = await supabase
+          .from('ride')
+          .select()
+          .eq('driver_user_id', authId)
+          .lte('datetime', DateTime.now());
       result.addAll(driverRides.map((item) => Ride.fromJson(item)));
+      result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
       return result;
     } on PostgrestException catch (error) {
       debugPrint(error.message);
@@ -208,11 +233,19 @@ class SupabaseService {
           .from('ride_passenger')
           .select('ride(*)')
           .eq('passenger_user_id', authId)
-          .inFilter('status', [RidePassengerStatus.confirmed.toShortString(), RidePassengerStatus.requested.toShortString()]).gte(
-              'ride.datetime', DateTime.now());
-      List<Ride> result =
-          passengerRides.where((element) => element['ride'] != null).map((item) => Ride.fromJson(item['ride'])).toList();
-      final driverRides = await supabase.from('ride').select().eq('driver_user_id', authId).gte('datetime', DateTime.now());
+          .inFilter('status', [
+        RidePassengerStatus.confirmed.toShortString(),
+        RidePassengerStatus.requested.toShortString()
+      ]).gte('ride.datetime', DateTime.now());
+      List<Ride> result = passengerRides
+          .where((element) => element['ride'] != null)
+          .map((item) => Ride.fromJson(item['ride']))
+          .toList();
+      final driverRides = await supabase
+          .from('ride')
+          .select()
+          .eq('driver_user_id', authId)
+          .gte('datetime', DateTime.now());
       result.addAll(driverRides.map((item) => Ride.fromJson(item)));
       result.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
       return result;
@@ -229,9 +262,12 @@ class SupabaseService {
           .select('profile!follower_target_user_id_fkey(*)')
           .eq('status', 'CONFIRMED')
           .eq('follower_user_id', authId);
-      List<Profile> friendsList =
-          result.where((element) => element['profile'] != null).map((item) => Profile.fromJson(item['profile'])).toList();
-      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
+      List<Profile> friendsList = result
+          .where((element) => element['profile'] != null)
+          .map((item) => Profile.fromJson(item['profile']))
+          .toList();
+      friendsList.sort((prof1, prof2) =>
+          '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
     } on PostgrestException catch (error) {
       debugPrint(error.message);
@@ -246,9 +282,12 @@ class SupabaseService {
           .select('profile!follower_follower_user_id_fkey(*)')
           .eq('status', 'CONFIRMED')
           .eq('target_user_id', authId);
-      List<Profile> friendsList =
-          result.where((element) => element['profile'] != null).map((item) => Profile.fromJson(item['profile'])).toList();
-      friendsList.sort((prof1, prof2) => '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
+      List<Profile> friendsList = result
+          .where((element) => element['profile'] != null)
+          .map((item) => Profile.fromJson(item['profile']))
+          .toList();
+      friendsList.sort((prof1, prof2) =>
+          '${prof1.firstName}${prof1.lastName}'.compareTo('${prof2.firstName}${prof2.lastName}'));
       return friendsList;
     } on PostgrestException catch (error) {
       debugPrint(error.message);
@@ -259,7 +298,8 @@ class SupabaseService {
   static Future<bool> isFollowing(String targetUserId, String currentUserId) async {
     try {
       List<Profile> followedProfiles = await getProfilesFollowed(currentUserId);
-      Profile targetProfileFound = followedProfiles.firstWhere((element) => element.authId == targetUserId, orElse: () => Profile());
+      Profile targetProfileFound = followedProfiles
+          .firstWhere((element) => element.authId == targetUserId, orElse: () => Profile());
       return targetProfileFound.authId == targetUserId;
     } on PostgrestException catch (error) {
       debugPrint(error.message);
@@ -274,26 +314,31 @@ class SupabaseService {
           .from('ride_passenger')
           .select('ride(*)')
           .eq('passenger_user_id', authId)
-          .inFilter('status', [RidePassengerStatus.confirmed.toShortString(), RidePassengerStatus.requested.toShortString()]);
+          .inFilter('status', [
+        RidePassengerStatus.confirmed.toShortString(),
+        RidePassengerStatus.requested.toShortString()
+      ]);
 
-      List<Ride> allRides = passengerRides.where((data) => data['ride'] != null).map((item) => Ride.fromJson(item['ride'])).toList();
+      List<Ride> allRides = passengerRides
+          .where((data) => data['ride'] != null)
+          .map((item) => Ride.fromJson(item['ride']))
+          .toList();
       final driverRides = await supabase.from('ride').select().eq('driver_user_id', authId);
 
       allRides.addAll(driverRides.map((item) => Ride.fromJson(item)));
       allRides.sort((ride1, ride2) => ride1.dateTime.compareTo(ride2.dateTime));
 
-      //2. get list of rideIDs from ridelist that are in chat table
-      List<String> rideIDs = allRides.map((ride) => ride.id!).toList();
+      // get list of rideIDs from ridelist that are in chat table
+      final rideIDsWithChats = await supabase
+          .from('chat')
+          .select('ride_id')
+          .inFilter('ride_id', allRides.map((ride) => ride.id!).toList());
 
-      //3. filter ridelist by rideIDs found in chat table
-      final rideIDsWithChats = await supabase.from('chat').select('ride_id', {distinct: true}).inFilter('ride_id', rideIDs);
-      rideIDsWithChats.distinct((item) {
-        final temp = item['ride_id'];
-        debugPrint(temp);
-        return true;
-      });
-      debugPrint(rideIDsWithChats.toString());
-      return allRides;
+      List<String> distinctRideIds =
+          rideIDsWithChats.map((element) => element['ride_id'].toString()).distinct().toList();
+
+      // filter ridelist by rideIDs found in chat table
+      return allRides.where((ride) => distinctRideIds.contains(ride.id)).toList();
     } on PostgrestException catch (error) {
       debugPrint(error.message);
       rethrow;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:thumb_app/components/shared/loading_page.dart';
 import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
+import 'package:thumb_app/pages/chat/chat_page.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 
 class ChatListPage extends StatefulWidget {
@@ -45,11 +46,18 @@ class _ChatListPageState extends State<ChatListPage> {
                         }
                         if (snapshot.data!.isEmpty) {
                           return const Padding(
-                              padding: EdgeInsets.only(top: 32),
+                              padding: EdgeInsets.fromLTRB(12, 32, 12, 12),
                               child: Text(
                                   'No rides with messages sent! To get your messages to show up here, send one from the ride overview page'));
                         }
-                        return ListTile(title: Text(snapshot.data![index].title!));
+                        return ListTile(
+                          title: Text(snapshot.data![index].title!),
+                          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                    rideId: snapshot.data![index].id!,
+                                    rideTitle: snapshot.data![index].title!,
+                                  ))),
+                        );
                       });
                 default:
                   return const Center(child: Text('Something unaccounted for has occurred...'));
