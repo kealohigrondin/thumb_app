@@ -124,12 +124,24 @@ class _RideOverviewState extends State<RideOverview> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: const Text('Ride Overview'), actions: [
-          if (true) // TODO: restrict chat button to driver and passengers
-            IconButton(
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) =>
-                        ChatPage(rideId: widget.ride.id!, rideTitle: widget.ride.title!))),
-                icon: const Icon(Icons.chat, size: 25))
+          FutureBuilder(
+              future: _passengerList,
+              builder: (BuildContext context, AsyncSnapshot<List<PassengerProfile>> snapshot) {
+                if (snapshot.hasData &&
+                    (snapshot.data!
+                            .map((profile) => profile.status == RidePassengerStatus.confirmed
+                                ? profile.passengerUserId
+                                : '')
+                            .contains(supabase.auth.currentUser!.id) ||
+                        widget.ride.driverUserId == supabase.auth.currentUser!.id)) {
+                  return IconButton(
+                      onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => ChatPage(ride: widget.ride))),
+                      icon: const Icon(Icons.chat, size: 25));
+                } else {
+                  return Container();
+                }
+              })
         ]),
         body: RefreshIndicator(
           onRefresh: _refresh,

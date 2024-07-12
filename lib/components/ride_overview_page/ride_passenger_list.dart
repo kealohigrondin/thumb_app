@@ -49,12 +49,16 @@ class _RidePassengerListState extends State<RidePassengerList> {
         ],
       );
     }
-    return Text('(${passenger.status.toShortString()})');
+    return Text('(${passenger.status.toShortString()})',
+        style: Theme.of(context).textTheme.bodySmall);
   }
 
   TextStyle _getPassengerNameTextStyle(RidePassengerStatus status) {
     if (status == RidePassengerStatus.cancelled || status == RidePassengerStatus.denied) {
-      return const TextStyle(color: Colors.grey, decoration: TextDecoration.lineThrough);
+      return Theme.of(context)
+          .textTheme
+          .bodyMedium!
+          .copyWith(color: Colors.grey, decoration: TextDecoration.lineThrough);
     }
     return Theme.of(context).textTheme.bodyMedium!;
   }

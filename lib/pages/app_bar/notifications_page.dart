@@ -9,11 +9,6 @@ class NotificationsPage extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Notifications'),
         ),
-        body: const Center(
-            child: Column(
-          children: [
-            Text('notifications'),
-          ],
-        )));
+        body: const Placeholder());
   }
 }

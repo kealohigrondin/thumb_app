@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:thumb_app/components/shared/loading_page.dart';
 import 'package:thumb_app/data/types/ride.dart';
 import 'package:thumb_app/main.dart';
@@ -52,14 +53,11 @@ class _ChatListPageState extends State<ChatListPage> {
                         }
                         return ListTile(
                           title: Text(
-                            snapshot.data![index].title!,
+                            '(${DateFormat.Md().format(snapshot.data![index].dateTime)}) ${snapshot.data![index].title!}',
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                           onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ChatPage(
-                                    rideId: snapshot.data![index].id!,
-                                    rideTitle: snapshot.data![index].title!,
-                                  ))),
+                              builder: (context) => ChatPage(ride: snapshot.data![index]))),
                         );
                       });
                 default:

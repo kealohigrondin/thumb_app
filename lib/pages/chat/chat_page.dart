@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:thumb_app/data/types/ride.dart';
+import 'package:thumb_app/pages/rides/ride_overview.dart';
 import 'package:thumb_app/services/supabase_service.dart';
 import 'package:timeago/timeago.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,10 +14,9 @@ import 'package:thumb_app/components/shared/loading_page.dart';
 import 'package:thumb_app/components/shared/profile_photo.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key, required this.rideId, required this.rideTitle});
+  const ChatPage({super.key, required this.ride});
 
-  final String rideId;
-  final String rideTitle;
+  final Ride ride;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -30,7 +31,7 @@ class _ChatPageState extends State<ChatPage> {
     _messagesStream = supabase
         .from('chat')
         .stream(primaryKey: ['id'])
-        .eq('ride_id', widget.rideId)
+        .eq('ride_id', widget.ride.id!)
         .order('created_at')
         .map((maps) => maps
             .map((map) => Message.fromJson(map: map, myUserId: supabase.auth.currentUser!.id))
@@ -53,10 +54,11 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: Text(widget.rideTitle, style: Theme.of(context).primaryTextTheme.titleSmall),
+        title: FittedBox(fit: BoxFit.fitWidth, child: Text(widget.ride.title!)),
         actions: [
           IconButton(
-              onPressed: () => debugPrint('icon button pressed'),
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => RideOverview(ride: widget.ride))),
               icon: const Icon(Icons.info_outline))
         ],
       ),
@@ -81,7 +83,7 @@ class _ChatPageState extends State<ChatPage> {
                           );
                         }),
               ),
-              _MessageBar(rideId: widget.rideId)
+              _MessageBar(rideId: widget.ride.id!)
             ]);
           } else {
             return const LoadingPage();

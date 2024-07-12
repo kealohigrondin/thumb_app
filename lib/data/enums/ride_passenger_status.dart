@@ -4,15 +4,15 @@ extension RideStatusExtension on RidePassengerStatus {
   String toShortString() {
     switch (this) {
       case RidePassengerStatus.requested:
-        return 'REQUESTED';
+        return 'Requested';
       case RidePassengerStatus.cancelled:
-        return 'CANCELLED';
+        return 'Cancelled';
       case RidePassengerStatus.denied:
-        return 'DENIED';
+        return 'Denied';
       case RidePassengerStatus.confirmed:
-        return 'CONFIRMED';
+        return 'Confirmed';
       default:
-        return 'UNKNOWN';
+        return 'Unknown';
     }
   }
 }
