@@ -37,7 +37,7 @@ class _RideDriverDetailsState extends State<RideDriverDetails> {
                   initials: '${snapshot.data!.firstName[0]}${snapshot.data!.lastName[0]}',
                   authId: snapshot.data!.authId,
                   radius: 20),
-              title: Text('${snapshot.data!.firstName} ${snapshot.data!.lastName}',
+              title: Text('${snapshot.data!.firstName} ${snapshot.data!.lastName[0]}.',
                   style: Theme.of(context).textTheme.bodyMedium),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => VisitingProfilePage(

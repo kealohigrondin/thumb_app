@@ -1,6 +1,5 @@
-enum RidePassengerStatus {
-  requested, confirmed, denied, cancelled, unknown
-}
+enum RidePassengerStatus { requested, confirmed, denied, cancelled, unknown }
+
 extension RideStatusExtension on RidePassengerStatus {
   String toShortString() {
     switch (this) {

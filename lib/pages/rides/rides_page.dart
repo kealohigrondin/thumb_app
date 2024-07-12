@@ -12,26 +12,16 @@ class RidesPage extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: const TabBar(tabs: [
-          Tab(icon: Icon(Icons.history)),
-          Tab(icon: Icon(Icons.calendar_month))
-        ]),
+        appBar: const TabBar(tabs: [Tab(icon: Icon(Icons.history)), Tab(icon: Icon(Icons.calendar_month))]),
         body: TabBarView(
           children: [
-            RideList(
-                queryFn: () => SupabaseService.getRideHistory(supabase.auth.currentUser!.id),
-                isActivityRideList: false),
-            const RideList(
-                queryFn: SupabaseService.getRidesPlanned,
-                isActivityRideList: false),
+            RideList(queryFn: () => SupabaseService.getRideHistory(supabase.auth.currentUser!.id), isActivityRideList: false),
+            RideList(queryFn: () => SupabaseService.getRidesPlanned(supabase.auth.currentUser!.id), isActivityRideList: false),
           ],
         ),
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.add),
-            onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const PublishRidePage()))),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PublishRidePage()))),
       ),
     );
   }

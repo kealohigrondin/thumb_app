@@ -12,11 +12,10 @@ class RideHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ride History ${profile.email}'),
+        title: const Text('Ride History'),
       ),
       body: RideList(
-          queryFn: () => SupabaseService.getRideHistory(profile.authId),
-          isActivityRideList: false),
+          queryFn: () => SupabaseService.getRideHistory(profile.authId), isActivityRideList: false),
     );
   }
 }
